@@ -1,3 +1,7 @@
 <resources>
+<<<<<<< HEAD
     <string name="app_name">Vinsta</string>
+=======
+    <string name="app_name">Vinsta Plus</string>
+>>>>>>> cfaff0c6ffec6ab197e4517481802ceb038990cd
 </resources>

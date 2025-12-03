@@ -99,6 +99,10 @@ export default function WelcomeScreen({ navigation }) {
           placeholder="Please enter your name here"
           value={name}
           onChangeText={setName}
+<<<<<<< HEAD
+=======
+          placeholderTextColor={"#999"}
+>>>>>>> cfaff0c6ffec6ab197e4517481802ceb038990cd
         />
         <TouchableOpacity onPress={() => clearInput(setName)}>
           <View style={styles.iconBox} />
@@ -113,6 +117,11 @@ export default function WelcomeScreen({ navigation }) {
           placeholder="Please enter your email here"
           value={email}
           onChangeText={setEmail}
+<<<<<<< HEAD
+=======
+                    placeholderTextColor={"#999"}
+
+>>>>>>> cfaff0c6ffec6ab197e4517481802ceb038990cd
         />
         <TouchableOpacity onPress={() => clearInput(setEmail)}>
           <View style={styles.iconBox} />
@@ -128,6 +137,11 @@ export default function WelcomeScreen({ navigation }) {
           value={mobile}
           keyboardType="number-pad"
           onChangeText={setMobile}
+<<<<<<< HEAD
+=======
+                    placeholderTextColor={"#999"}
+
+>>>>>>> cfaff0c6ffec6ab197e4517481802ceb038990cd
         />
         <TouchableOpacity onPress={() => clearInput(setMobile)}>
           <View style={styles.iconBox} />
@@ -170,6 +184,11 @@ export default function WelcomeScreen({ navigation }) {
           placeholder="Enter Reference code"
           value={reference}
           onChangeText={setReference}
+<<<<<<< HEAD
+=======
+                    placeholderTextColor={"#999"}
+
+>>>>>>> cfaff0c6ffec6ab197e4517481802ceb038990cd
         />
         <TouchableOpacity onPress={() => clearInput(setReference)}>
           <View style={styles.iconBox} />
@@ -202,7 +221,11 @@ export default function WelcomeScreen({ navigation }) {
       {/* SUBMIT */}
       <TouchableOpacity
         style={styles.submitButton}
+<<<<<<< HEAD
         onPress={() => navigation.navigate('Main')}
+=======
+        onPress={() => navigation.navigate('Location')}
+>>>>>>> cfaff0c6ffec6ab197e4517481802ceb038990cd
       >
         <Text style={styles.submitText}>Submit</Text>
       </TouchableOpacity>

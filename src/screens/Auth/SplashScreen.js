@@ -5,7 +5,11 @@ import { View, Image, StyleSheet } from 'react-native';
 export default function SplashScreen({ navigation }) {
   useEffect(() => {
     const timer = setTimeout(() => {
+<<<<<<< HEAD
       navigation.replace('Login');
+=======
+      navigation.replace('Login'); //Main  // Login
+>>>>>>> cfaff0c6ffec6ab197e4517481802ceb038990cd
     }, 3000);
 
     return () => clearTimeout(timer); // prevent memory leak
