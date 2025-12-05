@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React from 'react';
 import {
   View,
@@ -138,11 +139,24 @@ export default function Offers() {
         {/* Extra padding for bottom tab */}
         <View style={{ height: responsiveSize(80) }} />
       </ScrollView>
+=======
+// ...existing code...
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useColor } from '../../../util/ColorSwitcher';
+
+export default function Offers() { 
+  const { bgColor, textColor } = useColor();
+  return (
+    <View style={[styles.container, { backgroundColor: bgColor }]}> 
+      <Text style={{ color: textColor }}>Offers Screen</Text>
+>>>>>>> 865f4032a1f9d3ec46ab79bfb377e3beba6833e2
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+<<<<<<< HEAD
   container: { 
     flex: 1,
   },
@@ -226,4 +240,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
+=======
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+>>>>>>> 865f4032a1f9d3ec46ab79bfb377e3beba6833e2
 });

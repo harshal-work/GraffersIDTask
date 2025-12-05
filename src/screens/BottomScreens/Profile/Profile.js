@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import {
   View,
@@ -429,3 +430,26 @@ const styles = StyleSheet.create({
     fontWeight: '600',
   },
 });
+=======
+// ...existing code...
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useColor } from '../../../util/ColorSwitcher';
+
+export default function Profile() {
+  const { bgColor, textColor } = useColor();
+  return (
+    <View style={[styles.container, { backgroundColor: bgColor }]}> 
+      <Text style={{ color: textColor }}>Profile Screen</Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+});
+>>>>>>> 865f4032a1f9d3ec46ab79bfb377e3beba6833e2

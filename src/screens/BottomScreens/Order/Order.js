@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 import React, { useState } from 'react';
 import {
   View,
@@ -258,11 +259,24 @@ export default function MyOrdersScreen({ navigation }) {
           </View>
         </View>
       </Modal>
+=======
+// ...existing code...
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { useColor } from '../../../util/ColorSwitcher';
+
+export default function Order() {
+  const { bgColor, textColor } = useColor();
+  return (
+    <View style={[styles.container, { backgroundColor: bgColor }]}> 
+      <Text style={{ color: textColor }}>Order Screen</Text>
+>>>>>>> 865f4032a1f9d3ec46ab79bfb377e3beba6833e2
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+<<<<<<< HEAD
   container: { 
     flex: 1,
     backgroundColor: '#FFFFFF'
@@ -528,5 +542,11 @@ const styles = StyleSheet.create({
     fontSize: responsiveSize(14),
     fontWeight: "600",
     color: '#fff',
+=======
+  container: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+>>>>>>> 865f4032a1f9d3ec46ab79bfb377e3beba6833e2
   },
 });
