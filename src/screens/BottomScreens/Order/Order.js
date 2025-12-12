@@ -17,7 +17,7 @@ import { useColor } from '../../../util/ColorSwitcher';
 const { width, height } = Dimensions.get('window');
 
 // Responsive sizing
-const responsiveSize = (size) => (width / 375) * size;
+const responsiveSize = size => (width / 375) * size;
 
 export default function MyOrdersScreen({ navigation }) {
   const { bgColor, textColor } = useColor();
@@ -92,16 +92,16 @@ export default function MyOrdersScreen({ navigation }) {
     ],
   };
 
-  const handleRatePress = (order) => {
+  const handleRatePress = order => {
     setSelectedOrder(order);
     setModalVisible(true);
   };
 
-  const handleReorderPress = (order) => {
+  const handleReorderPress = order => {
     navigation.navigate('OrderDetail', { order });
   };
 
-  const handleCardPress = (order) => {
+  const handleCardPress = order => {
     navigation.navigate('OrderDetail', { order });
   };
 
@@ -118,7 +118,7 @@ export default function MyOrdersScreen({ navigation }) {
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={bgColor} barStyle="light-content" />
-      
+
       {/* Header - Same as Cart screen */}
       <View style={[styles.header, { backgroundColor: bgColor }]}>
         <Text style={styles.headerTitle}>My Orders</Text>
@@ -129,28 +129,38 @@ export default function MyOrdersScreen({ navigation }) {
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === 'Upcoming' && [styles.tabActive, { backgroundColor: bgColor }],
+            activeTab === 'Upcoming' && [
+              styles.tabActive,
+              { backgroundColor: bgColor },
+            ],
           ]}
           onPress={() => setActiveTab('Upcoming')}
         >
-          <Text style={[
-            styles.tabText,
-            activeTab === 'Upcoming' && styles.tabTextActive,
-          ]}>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'Upcoming' && styles.tabTextActive,
+            ]}
+          >
             Upcoming Order
           </Text>
         </TouchableOpacity>
         <TouchableOpacity
           style={[
             styles.tabButton,
-            activeTab === 'Past' && [styles.tabActive, { backgroundColor: bgColor }],
+            activeTab === 'Past' && [
+              styles.tabActive,
+              { backgroundColor: bgColor },
+            ],
           ]}
           onPress={() => setActiveTab('Past')}
         >
-          <Text style={[
-            styles.tabText,
-            activeTab === 'Past' && styles.tabTextActive,
-          ]}>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 'Past' && styles.tabTextActive,
+            ]}
+          >
             Past Orders
           </Text>
         </TouchableOpacity>
@@ -161,71 +171,97 @@ export default function MyOrdersScreen({ navigation }) {
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {activeTab === 'Past' ? (
-          orderData.past.map((order, idx) => (
-            <TouchableOpacity
-              key={idx}
-              style={styles.orderCard}
-              onPress={() => handleCardPress(order)}
-            >
-              <Image source={order.image} style={styles.productImage} />
-              <View style={styles.orderContent}>
-                <Text style={[styles.orderId, { color: bgColor }]}>{order.id}</Text>
-                <Text style={styles.productName}>{order.name}</Text>
-                <Text style={[styles.productPrice, { color: bgColor }]}>{order.price}</Text>
-                <Text style={styles.soldBy}>
-                  Sold By : <Text style={styles.soldByText}>{order.soldBy}</Text>
-                  <Text style={styles.deliveredStatus}> • Delivered</Text>
-                </Text>
-                <View style={styles.buttonsRow}>
-                  <TouchableOpacity 
-                    style={styles.rateButton}
-                    onPress={() => handleRatePress(order)}
-                  >
-                    <Text style={styles.rateText}>Rate</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity 
-                    style={[styles.reorderButton, { backgroundColor: bgColor }]}
-                    onPress={() => handleReorderPress(order)}
-                  >
-                    <Text style={styles.reorderText}>Re-Order</Text>
-                  </TouchableOpacity>
+        {activeTab === 'Past'
+          ? orderData.past.map((order, idx) => (
+              <TouchableOpacity
+                key={idx}
+                style={styles.orderCard}
+                onPress={() => handleCardPress(order)}
+              >
+                <Image source={order.image} style={styles.productImage} />
+                <View style={styles.orderContent}>
+                  <Text style={[styles.orderId, { color: bgColor }]}>
+                    {order.id}
+                  </Text>
+                  <Text style={styles.productName}>{order.name}</Text>
+                  <Text style={[styles.productPrice, { color: bgColor }]}>
+                    {order.price}
+                  </Text>
+                  <Text style={styles.soldBy}>
+                    Sold By :{' '}
+                    <Text style={styles.soldByText}>{order.soldBy}</Text>
+                    <Text style={styles.deliveredStatus}> • Delivered</Text>
+                  </Text>
+                  <View style={styles.buttonsRow}>
+                    <TouchableOpacity
+                      style={styles.rateButton}
+                      onPress={() => handleRatePress(order)}
+                    >
+                      <Text style={styles.rateText}>Rate</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity
+                      style={[
+                        styles.reorderButton,
+                        { backgroundColor: bgColor },
+                      ]}
+                      onPress={() => handleReorderPress(order)}
+                    >
+                      <Text style={styles.reorderText}>Re-Order</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-              </View>
-            </TouchableOpacity>
-          ))
-        ) : (
-          orderData.upcoming.map((order, idx) => (
-            <TouchableOpacity
-              key={idx}
-              style={styles.orderCard}
-              onPress={() => handleCardPress(order)}
-            >
-              <Image source={order.image} style={styles.productImage} />
-              <View style={styles.orderContent}>
-                <Text style={[styles.orderId, { color: bgColor }]}>{order.id}</Text>
-                <Text style={[styles.productNameLink, { color: bgColor }]}>{order.name}</Text>
-                <Text style={[styles.productPrice, { color: bgColor }]}>{order.price}</Text>
-                <Text style={styles.soldBy}>
-                  Sold By : <Text style={styles.soldByText}>{order.soldBy}</Text>
-                </Text>
-                <View style={styles.arrivalRow}>
-                  <Text style={styles.estimateLabel}>Estimate Arrival</Text>
-                  <Text style={styles.estimateTime}>{order.arrival}</Text>
-                  <Text style={[styles.orderStatus, { color: bgColor }]}>{order.status}</Text>
+              </TouchableOpacity>
+            ))
+          : orderData.upcoming.map((order, idx) => (
+              <TouchableOpacity
+                key={idx}
+                style={styles.orderCard}
+                onPress={() => handleCardPress(order)}
+              >
+                <Image source={order.image} style={styles.productImage} />
+                <View style={styles.orderContent}>
+                  <Text style={[styles.orderId, { color: bgColor }]}>
+                    {order.id}
+                  </Text>
+                  <Text style={[styles.productNameLink, { color: bgColor }]}>
+                    {order.name}
+                  </Text>
+                  <Text style={[styles.productPrice, { color: bgColor }]}>
+                    {order.price}
+                  </Text>
+                  <Text style={styles.soldBy}>
+                    Sold By :{' '}
+                    <Text style={styles.soldByText}>{order.soldBy}</Text>
+                  </Text>
+                  <View style={styles.arrivalRow}>
+                    <Text style={styles.estimateLabel}>Estimate Arrival</Text>
+                    <Text style={styles.estimateTime}>{order.arrival}</Text>
+                    <Text style={[styles.orderStatus, { color: bgColor }]}>
+                      {order.status}
+                    </Text>
+                  </View>
+                  <View style={styles.buttonsRow}>
+                    <TouchableOpacity
+                      style={styles.cancelButton}
+                      onPress={() =>
+                        navigation.navigate('CancelOrder', { order })
+                      }
+                    >
+                      <Text style={styles.cancelText}>CANCEL</Text>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity
+                      style={[styles.trackButton, { backgroundColor: bgColor }]}
+                      onPress={() =>
+                        navigation.navigate('TrackOrder', { order })
+                      }
+                    >
+                      <Text style={styles.trackText}>TRACK ORDER</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-                <View style={styles.buttonsRow}>
-                  <TouchableOpacity style={styles.cancelButton}>
-                    <Text style={styles.cancelText}>CANCEL</Text>
-                  </TouchableOpacity>
-                  <TouchableOpacity style={[styles.trackButton, { backgroundColor: bgColor }]}>
-                    <Text style={styles.trackText}>TRACK ORDER</Text>
-                  </TouchableOpacity>
-                </View>
-              </View>
-            </TouchableOpacity>
-          ))
-        )}
+              </TouchableOpacity>
+            ))}
 
         {/* Extra padding for bottom tab */}
         <View style={{ height: responsiveSize(80) }} />
@@ -244,14 +280,21 @@ export default function MyOrdersScreen({ navigation }) {
             <Text style={styles.modalOrderText}>
               Order: {selectedOrder?.id}
             </Text>
-            <Text style={styles.modalOrderText}>
-              {selectedOrder?.name}
-            </Text>
+            <Text style={styles.modalOrderText}>{selectedOrder?.name}</Text>
             <View style={styles.modalButtons}>
-              <TouchableOpacity style={styles.modalCancelButton} onPress={closeModal}>
+              <TouchableOpacity
+                style={styles.modalCancelButton}
+                onPress={closeModal}
+              >
                 <Text style={styles.modalCancelText}>Cancel</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.modalConfirmButton, { backgroundColor: bgColor }]} onPress={confirmRate}>
+              <TouchableOpacity
+                style={[
+                  styles.modalConfirmButton,
+                  { backgroundColor: bgColor },
+                ]}
+                onPress={confirmRate}
+              >
                 <Text style={styles.modalConfirmText}>Rate Now</Text>
               </TouchableOpacity>
             </View>
@@ -263,26 +306,26 @@ export default function MyOrdersScreen({ navigation }) {
 }
 
 const styles = StyleSheet.create({
-  container: { 
+  container: {
     flex: 1,
-    backgroundColor: '#FFFFFF'
+    backgroundColor: '#FFFFFF',
   },
   scrollView: {
     flex: 1,
   },
   header: {
     height: Platform.OS === 'ios' ? responsiveSize(100) : responsiveSize(90),
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: responsiveSize(18),
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
     paddingTop: Platform.OS === 'ios' ? responsiveSize(50) : responsiveSize(30),
     paddingBottom: responsiveSize(0),
   },
-  headerTitle: { 
-    color: "#fff", 
-    fontSize: responsiveSize(20), 
-    fontWeight: "700",
+  headerTitle: {
+    color: '#fff',
+    fontSize: responsiveSize(20),
+    fontWeight: '700',
     textAlign: 'center',
     flex: 1,
     marginHorizontal: responsiveSize(10),
@@ -290,19 +333,19 @@ const styles = StyleSheet.create({
 
   /* TAB SWITCHER */
   tabsContainer: {
-    flexDirection: "row",
+    flexDirection: 'row',
     marginHorizontal: responsiveSize(15),
     marginTop: responsiveSize(15),
-    backgroundColor: "#F3F6FB",
+    backgroundColor: '#F3F6FB',
     borderRadius: responsiveSize(12),
-    overflow: "hidden",
+    overflow: 'hidden',
     minHeight: responsiveSize(50),
   },
   tabButton: {
     flex: 1,
     paddingVertical: responsiveSize(15),
-    alignItems: "center",
-    justifyContent: "center",
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   tabActive: {
     // Background color handled inline with bgColor
@@ -319,104 +362,104 @@ const styles = StyleSheet.create({
 
   /* ORDER CARDS */
   orderCard: {
-    flexDirection: "row",
-    backgroundColor: "#fff",
+    flexDirection: 'row',
+    backgroundColor: '#fff',
     marginHorizontal: responsiveSize(15),
     marginVertical: responsiveSize(8),
     borderRadius: responsiveSize(16),
     padding: responsiveSize(15),
     borderWidth: 1,
-    borderColor: "#e0e0e0",
+    borderColor: '#e0e0e0',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
   },
-  productImage: { 
-    width: responsiveSize(70), 
-    height: responsiveSize(70), 
+  productImage: {
+    width: responsiveSize(70),
+    height: responsiveSize(70),
     borderRadius: responsiveSize(8),
   },
-  orderContent: { 
-    flex: 1, 
+  orderContent: {
+    flex: 1,
     marginLeft: responsiveSize(12),
-    justifyContent: "space-between",
+    justifyContent: 'space-between',
   },
-  orderId: { 
-    fontSize: responsiveSize(12), 
-    fontWeight: "600",
+  orderId: {
+    fontSize: responsiveSize(12),
+    fontWeight: '600',
     marginBottom: responsiveSize(4),
   },
-  productName: { 
-    fontSize: responsiveSize(16), 
-    fontWeight: "700", 
-    color: '#000', 
+  productName: {
+    fontSize: responsiveSize(16),
+    fontWeight: '700',
+    color: '#000',
     marginBottom: responsiveSize(2),
   },
   productNameLink: {
     fontSize: responsiveSize(16),
-    fontWeight: "700",
+    fontWeight: '700',
     marginBottom: responsiveSize(2),
-    textDecorationLine: 'underline'
+    textDecorationLine: 'underline',
   },
-  productPrice: { 
-    fontSize: responsiveSize(16), 
-    fontWeight: "700", 
+  productPrice: {
+    fontSize: responsiveSize(16),
+    fontWeight: '700',
     marginBottom: responsiveSize(4),
   },
-  soldBy: { 
-    fontSize: responsiveSize(12), 
+  soldBy: {
+    fontSize: responsiveSize(12),
     color: '#666',
     marginBottom: responsiveSize(8),
   },
   soldByText: {
     color: '#666',
   },
-  deliveredStatus: { 
-    color: '#34A853', 
-    fontWeight: '600', 
+  deliveredStatus: {
+    color: '#34A853',
+    fontWeight: '600',
     fontSize: responsiveSize(12),
   },
   arrivalRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     marginBottom: responsiveSize(12),
-    flexWrap: "wrap",
+    flexWrap: 'wrap',
   },
-  estimateLabel: { 
-    fontSize: responsiveSize(12), 
+  estimateLabel: {
+    fontSize: responsiveSize(12),
     color: '#666',
   },
-  estimateTime: { 
-    fontSize: responsiveSize(14), 
-    color: '#000', 
-    marginLeft: responsiveSize(4), 
-    fontWeight: "600",
+  estimateTime: {
+    fontSize: responsiveSize(14),
+    color: '#000',
+    marginLeft: responsiveSize(4),
+    fontWeight: '600',
   },
-  orderStatus: { 
-    fontSize: responsiveSize(12), 
-    fontWeight: "700", 
+  orderStatus: {
+    fontSize: responsiveSize(12),
+    fontWeight: '700',
     marginLeft: responsiveSize(12),
   },
   buttonsRow: {
-    flexDirection: "row",
-    alignItems: "center",
+    flexDirection: 'row',
+    alignItems: 'center',
     gap: responsiveSize(10),
   },
   rateButton: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: '#ddd',
     borderRadius: responsiveSize(8),
     paddingHorizontal: responsiveSize(16),
     paddingVertical: responsiveSize(10),
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
   },
-  rateText: { 
-    color: "#000", 
-    fontWeight: "600",
+  rateText: {
+    color: '#000',
+    fontWeight: '600',
     fontSize: responsiveSize(13),
   },
   reorderButton: {
@@ -424,26 +467,26 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveSize(16),
     paddingVertical: responsiveSize(10),
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
   },
-  reorderText: { 
-    color: "#fff", 
-    fontWeight: "600",
+  reorderText: {
+    color: '#fff',
+    fontWeight: '600',
     fontSize: responsiveSize(13),
   },
   cancelButton: {
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderWidth: 1,
-    borderColor: "#ddd",
+    borderColor: '#ddd',
     borderRadius: responsiveSize(8),
     paddingHorizontal: responsiveSize(12),
     paddingVertical: responsiveSize(10),
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
   },
-  cancelText: { 
-    color: "#000", 
-    fontWeight: "600",
+  cancelText: {
+    color: '#000',
+    fontWeight: '600',
     fontSize: responsiveSize(12),
   },
   trackButton: {
@@ -451,11 +494,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: responsiveSize(12),
     paddingVertical: responsiveSize(10),
     flex: 1,
-    alignItems: "center",
+    alignItems: 'center',
   },
-  trackText: { 
-    color: "#fff", 
-    fontWeight: "600",
+  trackText: {
+    color: '#fff',
+    fontWeight: '600',
     fontSize: responsiveSize(12),
   },
 
@@ -463,17 +506,17 @@ const styles = StyleSheet.create({
   modalOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: "center",
-    alignItems: "center",
+    justifyContent: 'center',
+    alignItems: 'center',
     padding: responsiveSize(20),
   },
   modalContainer: {
     width: '100%',
     maxWidth: responsiveSize(300),
-    backgroundColor: "#fff",
+    backgroundColor: '#fff',
     borderRadius: responsiveSize(16),
     padding: responsiveSize(20),
-    alignItems: "center",
+    alignItems: 'center',
     elevation: 5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
@@ -482,7 +525,7 @@ const styles = StyleSheet.create({
   },
   modalTitle: {
     fontSize: responsiveSize(18),
-    fontWeight: "700",
+    fontWeight: '700',
     color: '#000',
     marginBottom: responsiveSize(10),
     textAlign: 'center',
@@ -494,34 +537,34 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   modalButtons: {
-    flexDirection: "row",
+    flexDirection: 'row',
     gap: responsiveSize(12),
     width: '100%',
     marginTop: responsiveSize(15),
   },
   modalCancelButton: {
     flex: 1,
-    backgroundColor: "#f8f8f8",
+    backgroundColor: '#f8f8f8',
     borderRadius: responsiveSize(8),
     paddingVertical: responsiveSize(12),
-    alignItems: "center",
+    alignItems: 'center',
     borderWidth: 1,
     borderColor: '#e0e0e0',
   },
   modalCancelText: {
     fontSize: responsiveSize(14),
-    fontWeight: "600",
+    fontWeight: '600',
     color: '#666',
   },
   modalConfirmButton: {
     flex: 1,
     borderRadius: responsiveSize(8),
     paddingVertical: responsiveSize(12),
-    alignItems: "center",
+    alignItems: 'center',
   },
   modalConfirmText: {
     fontSize: responsiveSize(14),
-    fontWeight: "600",
+    fontWeight: '600',
     color: '#fff',
   },
 });

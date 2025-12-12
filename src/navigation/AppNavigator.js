@@ -15,6 +15,12 @@ import HomeFilter from '../screens/BottomScreens/Home/HomeFilter';
 import StoreList from '../screens/BottomScreens/Home/StoreList';
 import OffersClone from '../screens/BottomScreens/Offers/OffersClone';
 import Store from '../screens/BottomScreens/Home/Search/Store/Store';
+import MyCartClone from '../screens/BottomScreens/MyCart/MyCartClone';
+import PaymentScreen from '../screens/Payment/PaymentScreen';
+import PaymentSuccess from '../screens/Payment/PaymentSuccess';
+import TrackOrder from '../screens/BottomScreens/Order/TrackOrder';
+import OrderDetail from '../screens/BottomScreens/Order/OrderDetail';
+import CancelOrder from '../screens/BottomScreens/Order/CancelOrder';
 
 const Stack = createStackNavigator();
 
@@ -86,6 +92,36 @@ export default function AppNavigator() {
         <Stack.Screen
           name="OffersClone"
           component={OffersClone}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="MyCartClone"
+          component={MyCartClone}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="PaymentScreen"
+          component={PaymentScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="PaymentSuccess"
+          component={PaymentSuccess}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="TrackOrder"
+          component={TrackOrder}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="OrderDetail"
+          component={OrderDetail}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name="CancelOrder"
+          component={CancelOrder}
           options={{ headerShown: false }}
         />
         {/* REMOVED: Duplicate Store screen was here */}
