@@ -1,5 +1,5 @@
 // File: Items.js
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import {
   View,
   Text,
@@ -11,10 +11,12 @@ import {
   Platform,
   StatusBar,
   Animated,
+  Modal,
+  TextInput,
 } from 'react-native';
 import { useColor } from '../../../../util/ColorSwitcher';
 
-const { width } = Dimensions.get('window');
+const { width, height } = Dimensions.get('window');
 
 // Responsive sizing
 const responsiveSize = size => (width / 375) * size;
@@ -27,27 +29,76 @@ const fontScale = size => (isIOS ? size * 0.95 : size);
 
 // Sample products
 const PRODUCTS = [
-  { id: 'p1', title: 'I Phone 17 Plus', seller: 'Ram store', price: '₹ 450.50', time: '10-15 mins', rating: '4.4', img: require('../../../../assets/mobile3.png') },
-  { id: 'p2', title: 'I Phone 17 Plus', seller: 'Ram store', price: '₹ 450.50', time: '10-15 mins', rating: '4.5', img: require('../../../../assets/mobile4.png') },
-  { id: 'p3', title: 'I Phone 17 Plus', seller: 'Ram store', price: '₹ 450.50', time: '10-15 mins', rating: '4.6', img: require('../../../../assets/mobile4.png') },
-  { id: 'p4', title: 'I Phone 17 Plus', seller: 'Ram store', price: '₹ 450.50', time: '10-15 mins', rating: '4.3', img: require('../../../../assets/mobile3.png') },
-  { id: 'p5', title: 'I Phone 17 Plus', seller: 'Ram store', price: '₹ 450.50', time: '10-15 mins', rating: '4.4', img: require('../../../../assets/mobile3.png') },
-  { id: 'p6', title: 'I Phone 17 Plus', seller: 'Ram store', price: '₹ 450.50', time: '10-15 mins', rating: '4.2', img: require('../../../../assets/mobile4.png') },
+  {
+    id: 'p1',
+    title: 'I Phone 17 Plus',
+    seller: 'Grocery Store',
+    price: '₹ 450.50',
+    time: '10-15 mins',
+    rating: '4.4',
+    img: require('../../../../assets/mobile2.png'),
+  },
+  {
+    id: 'p2',
+    title: 'I Phone 17 Plus',
+    seller: 'Grocery Store',
+    price: '₹ 450.50',
+    time: '10-15 mins',
+    rating: '4.5',
+    img: require('../../../../assets/mobile3.png'),
+  },
+  {
+    id: 'p3',
+    title: 'I Phone 17 Plus',
+    seller: 'Grocery Store',
+    price: '₹ 450.50',
+    time: '10-15 mins',
+    rating: '4.6',
+    img: require('../../../../assets/mobile4.png'),
+  },
+  {
+    id: 'p4',
+    title: 'I Phone 17 Plus',
+    seller: 'Grocery Store',
+    price: '₹ 450.50',
+    time: '10-15 mins',
+    rating: '4.3',
+    img: require('../../../../assets/mobile2.png'),
+  },
+  {
+    id: 'p5',
+    title: 'I Phone 17 Plus',
+    seller: 'Grocery Store',
+    price: '₹ 450.50',
+    time: '10-15 mins',
+    rating: '4.4',
+    img: require('../../../../assets/mobile3.png'),
+  },
+  {
+    id: 'p6',
+    title: 'I Phone 17 Plus',
+    seller: 'Grocery Store',
+    price: '₹ 450.50',
+    time: '10-15 mins',
+    rating: '4.2',
+    img: require('../../../../assets/mobile4.png'),
+  },
 ];
 
 const CATEGORIES = [
-  { name: 'All', icon: require('../../../../assets/mobile3.png') },
+  { name: 'All', icon: require('../../../../assets/mobile2.png') },
   { name: 'I - Phone', icon: require('../../../../assets/mobile3.png') },
   { name: 'Motorola', icon: require('../../../../assets/mobile4.png') },
-  { name: 'Xiaomi', icon: require('../../../../assets/mobile3.png') },
-  { name: 'POCO', icon: require('../../../../assets/mobile4.png') },
+  { name: 'Xiaomi', icon: require('../../../../assets/mobile2.png') },
+  { name: 'POCO', icon: require('../../../../assets/mobile3.png') },
 ];
 
 const safeVibrate = (duration = 30) => {
   try {
     if (Platform.OS === 'android' || Platform.OS === 'ios') {
       const Vibration = require('react-native').Vibration;
-      if (Vibration && typeof Vibration.vibrate === 'function') Vibration.vibrate(duration);
+      if (Vibration && typeof Vibration.vibrate === 'function')
+        Vibration.vibrate(duration);
     }
   } catch (e) {
     // ignore vibration errors
@@ -65,49 +116,235 @@ export default function Items({ navigation }) {
 
   const [tick, setTick] = useState(0);
   const [activeCategory, setActiveCategory] = useState('All');
+  const [showPopup, setShowPopup] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
+  const [cartItems, setCartItems] = useState([]);
+  const [filtersVisible, setFiltersVisible] = useState(false);
+  const [selectedFilters, setSelectedFilters] = useState([]);
+  const [selectedProduct, setSelectedProduct] = useState(null);
 
-  const ensureAnimated = (map, id, initial = 1) => {
+  // Animation values for popup
+  const popupScale = useRef(new Animated.Value(0)).current;
+  const popupOpacity = useRef(new Animated.Value(0)).current;
+  const productImageScale = useRef(new Animated.Value(0.5)).current;
+
+  const ensureAnimated = useCallback((map, id, initial = 1) => {
     if (!map[id]) map[id] = new Animated.Value(initial);
     return map[id];
-  };
+  }, []);
 
-  const toggleLike = (id) => {
-    const anim = ensureAnimated(heartScales, id, 1);
-    Animated.sequence([
-      Animated.timing(anim, { 
-        toValue: 1.3, 
-        duration: 120, 
-        useNativeDriver: true 
-      }),
-      Animated.timing(anim, { 
-        toValue: 1, 
-        duration: 120, 
-        useNativeDriver: true 
-      }),
-    ]).start();
-    safeVibrate(40);
-    likedMapRef[id] = !likedMapRef[id];
-    setTick((t) => t + 1);
-  };
+  const showAddToCartPopup = useCallback(
+    product => {
+      // Set the selected product
+      setSelectedProduct(product);
 
-  const toggleAdd = (id) => {
-    const anim = ensureAnimated(plusScales, id, 1);
-    Animated.sequence([
-      Animated.timing(anim, { 
-        toValue: 1.15, 
-        duration: 110, 
-        useNativeDriver: true 
+      // Add product to cart
+      const newCartCount = cartCount + 1;
+      setCartCount(newCartCount);
+      setCartItems(prev => [
+        ...prev,
+        {
+          id: product.id,
+          title: product.title,
+          seller: product.seller,
+          price: product.price,
+          img: product.img,
+        },
+      ]);
+
+      // Reset animation values
+      popupScale.setValue(0);
+      popupOpacity.setValue(0);
+      productImageScale.setValue(0.5);
+
+      // Show popup with animation
+      setShowPopup(true);
+      safeVibrate(50);
+
+      Animated.parallel([
+        Animated.spring(popupScale, {
+          toValue: 1,
+          tension: 100,
+          friction: 8,
+          useNativeDriver: true,
+        }),
+        Animated.timing(popupOpacity, {
+          toValue: 1,
+          duration: 200,
+          useNativeDriver: true,
+        }),
+        Animated.spring(productImageScale, {
+          toValue: 1,
+          tension: 150,
+          friction: 5,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    },
+    [cartCount, popupScale, popupOpacity, productImageScale],
+  );
+
+  const hidePopup = useCallback(() => {
+    Animated.parallel([
+      Animated.timing(popupScale, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
       }),
-      Animated.timing(anim, { 
-        toValue: 1, 
-        duration: 110, 
-        useNativeDriver: true 
+      Animated.timing(popupOpacity, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: true,
       }),
-    ]).start();
-    safeVibrate(20);
-    addedMapRef[id] = !addedMapRef[id];
-    setTick((t) => t + 1);
-  };
+    ]).start(() => {
+      setShowPopup(false);
+      setSelectedProduct(null);
+    });
+  }, [popupScale, popupOpacity]);
+
+  const toggleLike = useCallback(
+    id => {
+      const anim = ensureAnimated(heartScales, id, 1);
+      Animated.sequence([
+        Animated.timing(anim, {
+          toValue: 1.3,
+          duration: 120,
+          useNativeDriver: true,
+        }),
+        Animated.timing(anim, {
+          toValue: 1,
+          duration: 120,
+          useNativeDriver: true,
+        }),
+      ]).start();
+      safeVibrate(40);
+      likedMapRef[id] = !likedMapRef[id];
+      setTick(t => t + 1);
+    },
+    [ensureAnimated, heartScales],
+  );
+
+  const toggleAdd = useCallback(
+    (id, product) => {
+      const anim = ensureAnimated(plusScales, id, 1);
+      Animated.sequence([
+        Animated.timing(anim, {
+          toValue: 1.15,
+          duration: 110,
+          useNativeDriver: true,
+        }),
+        Animated.timing(anim, {
+          toValue: 1,
+          duration: 110,
+          useNativeDriver: true,
+        }),
+      ]).start();
+
+      // FIXED: Check state BEFORE toggling to ensure popup shows on FIRST press
+      const wasAddedBefore = !!addedMapRef[id];
+
+      // Show popup ONLY on first press (when it was NOT added before)
+      if (!wasAddedBefore) {
+        showAddToCartPopup(product);
+      }
+
+      // Toggle the state AFTER checking
+      addedMapRef[id] = !addedMapRef[id];
+      setTick(t => t + 1);
+    },
+    [ensureAnimated, plusScales, showAddToCartPopup],
+  );
+
+  const navigateToCart = useCallback(() => {
+    hidePopup();
+    navigation.navigate('MyCartClone', {
+      cartItems,
+      cartCount,
+    });
+  }, [hidePopup, cartItems, cartCount, navigation]);
+
+  const renderFiltersModal = () => (
+    <Modal
+      visible={filtersVisible}
+      transparent
+      animationType="slide"
+      onRequestClose={() => setFiltersVisible(false)}
+    >
+      <View style={styles.filtersModalContainer}>
+        <View style={[styles.filtersContent, { backgroundColor: textColor }]}>
+          <View style={styles.filtersHeader}>
+            <Text style={[styles.filtersTitle, { color: bgColor }]}>
+              Filters
+            </Text>
+            <TouchableOpacity onPress={() => setFiltersVisible(false)}>
+              <Text style={[styles.closeFilters, { color: bgColor }]}>✕</Text>
+            </TouchableOpacity>
+          </View>
+
+          <ScrollView style={styles.filtersList}>
+            {[
+              'Price: Low to High',
+              'Price: High to Low',
+              'Rating',
+              'Newest',
+              'Popular',
+            ].map(filter => (
+              <TouchableOpacity
+                key={filter}
+                style={[
+                  styles.filterOption,
+                  selectedFilters.includes(filter) && {
+                    backgroundColor: bgColor + '15',
+                  },
+                ]}
+                onPress={() => {
+                  if (selectedFilters.includes(filter)) {
+                    setSelectedFilters(prev => prev.filter(f => f !== filter));
+                  } else {
+                    setSelectedFilters(prev => [...prev, filter]);
+                  }
+                }}
+              >
+                <Text
+                  style={[
+                    styles.filterOptionText,
+                    { color: bgColor },
+                    selectedFilters.includes(filter) && { fontWeight: '700' },
+                  ]}
+                >
+                  {filter}
+                </Text>
+                {selectedFilters.includes(filter) && (
+                  <View
+                    style={[styles.selectedDot, { backgroundColor: bgColor }]}
+                  />
+                )}
+              </TouchableOpacity>
+            ))}
+          </ScrollView>
+
+          <View style={styles.filterButtons}>
+            <TouchableOpacity
+              style={[styles.clearFiltersBtn, { borderColor: bgColor }]}
+              onPress={() => setSelectedFilters([])}
+            >
+              <Text style={[styles.clearFiltersText, { color: bgColor }]}>
+                Clear All
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[styles.applyFiltersBtn, { backgroundColor: bgColor }]}
+              onPress={() => setFiltersVisible(false)}
+            >
+              <Text style={[styles.applyFiltersText, { color: textColor }]}>
+                Apply Filters
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    </Modal>
+  );
 
   return (
     <View style={styles.container}>
@@ -127,17 +364,24 @@ export default function Items({ navigation }) {
             />
           </TouchableOpacity>
 
-          <View style={[styles.searchContainer, { backgroundColor: textColor }]}>
+          <View
+            style={[styles.searchContainer, { backgroundColor: textColor }]}
+          >
             <Image
               source={require('../../../../assets/search.png')}
               style={[styles.searchIcon, { tintColor: bgColor + '80' }]}
             />
-            <Text style={[styles.searchText, { color: bgColor + '80' }]}>
-              Find for Grocery Item's..
-            </Text>
+            <TextInput
+              style={[styles.searchText, { color: bgColor + '80' }]}
+              placeholder="Find for Grocery Item's.."
+              placeholderTextColor={bgColor + '80'}
+            />
           </View>
 
-          <TouchableOpacity style={[styles.filterBtn, { backgroundColor: textColor }]}>
+          <TouchableOpacity
+            style={[styles.filterBtn, { backgroundColor: textColor }]}
+            onPress={() => setFiltersVisible(true)}
+          >
             <Image
               source={require('../../../../assets/filter.png')}
               style={[styles.filterIcon, { tintColor: bgColor }]}
@@ -156,7 +400,12 @@ export default function Items({ navigation }) {
           <View style={styles.deliverTextWrap}>
             <Text style={[styles.deliverText, { color: textColor }]}>
               Deliver to :{' '}
-              <Text style={[styles.deliverAddr, { color: textColor, fontWeight: '700' }]}>
+              <Text
+                style={[
+                  styles.deliverAddr,
+                  { color: textColor, fontWeight: '700' },
+                ]}
+              >
                 4102 Pretty View Lane
               </Text>
             </Text>
@@ -180,7 +429,9 @@ export default function Items({ navigation }) {
           <Text style={[styles.sectionTitleText, { color: bgColor }]}>
             Mobile & Phone's (All)
           </Text>
-          <View style={[styles.titleLine, { backgroundColor: bgColor + '30' }]} />
+          <View
+            style={[styles.titleLine, { backgroundColor: bgColor + '30' }]}
+          />
         </View>
 
         <View style={styles.categoriesWrapper}>
@@ -189,7 +440,7 @@ export default function Items({ navigation }) {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.categoriesScroll}
           >
-            {CATEGORIES.map((cat) => {
+            {CATEGORIES.map(cat => {
               const active = cat.name === activeCategory;
               return (
                 <TouchableOpacity
@@ -204,20 +455,17 @@ export default function Items({ navigation }) {
                     },
                   ]}
                 >
-                  <View style={[styles.categoryIconWrap, { 
-                    backgroundColor: active ? bgColor + '15' : textColor,
-                    borderColor: active ? bgColor + '30' : '#f0f0f0',
-                    borderWidth: 1
-                  }]}>
-                    <Image
-                      source={cat.icon}
-                      style={[
-                        styles.categoryIconFull,
-                        { 
-                          tintColor: active ? bgColor : '#999'
-                        }
-                      ]}
-                    />
+                  <View
+                    style={[
+                      styles.categoryIconWrap,
+                      {
+                        backgroundColor: active ? bgColor + '15' : textColor,
+                        borderColor: active ? bgColor + '30' : '#f0f0f0',
+                        borderWidth: 1,
+                      },
+                    ]}
+                  >
+                    <Image source={cat.icon} style={styles.categoryIconFull} />
                   </View>
                   <Text
                     style={[
@@ -234,10 +482,18 @@ export default function Items({ navigation }) {
             })}
           </ScrollView>
         </View>
+        <View style={[styles.titleLine, { backgroundColor: bgColor + '30' }]} />
 
         <View style={[styles.popularSection, { backgroundColor: textColor }]}>
           <View style={styles.sectionHeader}>
-            <Text style={[styles.sectionTitle, { color: bgColor }]}>Popular mobiles</Text>
+            <Text style={[styles.sectionTitle, { color: bgColor }]}>
+              Popular mobiles
+            </Text>
+            <TouchableOpacity>
+              <Text style={[styles.viewAllText, { color: bgColor }]}>
+                View All
+              </Text>
+            </TouchableOpacity>
           </View>
 
           <View style={styles.gridWrapper}>
@@ -252,28 +508,40 @@ export default function Items({ navigation }) {
               return (
                 <View
                   key={cardKey}
-                  style={[styles.card, idx % 2 === 0 ? styles.cardLeft : styles.cardRight]}
+                  style={[
+                    styles.card,
+                    idx % 2 === 0 ? styles.cardLeft : styles.cardRight,
+                  ]}
                 >
-                  <View style={[styles.cardImageWrap, { backgroundColor: bgColor + '08' }]}>
+                  <View
+                    style={[
+                      styles.cardImageWrap,
+                      { backgroundColor: bgColor + '08' },
+                    ]}
+                  >
                     <Image source={p.img} style={styles.cardImageCover} />
 
                     <View style={styles.ratingBadgeBottom}>
-                      <Text style={[styles.ratingTextBadge, { color: bgColor }]}>{p.rating}</Text>
                       <Image
                         source={require('../../../../assets/star.png')}
                         style={[styles.starIconSmall, { tintColor: bgColor }]}
                       />
+                      <Text
+                        style={[styles.ratingTextBadge, { color: bgColor }]}
+                      >
+                        {p.rating}
+                      </Text>
                     </View>
 
                     <TouchableOpacity
                       style={[
                         styles.heartBtn,
-                        { 
-                          backgroundColor: liked 
-                            ? 'rgba(255, 255, 255, 0.95)' 
+                        {
+                          backgroundColor: liked
+                            ? 'rgba(255, 255, 255, 0.95)'
                             : 'rgba(255, 255, 255, 0.9)',
-                          shadowColor: liked ? bgColor : '#000'
-                        }
+                          shadowColor: liked ? bgColor : '#000',
+                        },
                       ]}
                       onPress={() => toggleLike(cardKey)}
                       activeOpacity={0.85}
@@ -294,15 +562,23 @@ export default function Items({ navigation }) {
                   </View>
 
                   <View style={styles.cardBody}>
-                    <Text style={[styles.cardTitle, { color: bgColor }]} numberOfLines={1}>
+                    <Text
+                      style={[styles.cardTitle, { color: bgColor }]}
+                      numberOfLines={1}
+                    >
                       {p.title}
                     </Text>
-                    <Text style={[styles.cardSeller, { color: bgColor + '80' }]} numberOfLines={1}>
+                    <Text
+                      style={[styles.cardSeller, { color: bgColor + '80' }]}
+                      numberOfLines={1}
+                    >
                       Sold By : {p.seller}
                     </Text>
 
                     <View style={styles.priceRow}>
-                      <Text style={[styles.priceText, { color: bgColor }]}>{p.price}</Text>
+                      <Text style={[styles.priceText, { color: bgColor }]}>
+                        {p.price}
+                      </Text>
                     </View>
 
                     <View style={styles.timeRow}>
@@ -310,7 +586,11 @@ export default function Items({ navigation }) {
                         source={require('../../../../assets/clock.png')}
                         style={[styles.clockIcon, { tintColor: bgColor }]}
                       />
-                      <Text style={[styles.timeText, { color: bgColor + '80' }]}>{p.time}</Text>
+                      <Text
+                        style={[styles.timeText, { color: bgColor + '80' }]}
+                      >
+                        {p.time}
+                      </Text>
                     </View>
                   </View>
 
@@ -323,7 +603,7 @@ export default function Items({ navigation }) {
                         shadowColor: bgColor,
                       },
                     ]}
-                    onPress={() => toggleAdd(cardKey)}
+                    onPress={() => toggleAdd(cardKey, p)}
                     activeOpacity={0.85}
                   >
                     <Animated.Image
@@ -341,6 +621,83 @@ export default function Items({ navigation }) {
           </View>
         </View>
       </ScrollView>
+
+      {/* Add to Cart Popup - FIXED IMAGE SIZE */}
+      {showPopup && selectedProduct && (
+        <View style={styles.popupOverlay}>
+          <Animated.View
+            style={[
+              styles.popupContainer,
+              {
+                backgroundColor: textColor,
+                transform: [{ scale: popupScale }],
+                opacity: popupOpacity,
+              },
+            ]}
+          >
+            {/* FIXED: Proper image container with increased height and proper padding */}
+            <View
+              style={[
+                styles.popupImageContainer,
+                { backgroundColor: bgColor + '08' },
+              ]}
+            >
+              <Animated.Image
+                source={selectedProduct.img}
+                style={[
+                  styles.popupImage,
+                  { transform: [{ scale: productImageScale }] },
+                ]}
+                resizeMode="contain"
+              />
+            </View>
+
+            <Text style={[styles.popupProductTitle, { color: bgColor }]}>
+              {selectedProduct.title}
+            </Text>
+            <Text style={[styles.popupSeller, { color: bgColor + '80' }]}>
+              Sold By: {selectedProduct.seller}
+            </Text>
+
+            <View style={styles.popupSpacer} />
+
+            <Text style={[styles.popupSuccessText, { color: bgColor }]}>
+              {selectedProduct.title} added to cart successfully.
+            </Text>
+
+            <View style={styles.popupSpacerSmall} />
+
+            <Text style={[styles.popupCartCount, { color: bgColor + '80' }]}>
+              {cartItems.length > 1
+                ? `${cartItems.length} Products are in cart`
+                : '1 Product is in cart'}
+            </Text>
+
+            <View style={styles.popupButtons}>
+              <TouchableOpacity
+                style={[styles.viewCartButton, { backgroundColor: bgColor }]}
+                onPress={navigateToCart}
+              >
+                <Text style={[styles.viewCartText, { color: textColor }]}>
+                  View Cart
+                </Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={[styles.laterButton, { borderColor: bgColor }]}
+                onPress={hidePopup}
+              >
+                <Text style={[styles.laterText, { color: bgColor }]}>
+                  Later
+                </Text>
+              </TouchableOpacity>
+            </View>
+          </Animated.View>
+        </View>
+      )}
+
+      {/* Filters Modal */}
+      {renderFiltersModal()}
     </View>
   );
 }
@@ -349,14 +706,14 @@ export default function Items({ navigation }) {
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
 
-  statusBarSpacer: { 
-    height: Platform.OS === 'ios' ? responsiveSize(40) : 0 
+  statusBarSpacer: {
+    height: Platform.OS === 'ios' ? responsiveSize(40) : 0,
   },
 
-  topBlue: { 
-    width: '100%', 
-    paddingBottom: responsiveSize(12), 
-    paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight 
+  topBlue: {
+    width: '100%',
+    paddingBottom: responsiveSize(12),
+    paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight,
   },
 
   topHeader: {
@@ -375,20 +732,20 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
-      ios: { 
-        shadowColor: '#000', 
-        shadowOpacity: 0.1, 
-        shadowRadius: 4, 
-        shadowOffset: { width: 0, height: 2 } 
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
       },
       android: { elevation: 3 },
     }),
   },
 
-  icon: { 
-    width: responsiveSize(18), 
-    height: responsiveSize(18), 
-    resizeMode: 'contain' 
+  icon: {
+    width: responsiveSize(18),
+    height: responsiveSize(18),
+    resizeMode: 'contain',
   },
 
   searchContainer: {
@@ -399,28 +756,28 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: responsiveSize(12),
-    ...Platform.select({ 
-      ios: { 
-        shadowColor: '#000', 
-        shadowOpacity: 0.06, 
-        shadowRadius: 4, 
-        shadowOffset: { width: 0, height: 2 } 
-      }, 
-      android: { elevation: 2 } 
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.06,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
+      },
+      android: { elevation: 2 },
     }),
   },
 
-  searchIcon: { 
-    width: responsiveSize(16), 
-    height: responsiveSize(16), 
-    resizeMode: 'contain' 
+  searchIcon: {
+    width: responsiveSize(16),
+    height: responsiveSize(16),
+    resizeMode: 'contain',
   },
 
-  searchText: { 
-    marginLeft: responsiveSize(10), 
-    fontSize: fontScale(responsiveSize(13)), 
-    fontWeight: '500', 
-    flex: 1 
+  searchText: {
+    marginLeft: responsiveSize(10),
+    fontSize: fontScale(responsiveSize(13)),
+    fontWeight: '500',
+    flex: 1,
   },
 
   filterBtn: {
@@ -429,29 +786,29 @@ const styles = StyleSheet.create({
     borderRadius: responsiveSize(10),
     justifyContent: 'center',
     alignItems: 'center',
-    ...Platform.select({ 
-      ios: { 
-        shadowColor: '#000', 
-        shadowOpacity: 0.06, 
-        shadowRadius: 4, 
-        shadowOffset: { width: 0, height: 2 } 
-      }, 
-      android: { elevation: 2 } 
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.06,
+        shadowRadius: 4,
+        shadowOffset: { width: 0, height: 2 },
+      },
+      android: { elevation: 2 },
     }),
   },
 
-  filterIcon: { 
-    width: responsiveSize(18), 
-    height: responsiveSize(18), 
-    resizeMode: 'contain' 
+  filterIcon: {
+    width: responsiveSize(18),
+    height: responsiveSize(18),
+    resizeMode: 'contain',
   },
 
-  deliverRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginTop: responsiveSize(16), 
-    paddingHorizontal: responsiveSize(16), 
-    height: responsiveSize(42) 
+  deliverRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: responsiveSize(16),
+    paddingHorizontal: responsiveSize(16),
+    height: responsiveSize(42),
   },
 
   locIconWrap: {
@@ -461,85 +818,85 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: responsiveSize(10),
-    ...Platform.select({ 
-      ios: { 
-        shadowColor: '#000', 
-        shadowOffset: { width: 0, height: 2 }, 
-        shadowOpacity: 0.08, 
-        shadowRadius: 3 
-      }, 
-      android: { elevation: 2 } 
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.08,
+        shadowRadius: 3,
+      },
+      android: { elevation: 2 },
     }),
   },
 
-  locIcon: { 
-    width: responsiveSize(18), 
-    height: responsiveSize(18), 
-    resizeMode: 'contain' 
+  locIcon: {
+    width: responsiveSize(18),
+    height: responsiveSize(18),
+    resizeMode: 'contain',
   },
 
-  deliverTextWrap: { 
-    flex: 1, 
-    justifyContent: 'center' 
+  deliverTextWrap: {
+    flex: 1,
+    justifyContent: 'center',
   },
 
-  deliverText: { 
-    fontSize: fontScale(responsiveSize(14)), 
-    fontWeight: '500', 
-    lineHeight: responsiveSize(20) 
+  deliverText: {
+    fontSize: fontScale(responsiveSize(14)),
+    fontWeight: '500',
+    lineHeight: responsiveSize(20),
   },
 
-  deliverAddr: { 
-    fontSize: fontScale(responsiveSize(14)) 
+  deliverAddr: {
+    fontSize: fontScale(responsiveSize(14)),
   },
 
-  dropdownBtn: { 
-    padding: responsiveSize(8), 
-    marginLeft: responsiveSize(4) 
+  dropdownBtn: {
+    padding: responsiveSize(8),
+    marginLeft: responsiveSize(4),
   },
 
-  dropdownIcon: { 
-    width: responsiveSize(12), 
-    height: responsiveSize(12), 
-    resizeMode: 'contain' 
+  dropdownIcon: {
+    width: responsiveSize(12),
+    height: responsiveSize(12),
+    resizeMode: 'contain',
   },
 
   content: { flex: 1 },
 
-  sectionTitleContainer: { 
-    paddingHorizontal: responsiveSize(16), 
-    paddingTop: responsiveSize(20), 
-    paddingBottom: responsiveSize(10) 
+  sectionTitleContainer: {
+    paddingHorizontal: responsiveSize(16),
+    paddingTop: responsiveSize(20),
+    paddingBottom: responsiveSize(10),
   },
 
-  sectionTitleText: { 
-    fontSize: fontScale(responsiveSize(18)), 
-    fontWeight: '700', 
-    marginBottom: responsiveSize(8) 
+  sectionTitleText: {
+    fontSize: fontScale(responsiveSize(18)),
+    fontWeight: '700',
+    marginBottom: responsiveSize(8),
   },
 
-  titleLine: { 
-    height: 1, 
-    width: '100%' 
+  titleLine: {
+    height: 1,
+    width: '100%',
   },
 
-  categoriesWrapper: { 
-    marginTop: responsiveSize(8), 
-    paddingLeft: responsiveSize(16), 
-    paddingRight: responsiveSize(8), 
-    paddingBottom: responsiveSize(16) 
+  categoriesWrapper: {
+    marginTop: responsiveSize(8),
+    paddingLeft: responsiveSize(16),
+    paddingRight: responsiveSize(8),
+    paddingBottom: responsiveSize(16),
   },
 
-  categoriesScroll: { 
-    alignItems: 'center', 
-    paddingRight: responsiveSize(8) 
+  categoriesScroll: {
+    alignItems: 'center',
+    paddingRight: responsiveSize(8),
   },
 
-  categoryItem: { 
-    width: responsiveSize(70), 
-    alignItems: 'center', 
-    marginRight: responsiveSize(12), 
-    paddingVertical: responsiveSize(6) 
+  categoryItem: {
+    width: responsiveSize(70),
+    alignItems: 'center',
+    marginRight: responsiveSize(12),
+    paddingVertical: responsiveSize(6),
   },
 
   categoryIconWrap: {
@@ -549,57 +906,66 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
-    ...Platform.select({ 
-      ios: { 
-        shadowColor: '#000', 
-        shadowOpacity: 0.05, 
-        shadowRadius: 3, 
-        shadowOffset: { width: 0, height: 1 } 
-      }, 
-      android: { elevation: 1 } 
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.05,
+        shadowRadius: 3,
+        shadowOffset: { width: 0, height: 1 },
+      },
+      android: { elevation: 1 },
     }),
   },
 
   categoryIconFull: {
-    width: responsiveSize(30),
-    height: responsiveSize(30),
-    resizeMode: 'contain',
+    width: '100%',
+    height: '100%',
+    resizeMode: 'cover',
+    borderRadius: responsiveSize(28),
   },
 
-  categoryLabel: { 
-    marginTop: responsiveSize(6), 
-    fontSize: fontScale(responsiveSize(12)), 
-    textAlign: 'center', 
-    fontWeight: '500', 
-    width: '100%' 
+  categoryLabel: {
+    marginTop: responsiveSize(6),
+    fontSize: fontScale(responsiveSize(12)),
+    textAlign: 'center',
+    fontWeight: '500',
+    width: '100%',
   },
 
-  categoryLabelActive: { 
-    fontWeight: '700' 
+  categoryLabelActive: {
+    fontWeight: '700',
   },
 
-  popularSection: { 
-    backgroundColor: '#fff', 
-    paddingTop: responsiveSize(4) 
+  popularSection: {
+    backgroundColor: '#fff',
+    paddingTop: responsiveSize(4),
   },
 
-  sectionHeader: { 
-    paddingHorizontal: responsiveSize(16), 
-    paddingTop: responsiveSize(10), 
-    paddingBottom: responsiveSize(12) 
+  sectionHeader: {
+    paddingHorizontal: responsiveSize(16),
+    paddingTop: responsiveSize(10),
+    paddingBottom: responsiveSize(12),
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
   },
 
-  sectionTitle: { 
-    fontSize: fontScale(responsiveSize(18)), 
-    fontWeight: '700', 
-    letterSpacing: 0.3 
+  sectionTitle: {
+    fontSize: fontScale(responsiveSize(18)),
+    fontWeight: '700',
+    letterSpacing: 0.3,
   },
 
-  gridWrapper: { 
-    flexDirection: 'row', 
-    flexWrap: 'wrap', 
-    justifyContent: 'space-between', 
-    paddingHorizontal: responsiveSize(16) 
+  viewAllText: {
+    fontSize: fontScale(responsiveSize(14)),
+    fontWeight: '600',
+  },
+
+  gridWrapper: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    justifyContent: 'space-between',
+    paddingHorizontal: responsiveSize(16),
   },
 
   card: {
@@ -614,12 +980,12 @@ const styles = StyleSheet.create({
     position: 'relative',
   },
 
-  cardLeft: { 
-    marginRight: responsiveSize(8) 
+  cardLeft: {
+    marginRight: responsiveSize(8),
   },
 
-  cardRight: { 
-    marginLeft: responsiveSize(8) 
+  cardRight: {
+    marginLeft: responsiveSize(8),
   },
 
   cardImageWrap: {
@@ -639,6 +1005,24 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
 
+  // FIXED: Popup image container with proper padding and height
+  popupImageContainer: {
+    width: '100%',
+    height: responsiveSize(200), // Increased height for better display
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: responsiveSize(12),
+    marginBottom: responsiveSize(20),
+    paddingHorizontal: responsiveSize(20), // Added horizontal padding
+    overflow: 'hidden',
+  },
+
+  popupImage: {
+    width: '100%',
+    height: '100%',
+    resizeMode: 'contain', // Changed to contain to show full image
+  },
+
   ratingBadgeBottom: {
     position: 'absolute',
     left: responsiveSize(8),
@@ -649,27 +1033,27 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.92)',
-    ...Platform.select({ 
-      ios: { 
-        shadowColor: '#000', 
-        shadowOpacity: 0.06, 
-        shadowOffset: { width: 0, height: 1 }, 
-        shadowRadius: 2 
-      }, 
-      android: { elevation: 2 } 
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOpacity: 0.06,
+        shadowOffset: { width: 0, height: 1 },
+        shadowRadius: 2,
+      },
+      android: { elevation: 2 },
     }),
   },
 
-  starIconSmall: { 
-    width: responsiveSize(12), 
-    height: responsiveSize(12), 
-    marginLeft: responsiveSize(6), 
-    resizeMode: 'contain' 
+  starIconSmall: {
+    width: responsiveSize(12),
+    height: responsiveSize(12),
+    marginRight: responsiveSize(6),
+    resizeMode: 'contain',
   },
 
-  ratingTextBadge: { 
-    fontSize: fontScale(responsiveSize(11)), 
-    fontWeight: '700' 
+  ratingTextBadge: {
+    fontSize: fontScale(responsiveSize(11)),
+    fontWeight: '700',
   },
 
   heartBtn: {
@@ -689,73 +1073,73 @@ const styles = StyleSheet.create({
         shadowRadius: 3,
       },
       android: {
-        elevation: 3,
+        elevation: 6,
       },
     }),
   },
 
-  heartIcon: { 
-    width: responsiveSize(18), 
-    height: responsiveSize(18), 
-    resizeMode: 'contain' 
+  heartIcon: {
+    width: responsiveSize(18),
+    height: responsiveSize(18),
+    resizeMode: 'contain',
   },
 
-  cardBody: { 
-    paddingHorizontal: responsiveSize(10), 
-    paddingTop: responsiveSize(8), 
-    paddingBottom: responsiveSize(8) 
+  cardBody: {
+    paddingHorizontal: responsiveSize(10),
+    paddingTop: responsiveSize(8),
+    paddingBottom: responsiveSize(8),
   },
 
-  cardTitle: { 
-    fontSize: fontScale(responsiveSize(14)), 
-    fontWeight: '700', 
-    marginBottom: responsiveSize(4), 
-    lineHeight: responsiveSize(18) 
+  cardTitle: {
+    fontSize: fontScale(responsiveSize(14)),
+    fontWeight: '700',
+    marginBottom: responsiveSize(4),
+    lineHeight: responsiveSize(18),
   },
 
-  cardSeller: { 
-    fontSize: fontScale(responsiveSize(12)), 
-    marginBottom: responsiveSize(8), 
-    lineHeight: responsiveSize(16) 
+  cardSeller: {
+    fontSize: fontScale(responsiveSize(12)),
+    marginBottom: responsiveSize(8),
+    lineHeight: responsiveSize(16),
   },
 
-  priceRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    justifyContent: 'flex-start', 
-    marginTop: responsiveSize(2) 
+  priceRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    marginTop: responsiveSize(2),
   },
 
-  priceText: { 
-    fontSize: fontScale(responsiveSize(15)), 
-    fontWeight: '700', 
-    flex: 1 
+  priceText: {
+    fontSize: fontScale(responsiveSize(15)),
+    fontWeight: '700',
+    flex: 1,
   },
 
-  timeRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginTop: responsiveSize(8) 
+  timeRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: responsiveSize(8),
   },
 
-  clockIcon: { 
-    width: responsiveSize(14), 
-    height: responsiveSize(14), 
-    marginRight: responsiveSize(6), 
-    resizeMode: 'contain' 
+  clockIcon: {
+    width: responsiveSize(14),
+    height: responsiveSize(14),
+    marginRight: responsiveSize(6),
+    resizeMode: 'contain',
   },
 
-  timeText: { 
-    fontSize: fontScale(responsiveSize(12)), 
-    fontWeight: '500' 
+  timeText: {
+    fontSize: fontScale(responsiveSize(12)),
+    fontWeight: '500',
   },
 
   plusBtn: {
     position: 'absolute',
     right: responsiveSize(10),
     bottom: responsiveSize(10),
-    width: responsiveSize(38),
-    height: responsiveSize(38),
+    width: responsiveSize(30),
+    height: responsiveSize(30),
     borderRadius: responsiveSize(19),
     justifyContent: 'center',
     alignItems: 'center',
@@ -773,9 +1157,198 @@ const styles = StyleSheet.create({
     }),
   },
 
-  plusIcon: { 
-    width: responsiveSize(18), 
-    height: responsiveSize(18), 
-    resizeMode: 'contain' 
+  plusIcon: {
+    width: responsiveSize(15),
+    height: responsiveSize(15),
+    resizeMode: 'contain',
+  },
+
+  // Popup Styles
+  popupOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    zIndex: 1000,
+  },
+
+  popupContainer: {
+    width: width * 0.85,
+    borderRadius: responsiveSize(20),
+    padding: responsiveSize(25),
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 10 },
+        shadowOpacity: 0.25,
+        shadowRadius: 20,
+      },
+      android: {
+        elevation: 15,
+      },
+    }),
+  },
+
+  popupProductTitle: {
+    fontSize: fontScale(responsiveSize(18)),
+    fontWeight: '700',
+    textAlign: 'center',
+    marginBottom: responsiveSize(4),
+  },
+
+  popupSeller: {
+    fontSize: fontScale(responsiveSize(14)),
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: responsiveSize(15),
+  },
+
+  popupSpacer: {
+    height: responsiveSize(10),
+  },
+
+  popupSpacerSmall: {
+    height: responsiveSize(5),
+  },
+
+  popupSuccessText: {
+    fontSize: fontScale(responsiveSize(16)),
+    fontWeight: '600',
+    textAlign: 'center',
+    lineHeight: responsiveSize(22),
+  },
+
+  popupCartCount: {
+    fontSize: fontScale(responsiveSize(14)),
+    fontWeight: '500',
+    textAlign: 'center',
+    marginBottom: responsiveSize(25),
+  },
+
+  popupButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    width: '100%',
+  },
+
+  viewCartButton: {
+    flex: 1,
+    marginRight: responsiveSize(10),
+    paddingVertical: responsiveSize(14),
+    borderRadius: responsiveSize(12),
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+
+  viewCartText: {
+    fontSize: fontScale(responsiveSize(16)),
+    fontWeight: '700',
+  },
+
+  laterButton: {
+    flex: 1,
+    paddingVertical: responsiveSize(14),
+    borderRadius: responsiveSize(12),
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 2,
+  },
+
+  laterText: {
+    fontSize: fontScale(responsiveSize(16)),
+    fontWeight: '700',
+  },
+
+  // Filters Modal Styles
+  filtersModalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'flex-end',
+  },
+
+  filtersContent: {
+    borderTopLeftRadius: responsiveSize(20),
+    borderTopRightRadius: responsiveSize(20),
+    padding: responsiveSize(20),
+    maxHeight: height * 0.7,
+  },
+
+  filtersHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: responsiveSize(20),
+  },
+
+  filtersTitle: {
+    fontSize: fontScale(responsiveSize(22)),
+    fontWeight: '700',
+  },
+
+  closeFilters: {
+    fontSize: fontScale(responsiveSize(24)),
+    fontWeight: '300',
+  },
+
+  filtersList: {
+    marginBottom: responsiveSize(20),
+  },
+
+  filterOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: responsiveSize(16),
+    paddingHorizontal: responsiveSize(10),
+    borderRadius: responsiveSize(10),
+    marginBottom: responsiveSize(8),
+  },
+
+  filterOptionText: {
+    fontSize: fontScale(responsiveSize(16)),
+    fontWeight: '500',
+  },
+
+  selectedDot: {
+    width: responsiveSize(12),
+    height: responsiveSize(12),
+    borderRadius: responsiveSize(6),
+  },
+
+  filterButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    paddingTop: responsiveSize(10),
+  },
+
+  clearFiltersBtn: {
+    flex: 1,
+    marginRight: responsiveSize(10),
+    paddingVertical: responsiveSize(15),
+    borderRadius: responsiveSize(12),
+    alignItems: 'center',
+    borderWidth: 2,
+  },
+
+  clearFiltersText: {
+    fontSize: fontScale(responsiveSize(16)),
+    fontWeight: '600',
+  },
+
+  applyFiltersBtn: {
+    flex: 1,
+    paddingVertical: responsiveSize(15),
+    borderRadius: responsiveSize(12),
+    alignItems: 'center',
+  },
+
+  applyFiltersText: {
+    fontSize: fontScale(responsiveSize(16)),
+    fontWeight: '600',
   },
 });

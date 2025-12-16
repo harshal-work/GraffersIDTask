@@ -1,5 +1,5 @@
-// screens/MyCart.js
-import React, { useState } from 'react';
+// File: screens/MyCartClone.js
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -19,12 +19,32 @@ const { width, height } = Dimensions.get('window');
 // Responsive sizing
 const responsiveSize = size => (width / 375) * size;
 
-export default function MyCart({ navigation }) {
+// Platform detection
+const isIOS = Platform.OS === 'ios';
+
+// Responsive font scaling
+const fontScale = size => {
+  return isIOS ? size * 0.95 : size;
+};
+
+export default function MyCartClone({ route, navigation }) {
   const { bgColor, textColor } = useColor();
 
+  // Get cart items from navigation params
+  const { cartItems: initialCartItems = [] } = route.params || {};
+
+  // Local state for cart items
+  const [cartItems, setCartItems] = useState(initialCartItems);
   const [qty, setQty] = useState(2);
   const [delivery, setDelivery] = useState('Home');
   const [selectedItems, setSelectedItems] = useState([]);
+
+  // Update cart items if params change
+  useEffect(() => {
+    if (route.params?.cartItems) {
+      setCartItems(route.params.cartItems);
+    }
+  }, [route.params?.cartItems]);
 
   const increaseQty = () => setQty(q => q + 1);
   const decreaseQty = () => setQty(q => (q > 1 ? q - 1 : 1));
@@ -37,7 +57,14 @@ export default function MyCart({ navigation }) {
     }
   };
 
-  // Image mapping for recommended products
+  const removeFromCart = id => {
+    const updatedCart = cartItems.filter(item => item.id !== id);
+    setCartItems(updatedCart);
+  };
+
+  // Get the first product from cart for display
+  const mainProduct = cartItems.length > 0 ? cartItems[0] : null;
+
   const imageMap = {
     Cover: require('../../../assets/phone-case.png'),
     Headphone: require('../../../assets/headphones.png'),
@@ -52,13 +79,37 @@ export default function MyCart({ navigation }) {
     { name: 'Earphone', image: 'Earphone' },
   ];
 
+  // Calculate total price
+  const calculateTotal = () => {
+    if (cartItems.length === 0) return '0.00';
+
+    return cartItems
+      .reduce((total, item) => {
+        const price = parseFloat(item.price.replace('₹ ', '').trim());
+        return total + price;
+      }, 0)
+      .toFixed(2);
+  };
+
   return (
     <View style={[styles.container, { backgroundColor: '#FFFFFF' }]}>
       <StatusBar backgroundColor={bgColor} barStyle="light-content" />
 
-      {/* HEADER */}
+      {/* HEADER WITH BACK BUTTON */}
       <View style={[styles.header, { backgroundColor: bgColor }]}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={[styles.iconBtn, { backgroundColor: '#FFFFFF' }]}
+        >
+          <Image
+            source={require('../../../assets/back.png')}
+            style={[styles.icon, { tintColor: bgColor }]}
+          />
+        </TouchableOpacity>
+
         <Text style={styles.headerTitle}>My Cart</Text>
+
+        <View style={{ width: responsiveSize(40) }} />
       </View>
 
       <ScrollView
@@ -120,210 +171,244 @@ export default function MyCart({ navigation }) {
           </View>
         </View>
 
-        {/* PRODUCT CARD */}
-        <View style={styles.productCard}>
-          {/* Remove Icon - Top Right Corner */}
-          <TouchableOpacity style={styles.removeBtn}>
-            <Text style={styles.remove}>✕</Text>
-          </TouchableOpacity>
+        {/* PRODUCT CARD - Only show if cart has items */}
+        {mainProduct && (
+          <View style={styles.productCard}>
+            <TouchableOpacity
+              style={styles.removeBtn}
+              onPress={() => removeFromCart(mainProduct.id)}
+            >
+              <Text style={styles.remove}>✕</Text>
+            </TouchableOpacity>
 
-          <Image
-            source={require('../../../assets/mobile2.png')}
-            style={styles.productImg}
-          />
+            <Image source={mainProduct.img} style={styles.productImg} />
 
-          <View style={styles.productInfo}>
-            <Text style={styles.productName}>I Phone 17 Plus</Text>
-            <Text style={styles.soldBy}>Sold By : Grocery Store</Text>
-            <Text style={[styles.price, { color: bgColor }]}>₹124,050.00</Text>
+            <View style={styles.productInfo}>
+              <Text style={styles.productName}>{mainProduct.title}</Text>
+              <Text style={styles.soldBy}>Sold By : {mainProduct.seller}</Text>
+              <Text style={[styles.price, { color: bgColor }]}>
+                {mainProduct.price}
+              </Text>
 
-            {/* Quantity Selector - After price */}
-            <View style={styles.qtyContainer}>
-              <TouchableOpacity
-                onPress={decreaseQty}
-                style={[styles.qtyBtn, { backgroundColor: bgColor }]}
-              >
-                <Text style={styles.qtyBtnTxt}>−</Text>
-              </TouchableOpacity>
+              {/* Quantity Selector */}
+              <View style={styles.qtyContainer}>
+                <TouchableOpacity
+                  onPress={decreaseQty}
+                  style={[styles.qtyBtn, { backgroundColor: bgColor }]}
+                >
+                  <Text style={styles.qtyBtnTxt}>−</Text>
+                </TouchableOpacity>
 
-              <Text style={styles.qtyNumber}>{qty < 10 ? `0${qty}` : qty}</Text>
+                <Text style={styles.qtyNumber}>
+                  {qty < 10 ? `0${qty}` : qty}
+                </Text>
 
-              <TouchableOpacity
-                onPress={increaseQty}
-                style={[styles.qtyBtn, { backgroundColor: bgColor }]}
-              >
-                <Text style={styles.qtyBtnTxt}>+</Text>
-              </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={increaseQty}
+                  style={[styles.qtyBtn, { backgroundColor: bgColor }]}
+                >
+                  <Text style={styles.qtyBtnTxt}>+</Text>
+                </TouchableOpacity>
+              </View>
             </View>
           </View>
-        </View>
+        )}
+
+        {/* Show empty cart message */}
+        {!mainProduct && (
+          <View style={styles.emptyCartContainer}>
+            <Text style={styles.emptyCartText}>Your cart is empty</Text>
+            <TouchableOpacity
+              style={[styles.shopNowButton, { backgroundColor: bgColor }]}
+              onPress={() => navigation.goBack()}
+            >
+              <Text style={styles.shopNowText}>Continue Shopping</Text>
+            </TouchableOpacity>
+          </View>
+        )}
 
         {/* Divider */}
         <View style={styles.divider} />
 
         {/* Recommended Section */}
-        <Text style={styles.recommendedTitle}>More Recommended Product's</Text>
-
-        <View style={styles.recommendedContainer}>
-          {recommendedProducts.map((product, index) => (
-            <TouchableOpacity
-              key={index}
-              style={styles.recoItem}
-              onPress={() => toggleItem(product.name)}
-            >
-              <View style={styles.recoContent}>
-                <Image
-                  source={imageMap[product.image]}
-                  style={styles.recoImg}
-                />
-                <View
-                  style={[
-                    styles.checkbox,
-                    { borderColor: bgColor },
-                    selectedItems.includes(product.name) && [
-                      styles.checkboxSelected,
-                      { backgroundColor: bgColor },
-                    ],
-                  ]}
-                >
-                  {selectedItems.includes(product.name) && (
-                    <Text style={styles.checkmark}>✓</Text>
-                  )}
-                </View>
-              </View>
-              <Text style={styles.recoText}>{product.name}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-
-        <Text style={styles.offerNote}>
-          with I Phone 17. Select additional item to get 10% discount.*
-        </Text>
-
-        {/* Promo Code */}
-        <View style={styles.promoSection}>
-          <Text style={styles.promoTitle}>Promo Code</Text>
-          <View style={styles.promoRow}>
-            <TextInput
-              placeholder="Submit"
-              placeholderTextColor="#999"
-              style={styles.promoInput}
-            />
-            <TouchableOpacity
-              style={[styles.applyBtn, { backgroundColor: bgColor }]}
-            >
-              <Text style={styles.applyTxt}>APPLY</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-
-        {/* PRICE BREAKDOWN */}
-        <View style={styles.priceSection}>
-          <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Subtotal</Text>
-            <Text style={styles.priceValue}>₹ 450.00</Text>
-          </View>
-
-          <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Tax and Fees</Text>
-            <Text style={styles.priceValue}>₹ 50.00</Text>
-          </View>
-
-          <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Offer & Discount</Text>
-            <Text style={styles.priceValue}>₹ 20.00</Text>
-          </View>
-
-          <View style={styles.priceRow}>
-            <Text style={styles.priceLabel}>Delivery</Text>
-            <Text style={styles.priceValue}>₹ 20.00</Text>
-          </View>
-
-          <View style={styles.totalRow}>
-            <Text style={styles.totalLabel}>Total (3 items)</Text>
-            <Text style={[styles.totalValue, { color: bgColor }]}>
-              ₹83,000.00
+        {cartItems.length > 0 && (
+          <>
+            <Text style={styles.recommendedTitle}>
+              More Recommended Product's
             </Text>
-          </View>
-        </View>
 
-        {/* Divider */}
-        <View style={styles.divider} />
+            <View style={styles.recommendedContainer}>
+              {recommendedProducts.map((product, index) => (
+                <TouchableOpacity
+                  key={index}
+                  style={styles.recoItem}
+                  onPress={() => toggleItem(product.name)}
+                >
+                  <View style={styles.recoContent}>
+                    <Image
+                      source={imageMap[product.image]}
+                      style={styles.recoImg}
+                    />
+                    <View
+                      style={[
+                        styles.checkbox,
+                        { borderColor: bgColor },
+                        selectedItems.includes(product.name) && [
+                          styles.checkboxSelected,
+                          { backgroundColor: bgColor },
+                        ],
+                      ]}
+                    >
+                      {selectedItems.includes(product.name) && (
+                        <Text style={styles.checkmark}>✓</Text>
+                      )}
+                    </View>
+                  </View>
+                  <Text style={styles.recoText}>{product.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
 
-        {/* DELIVERY OPTION */}
-        <Text style={styles.sectionTitle}>Select Delivery Option</Text>
+            <Text style={styles.offerNote}>
+              {mainProduct
+                ? `with ${mainProduct.title}. Select additional item to get 10% discount.*`
+                : 'Add items to get discounts'}
+            </Text>
 
-        <View style={styles.deliveryOptions}>
-          {['Home', 'Office', 'Other'].map(opt => (
-            <TouchableOpacity
-              key={opt}
-              style={styles.deliveryOption}
-              onPress={() => setDelivery(opt)}
-            >
-              <View style={styles.radioContainer}>
-                <View
-                  style={[
-                    styles.radioOuter,
-                    { borderColor: bgColor },
-                    delivery === opt && [
+            {/* Promo Code */}
+            <View style={styles.promoSection}>
+              <Text style={styles.promoTitle}>Promo Code</Text>
+              <View style={styles.promoRow}>
+                <TextInput
+                  placeholder="Enter promo code"
+                  placeholderTextColor="#999"
+                  style={styles.promoInput}
+                />
+                <TouchableOpacity
+                  style={[styles.applyBtn, { backgroundColor: bgColor }]}
+                >
+                  <Text style={styles.applyTxt}>APPLY</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+
+            {/* PRICE BREAKDOWN */}
+            <View style={styles.priceSection}>
+              <View style={styles.priceRow}>
+                <Text style={styles.priceLabel}>Subtotal</Text>
+                <Text style={styles.priceValue}>₹ {calculateTotal()}</Text>
+              </View>
+
+              <View style={styles.priceRow}>
+                <Text style={styles.priceLabel}>Tax and Fees</Text>
+                <Text style={styles.priceValue}>₹ 50.00</Text>
+              </View>
+
+              <View style={styles.priceRow}>
+                <Text style={styles.priceLabel}>Offer & Discount</Text>
+                <Text style={styles.priceValue}>₹ 20.00</Text>
+              </View>
+
+              <View style={styles.priceRow}>
+                <Text style={styles.priceLabel}>Delivery</Text>
+                <Text style={styles.priceValue}>₹ 20.00</Text>
+              </View>
+
+              <View style={styles.totalRow}>
+                <Text style={styles.totalLabel}>
+                  Total ({cartItems.length} items)
+                </Text>
+                <Text style={[styles.totalValue, { color: bgColor }]}>
+                  ₹ {(parseFloat(calculateTotal()) + 50).toFixed(2)}
+                </Text>
+              </View>
+            </View>
+
+            {/* Divider */}
+            <View style={styles.divider} />
+
+            {/* DELIVERY OPTION */}
+            <Text style={styles.sectionTitle}>Select Delivery Option</Text>
+
+            <View style={styles.deliveryOptions}>
+              {['Home', 'Office', 'Other'].map(opt => (
+                <TouchableOpacity
+                  key={opt}
+                  style={styles.deliveryOption}
+                  onPress={() => setDelivery(opt)}
+                >
+                  <View style={styles.radioContainer}>
+                    <View
+                      style={[
+                        styles.radioOuter,
+                        { borderColor: bgColor },
+                        delivery === opt && [
+                          styles.radioOuterActive,
+                          { borderColor: bgColor },
+                        ],
+                      ]}
+                    >
+                      {delivery === opt && (
+                        <View
+                          style={[
+                            styles.radioInner,
+                            { backgroundColor: bgColor },
+                          ]}
+                        />
+                      )}
+                    </View>
+                    <Text style={styles.radioLabel}>{opt}</Text>
+                  </View>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* DELIVERY LOCATION */}
+            <Text style={styles.sectionTitle}>Delivery Location</Text>
+
+            <View style={styles.locationCard}>
+              <View style={styles.locationRow}>
+                <View style={styles.radioContainer}>
+                  <View
+                    style={[
+                      styles.radioOuter,
+                      { borderColor: bgColor },
                       styles.radioOuterActive,
                       { borderColor: bgColor },
-                    ],
-                  ]}
-                >
-                  {delivery === opt && (
+                    ]}
+                  >
                     <View
                       style={[styles.radioInner, { backgroundColor: bgColor }]}
                     />
-                  )}
+                  </View>
+                  <Text style={styles.locationText}>
+                    CM Block, 2nd Floor, Assam, India
+                  </Text>
                 </View>
-                <Text style={styles.radioLabel}>{opt}</Text>
               </View>
-            </TouchableOpacity>
-          ))}
-        </View>
 
-        {/* DELIVERY LOCATION */}
-        <Text style={styles.sectionTitle}>Delivery Location</Text>
-
-        <View style={styles.locationCard}>
-          <View style={styles.locationRow}>
-            <View style={styles.radioContainer}>
-              <View
-                style={[
-                  styles.radioOuter,
-                  { borderColor: bgColor },
-                  styles.radioOuterActive,
-                  { borderColor: bgColor },
-                ]}
-              >
-                <View
-                  style={[styles.radioInner, { backgroundColor: bgColor }]}
-                />
-              </View>
-              <Text style={styles.locationText}>
-                CM Block, 2nd Floor, Assam, India
-              </Text>
+              <TextInput
+                placeholder="landmark/instruction (optional)"
+                placeholderTextColor="#999"
+                style={styles.landmarkInput}
+                multiline
+              />
             </View>
-          </View>
 
-          <TextInput
-            placeholder="landmark/instruction (optional)"
-            placeholderTextColor="#999"
-            style={styles.landmarkInput}
-            multiline
-          />
-        </View>
+            {/* CHECKOUT BUTTON */}
+            <TouchableOpacity
+              style={[styles.checkoutBtn, { backgroundColor: bgColor }]}
+              onPress={() => {
+                // Navigate to checkout or show success
+                alert('Checkout functionality would be implemented here');
+              }}
+            >
+              <Text style={styles.checkoutText}>CHECKOUT</Text>
+            </TouchableOpacity>
+          </>
+        )}
 
-        {/* CHECKOUT BUTTON */}
-        <TouchableOpacity
-          style={[styles.checkoutBtn, { backgroundColor: bgColor }]}
-          onPress={() => navigation.navigate('PaymentScreen')}
-        >
-          <Text style={styles.checkoutText}>CHECKOUT</Text>
-        </TouchableOpacity>
-
-        <View style={{ height: 40 }} />
+        <View style={{ height: responsiveSize(40) }} />
       </ScrollView>
     </View>
   );
@@ -342,7 +427,7 @@ const styles = StyleSheet.create({
       Platform.OS === 'ios' ? responsiveSize(100) : responsiveSize(90),
   },
 
-  /* HEADER */
+  /* HEADER WITH BACK BUTTON */
   header: {
     height: Platform.OS === 'ios' ? responsiveSize(100) : responsiveSize(90),
     flexDirection: 'row',
@@ -359,6 +444,28 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     flex: 1,
     marginHorizontal: responsiveSize(10),
+  },
+  iconBtn: {
+    width: responsiveSize(40),
+    height: responsiveSize(40),
+    borderRadius: responsiveSize(12),
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 4,
+      },
+      android: {
+        elevation: 3,
+      },
+    }),
+  },
+  icon: {
+    width: responsiveSize(20),
+    height: responsiveSize(20),
   },
 
   /* OFFERS SECTION */
@@ -448,6 +555,7 @@ const styles = StyleSheet.create({
     height: responsiveSize(90),
     borderRadius: responsiveSize(6),
     marginRight: responsiveSize(12),
+    resizeMode: 'contain',
   },
   productInfo: {
     flex: 1,
@@ -469,7 +577,7 @@ const styles = StyleSheet.create({
     marginBottom: responsiveSize(8),
   },
 
-  /* QUANTITY - After price */
+  /* QUANTITY */
   qtyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -497,7 +605,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 
-  /* Remove Button - Top Right Corner */
+  /* Remove Button */
   removeBtn: {
     position: 'absolute',
     top: responsiveSize(8),
@@ -514,6 +622,29 @@ const styles = StyleSheet.create({
     fontSize: responsiveSize(12),
     color: '#666',
     fontWeight: '300',
+  },
+
+  /* Empty Cart */
+  emptyCartContainer: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: responsiveSize(40),
+    marginTop: responsiveSize(20),
+  },
+  emptyCartText: {
+    fontSize: responsiveSize(18),
+    color: '#666',
+    marginBottom: responsiveSize(20),
+  },
+  shopNowButton: {
+    paddingHorizontal: responsiveSize(30),
+    paddingVertical: responsiveSize(12),
+    borderRadius: responsiveSize(8),
+  },
+  shopNowText: {
+    color: '#fff',
+    fontSize: responsiveSize(16),
+    fontWeight: '600',
   },
 
   divider: {
@@ -550,6 +681,7 @@ const styles = StyleSheet.create({
     height: responsiveSize(60),
     borderRadius: responsiveSize(6),
     marginBottom: responsiveSize(6),
+    resizeMode: 'contain',
   },
   checkbox: {
     position: 'absolute',
@@ -564,7 +696,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxSelected: {
-    backgroundColor: '#1d3f72', // Fallback color
+    backgroundColor: '#1d3f72',
   },
   checkmark: {
     color: '#fff',
@@ -620,6 +752,8 @@ const styles = StyleSheet.create({
     borderRadius: responsiveSize(6),
     marginLeft: responsiveSize(8),
     minWidth: responsiveSize(70),
+    height: responsiveSize(40),
+    alignItems: 'center',
   },
   applyTxt: {
     color: '#fff',
@@ -698,9 +832,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginRight: responsiveSize(6),
   },
-  radioOuterActive: {
-    // Border color handled inline
-  },
+  radioOuterActive: {},
   radioInner: {
     width: responsiveSize(8),
     height: responsiveSize(8),
@@ -739,6 +871,8 @@ const styles = StyleSheet.create({
     color: '#000',
     borderWidth: 1,
     borderColor: '#ddd',
+    textAlignVertical: 'top',
+    paddingTop: responsiveSize(10),
   },
 
   /* CHECKOUT BTN */
