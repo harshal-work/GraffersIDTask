@@ -153,6 +153,7 @@ const styles = StyleSheet.create({
     width: responsiveSize(32),
     height: responsiveSize(32),
     resizeMode: 'contain',
+    marginTop: responsiveSize(8), 
   },
   title: {
     fontSize: responsiveSize(22),
