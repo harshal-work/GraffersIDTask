@@ -32,7 +32,7 @@ const IMAGES = {
   h2: require('../../../assets/ghar.png'),
   tick: require('../../../assets/tick.png'),
   back: require('../../../assets/back.png'),
-  upload: require('../../../assets/upload.png'),
+ // upload: require('../../../assets/upload.png'),
 };
 
 const CancelOrder = () => {

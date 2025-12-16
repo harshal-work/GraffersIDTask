@@ -151,7 +151,7 @@ const Profile = () => {
             <TouchableOpacity
               key={item.id}
               style={styles.topOption}
-              onPress={() => handleNavigation(item.route)}
+             onPress={() => handleNavigation('Address')}
               activeOpacity={0.8}
             >
               <View style={styles.topIconContainer}>

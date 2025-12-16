@@ -97,13 +97,16 @@ export default function MyOrdersScreen({ navigation }) {
     setModalVisible(true);
   };
 
-  const handleReorderPress = order => {
-    navigation.navigate('OrderDetail', { order });
-  };
+   const handleReorderPress = order => {
+     navigation.navigate('OrderDetail', { order });
+   
+   };
 
   const handleCardPress = order => {
     navigation.navigate('OrderDetail', { order });
   };
+
+  
 
   const closeModal = () => {
     setModalVisible(false);
@@ -199,13 +202,14 @@ export default function MyOrdersScreen({ navigation }) {
                     >
                       <Text style={styles.rateText}>Rate</Text>
                     </TouchableOpacity>
-                    <TouchableOpacity
-                      style={[
-                        styles.reorderButton,
-                        { backgroundColor: bgColor },
-                      ]}
-                      onPress={() => handleReorderPress(order)}
-                    >
+                   <TouchableOpacity
+  style={[
+    styles.reorderButton,
+    { backgroundColor: bgColor },
+  ]}
+  onPress={() => handleReorderPress(order)}
+>
+
                       <Text style={styles.reorderText}>Re-Order</Text>
                     </TouchableOpacity>
                   </View>
