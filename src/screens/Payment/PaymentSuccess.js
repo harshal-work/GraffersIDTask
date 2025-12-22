@@ -8,6 +8,7 @@ import {
   StatusBar,
   SafeAreaView,
   BackHandler,
+  Platform,
 } from 'react-native';
 import { useNavigation, useFocusEffect } from '@react-navigation/native';
 import { useColor } from '../../util/ColorSwitcher';
@@ -16,12 +17,11 @@ const PaymentSuccess = () => {
   const navigation = useNavigation();
   const { bgColor, textColor } = useColor();
 
-  // Handle Android hardware back button
   useFocusEffect(
     React.useCallback(() => {
       const onBackPress = () => {
         navigation.navigate('Main');
-        return true; // Prevent default back behavior
+        return true;
       };
 
       const backHandler = BackHandler.addEventListener(
@@ -97,81 +97,93 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingBottom: 40,
+    paddingBottom: 32,
   },
 
   backButton: {
     position: 'absolute',
-    top: 55,
-    left: 20,
+    top: Platform.OS === 'ios' ? 45 : 35,
+    left: 16,
     zIndex: 10,
   },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: 36,
+    height: 36,
+    borderRadius: 10,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 3,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.1,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   backIcon: {
-    width: 20,
-    height: 20,
+    width: 18,
+    height: 18,
   },
 
   centerSection: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    marginTop: 120,
-    paddingHorizontal: 20,
+    marginTop: 100,
+    paddingHorizontal: 16,
   },
 
   outerCircle: {
     backgroundColor: '#fff',
-    width: 130,
-    height: 130,
-    borderRadius: 65,
+    width: 110,
+    height: 110,
+    borderRadius: 55,
     justifyContent: 'center',
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 8,
-    elevation: 5,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 3 },
+        shadowOpacity: 0.08,
+        shadowRadius: 6,
+      },
+      android: {
+        elevation: 4,
+      },
+    }),
   },
   innerCircle: {
-    width: 90,
-    height: 90,
-    borderRadius: 50,
+    width: 76,
+    height: 76,
+    borderRadius: 38,
     justifyContent: 'center',
     alignItems: 'center',
   },
   tickIcon: {
-    width: 40,
-    height: 40,
+    width: 34,
+    height: 34,
   },
 
   title: {
-    fontSize: 22,
+    fontSize: 18,
     fontFamily: 'Figtree-Bold',
-    marginTop: 30,
+    marginTop: 24,
   },
   subtitle: {
-    fontSize: 16,
+    fontSize: 14,
     fontFamily: 'Figtree-SemiBold',
-    marginTop: 6,
+    marginTop: 5,
   },
   desc: {
-    fontSize: 14,
+    fontSize: 12.5,
     fontFamily: 'Figtree-Regular',
     textAlign: 'center',
-    marginTop: 10,
-    lineHeight: 20,
+    marginTop: 8,
+    lineHeight: 17,
     opacity: 0.9,
   },
 
@@ -181,18 +193,24 @@ const styles = StyleSheet.create({
   },
 
   keepBrowsingBtn: {
-    borderRadius: 10,
+    borderRadius: 9,
     width: '85%',
-    paddingVertical: 14,
+    paddingVertical: 12,
     alignItems: 'center',
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
-    elevation: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   keepBrowsingText: {
-    fontSize: 16,
+    fontSize: 14,
     fontWeight: '900',
   },
 });

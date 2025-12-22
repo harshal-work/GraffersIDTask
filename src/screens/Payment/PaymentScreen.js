@@ -22,15 +22,13 @@ import { useColor } from '../../util/ColorSwitcher';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive sizing
-const responsiveSize = size => (width / 375) * size;
+// Swiggy-style tighter scaling
+const responsiveSize = size => (width / 400) * size;
 
-// Responsive font scaling
 const fontScale = size => {
   return Platform.OS === 'ios' ? size * 0.95 : size;
 };
 
-// Vibration helper function
 const vibrate = (duration = 40) => {
   if (Platform.OS === 'ios') {
     Vibration.vibrate([0, duration]);
@@ -55,7 +53,6 @@ const PaymentScreen = () => {
   const closeIcon = require('../../assets/back.png');
   const successIcon = require('../../assets/tick.png');
 
-  // Order details - calculated properly
   const orderItems = [
     {
       id: 1,
@@ -73,7 +70,6 @@ const PaymentScreen = () => {
     },
   ];
 
-  // Calculate totals
   const calculateSubtotal = () => {
     return orderItems.reduce(
       (total, item) => total + item.price * item.quantity,
@@ -82,11 +78,10 @@ const PaymentScreen = () => {
   };
 
   const subtotal = calculateSubtotal();
-  const deliveryFee = 0; // Free delivery
-  const discount = 0; // No discount
+  const deliveryFee = 0;
+  const discount = 0;
   const totalAmount = subtotal + deliveryFee - discount;
 
-  // Format currency for display
   const formatCurrency = amount => {
     return new Intl.NumberFormat('en-IN', {
       style: 'currency',
@@ -106,7 +101,6 @@ const PaymentScreen = () => {
     setPopupVisible(false);
   };
 
-  // Animate progress bar
   useEffect(() => {
     if (showSuccessPopup) {
       progressAnim.setValue(0);
@@ -125,15 +119,14 @@ const PaymentScreen = () => {
     setPaymentStatus('processing');
 
     try {
-      // IMPORTANT: Amount must be in paise (₹1 = 100 paise)
       const amountInPaise = Math.round(totalAmount * 100);
 
       const options = {
         description: 'Vinsta Mobile Order Payment',
-        image: 'https://i.imgur.com/3g7nmJC.png', // Static Razorpay merchant logo
+        image: 'https://i.imgur.com/3g7nmJC.png',
         currency: 'INR',
-        key: 'rzp_test_RB4DVzPPSyg8yG', // Test key - replace with your live key in production
-        amount: amountInPaise.toString(), // Convert to string
+        key: 'rzp_test_RB4DVzPPSyg8yG',
+        amount: amountInPaise.toString(),
         name: 'Vinsta Store',
         prefill: {
           email: 'customer@vinsta.com',
@@ -141,7 +134,7 @@ const PaymentScreen = () => {
           name: 'Vinsta Customer',
         },
         theme: {
-          color: bgColor, // Using dynamic bgColor from color switcher
+          color: bgColor,
           backdrop_color: '#000000',
         },
         modal: {
@@ -162,24 +155,20 @@ const PaymentScreen = () => {
 
       console.log('Opening Razorpay with options:', {
         ...options,
-        key: 'rzp_test_...', // Hide full key in logs
+        key: 'rzp_test_...',
       });
 
-      // Open Razorpay checkout
       RazorpayCheckout.open(options)
         .then(data => {
           console.log('Payment Success Response:', data);
 
-          // Check if payment was successful
           if (data.razorpay_payment_id) {
             setIsProcessing(false);
             setPaymentStatus('success');
             vibrate(100);
 
-            // Show success popup
             setShowSuccessPopup(true);
 
-            // Navigate to success screen after delay
             setTimeout(() => {
               setShowSuccessPopup(false);
               navigation.navigate('PaymentSuccess', {
@@ -200,7 +189,6 @@ const PaymentScreen = () => {
 
           let errMsg = 'Payment failed. Please try again.';
 
-          // Handle specific error cases
           if (error.error) {
             const errorObj = error.error;
             console.log('Error Object:', errorObj);
@@ -248,7 +236,7 @@ const PaymentScreen = () => {
     <View style={[styles.container, { backgroundColor: '#FFFFFF' }]}>
       <StatusBar backgroundColor={bgColor} barStyle="light-content" />
 
-      {/* HEADER - Fixed to match OfferClone screen */}
+      {/* HEADER */}
       <View style={[styles.header, { backgroundColor: bgColor }]}>
         <TouchableOpacity
           onPress={() => navigation.goBack()}
@@ -303,7 +291,6 @@ const PaymentScreen = () => {
             Order Summary
           </Text>
 
-          {/* Dynamic Order Items */}
           {orderItems.map(item => (
             <View key={item.id} style={styles.orderItem}>
               <View style={styles.itemLeft}>
@@ -323,10 +310,8 @@ const PaymentScreen = () => {
             </View>
           ))}
 
-          {/* Divider */}
           <View style={[styles.divider, { backgroundColor: '#e0e0e0' }]} />
 
-          {/* Price Breakdown */}
           <View style={styles.priceRow}>
             <Text style={[styles.priceLabel, { color: '#666666' }]}>
               Subtotal
@@ -352,10 +337,8 @@ const PaymentScreen = () => {
             </Text>
           </View>
 
-          {/* Divider */}
           <View style={[styles.divider, { backgroundColor: '#e0e0e0' }]} />
 
-          {/* Total */}
           <View style={styles.totalRow}>
             <Text style={[styles.totalLabel, { color: '#000000' }]}>
               Total Amount
@@ -366,7 +349,6 @@ const PaymentScreen = () => {
           </View>
         </View>
 
-        {/* Payment Note */}
         <View
           style={[
             styles.noteSection,
@@ -381,7 +363,6 @@ const PaymentScreen = () => {
           </Text>
         </View>
 
-        {/* Security Info */}
         <View style={styles.securitySection}>
           <Image
             source={require('../../assets/shield.png')}
@@ -392,7 +373,6 @@ const PaymentScreen = () => {
           </Text>
         </View>
 
-        {/* Razorpay Test Mode Banner */}
         <View
           style={[
             styles.testModeBanner,
@@ -405,11 +385,9 @@ const PaymentScreen = () => {
           </Text>
         </View>
 
-        {/* Bottom Spacer */}
-        <View style={{ height: height * 0.2 }} />
+        <View style={{ height: height * 0.15 }} />
       </ScrollView>
 
-      {/* TOTAL & PAY BUTTON */}
       <View
         style={[
           styles.bottomSection,
@@ -453,10 +431,7 @@ const PaymentScreen = () => {
                 style={styles.spinner}
               />
               <Text
-                style={[
-                  styles.payBtnText,
-                  { color: textColor, marginLeft: 10 },
-                ]}
+                style={[styles.payBtnText, { color: textColor, marginLeft: 8 }]}
               >
                 PROCESSING...
               </Text>
@@ -469,7 +444,6 @@ const PaymentScreen = () => {
         </TouchableOpacity>
       </View>
 
-      {/* Error/Success Popup Modal */}
       <Modal
         transparent
         visible={popupVisible}
@@ -526,7 +500,6 @@ const PaymentScreen = () => {
         </View>
       </Modal>
 
-      {/* Success Payment Popup with Image */}
       <Modal
         transparent
         visible={showSuccessPopup}
@@ -537,7 +510,6 @@ const PaymentScreen = () => {
           <View
             style={[styles.successPopupBox, { backgroundColor: '#FFFFFF' }]}
           >
-            {/* Success Image */}
             <View
               style={[
                 styles.successIconContainer,
@@ -551,7 +523,6 @@ const PaymentScreen = () => {
               />
             </View>
 
-            {/* Success Message */}
             <Text style={[styles.successTitle, { color: '#000000' }]}>
               Payment Successful!
             </Text>
@@ -560,7 +531,6 @@ const PaymentScreen = () => {
               your order has been confirmed.
             </Text>
 
-            {/* Loading/Progress indicator */}
             <View
               style={[styles.progressBar, { backgroundColor: bgColor + '20' }]}
             >
@@ -595,28 +565,27 @@ const styles = StyleSheet.create({
     paddingBottom: height * 0.02,
   },
 
-  /** HEADER - Fixed to match OfferClone screen **/
   header: {
-    height: Platform.OS === 'ios' ? responsiveSize(100) : responsiveSize(90),
+    height: Platform.OS === 'ios' ? responsiveSize(90) : responsiveSize(82),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: responsiveSize(18),
+    paddingHorizontal: responsiveSize(16),
     justifyContent: 'space-between',
-    paddingTop: Platform.OS === 'ios' ? responsiveSize(50) : responsiveSize(30),
+    paddingTop: Platform.OS === 'ios' ? responsiveSize(44) : responsiveSize(26),
     paddingBottom: responsiveSize(0),
   },
   headerTitle: {
     color: '#fff',
-    fontSize: responsiveSize(20),
+    fontSize: fontScale(responsiveSize(16)),
     fontWeight: '700',
     textAlign: 'center',
     flex: 1,
     marginHorizontal: responsiveSize(10),
   },
   iconBtn: {
-    width: responsiveSize(40),
-    height: responsiveSize(40),
-    borderRadius: responsiveSize(12),
+    width: responsiveSize(36),
+    height: responsiveSize(36),
+    borderRadius: responsiveSize(10),
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
@@ -624,34 +593,39 @@ const styles = StyleSheet.create({
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
         shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowRadius: 3,
       },
       android: {
-        elevation: 3,
+        elevation: 2,
       },
     }),
   },
   icon: {
-    width: responsiveSize(20),
-    height: responsiveSize(20),
+    width: responsiveSize(18),
+    height: responsiveSize(18),
   },
 
-  /** SHIPPING SECTION **/
   section: {
-    padding: responsiveSize(20),
+    padding: responsiveSize(13),
     borderBottomWidth: 1,
     borderBottomColor: '#e0e0e0',
-    marginHorizontal: responsiveSize(15),
+    marginHorizontal: responsiveSize(13),
     backgroundColor: '#FFFFFF',
-    borderRadius: responsiveSize(10),
-    marginTop: responsiveSize(15),
+    borderRadius: responsiveSize(9),
+    marginTop: responsiveSize(12),
     borderWidth: 1,
     borderColor: '#e0e0e0',
-    elevation: 1,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 1 },
+        shadowOpacity: 0.08,
+        shadowRadius: 2,
+      },
+      android: {
+        elevation: 1,
+      },
+    }),
   },
   shippingHeader: {
     flexDirection: 'row',
@@ -659,49 +633,43 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   shippingTitle: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(13.5)),
     fontWeight: '700',
-    fontFamily: 'Figtree-Bold',
   },
   changeText: {
-    fontSize: fontScale(responsiveSize(14)),
+    fontSize: fontScale(responsiveSize(12)),
     fontWeight: '600',
-    fontFamily: 'Figtree-SemiBold',
   },
   shippingRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: responsiveSize(12),
+    marginTop: responsiveSize(10),
   },
   locationIcon: {
-    width: responsiveSize(50),
-    height: responsiveSize(50),
-    marginRight: responsiveSize(10),
+    width: responsiveSize(42),
+    height: responsiveSize(42),
+    marginRight: responsiveSize(8),
   },
   homeTitle: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(13.5)),
     fontWeight: '700',
-    fontFamily: 'Figtree-Bold',
   },
   addressText: {
-    fontSize: fontScale(responsiveSize(13)),
-    lineHeight: responsiveSize(18),
-    marginTop: responsiveSize(3),
-    fontFamily: 'Figtree-Regular',
+    fontSize: fontScale(responsiveSize(11.5)),
+    lineHeight: responsiveSize(16),
+    marginTop: responsiveSize(2),
   },
 
-  /** ORDER ITEMS **/
   sectionTitle: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(13.5)),
     fontWeight: '700',
-    marginBottom: responsiveSize(15),
-    fontFamily: 'Figtree-Bold',
+    marginBottom: responsiveSize(12),
   },
   orderItem: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: responsiveSize(12),
+    marginBottom: responsiveSize(10),
   },
   itemLeft: {
     flexDirection: 'row',
@@ -709,50 +677,43 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   foodImage: {
-    width: responsiveSize(50),
-    height: responsiveSize(50),
-    borderRadius: responsiveSize(8),
-    marginRight: responsiveSize(12),
+    width: responsiveSize(42),
+    height: responsiveSize(42),
+    borderRadius: responsiveSize(7),
+    marginRight: responsiveSize(10),
   },
   itemDetails: {
     flex: 1,
   },
   itemName: {
-    fontSize: fontScale(responsiveSize(15)),
+    fontSize: fontScale(responsiveSize(13)),
     fontWeight: '600',
-    marginBottom: responsiveSize(4),
-    fontFamily: 'Figtree-SemiBold',
+    marginBottom: responsiveSize(3),
   },
   itemQty: {
-    fontSize: fontScale(responsiveSize(13)),
-    fontFamily: 'Figtree-Regular',
+    fontSize: fontScale(responsiveSize(11.5)),
   },
   itemPrice: {
-    fontSize: fontScale(responsiveSize(15)),
+    fontSize: fontScale(responsiveSize(13)),
     fontWeight: '700',
-    fontFamily: 'Figtree-Bold',
   },
 
-  /** DIVIDER **/
   divider: {
     height: 1,
-    marginVertical: responsiveSize(12),
+    marginVertical: responsiveSize(10),
   },
 
-  /** PRICE DETAILS **/
   priceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: responsiveSize(8),
+    marginBottom: responsiveSize(6),
   },
   priceLabel: {
-    fontSize: fontScale(responsiveSize(14)),
-    fontFamily: 'Figtree-Regular',
+    fontSize: fontScale(responsiveSize(12.5)),
   },
   priceValue: {
-    fontSize: fontScale(responsiveSize(14)),
+    fontSize: fontScale(responsiveSize(12.5)),
     fontWeight: '500',
-    fontFamily: 'Figtree-Medium',
   },
 
   totalRow: {
@@ -761,83 +722,74 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   totalLabel: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(14)),
     fontWeight: '700',
-    fontFamily: 'Figtree-Bold',
   },
   totalValue: {
-    fontSize: fontScale(responsiveSize(18)),
+    fontSize: fontScale(responsiveSize(16)),
     fontWeight: '700',
-    fontFamily: 'Figtree-Bold',
   },
 
-  /** NOTE SECTION **/
   noteSection: {
-    padding: responsiveSize(15),
-    marginHorizontal: responsiveSize(15),
-    marginTop: responsiveSize(15),
-    borderRadius: responsiveSize(10),
-    borderLeftWidth: 4,
+    padding: responsiveSize(13),
+    marginHorizontal: responsiveSize(13),
+    marginTop: responsiveSize(12),
+    borderRadius: responsiveSize(9),
+    borderLeftWidth: 3,
   },
   noteText: {
-    fontSize: fontScale(responsiveSize(13)),
-    lineHeight: responsiveSize(20),
-    fontFamily: 'Figtree-Regular',
+    fontSize: fontScale(responsiveSize(11.5)),
+    lineHeight: responsiveSize(17),
   },
 
-  /** SECURITY SECTION **/
   securitySection: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: responsiveSize(15),
-    marginTop: responsiveSize(15),
-    padding: responsiveSize(12),
-    borderRadius: responsiveSize(8),
+    marginHorizontal: responsiveSize(13),
+    marginTop: responsiveSize(12),
+    padding: responsiveSize(10),
+    borderRadius: responsiveSize(7),
     backgroundColor: '#f8f8f8',
   },
   securityIcon: {
-    width: responsiveSize(16),
-    height: responsiveSize(16),
-    marginRight: responsiveSize(8),
+    width: responsiveSize(14),
+    height: responsiveSize(14),
+    marginRight: responsiveSize(6),
   },
   securityText: {
-    fontSize: fontScale(responsiveSize(12)),
-    fontFamily: 'Figtree-Regular',
+    fontSize: fontScale(responsiveSize(11)),
     flex: 1,
   },
 
-  /** TEST MODE BANNER **/
   testModeBanner: {
-    marginHorizontal: responsiveSize(15),
-    marginTop: responsiveSize(15),
-    padding: responsiveSize(12),
-    borderRadius: responsiveSize(8),
+    marginHorizontal: responsiveSize(13),
+    marginTop: responsiveSize(12),
+    padding: responsiveSize(10),
+    borderRadius: responsiveSize(7),
     borderWidth: 1,
     alignItems: 'center',
   },
   testModeText: {
-    fontSize: fontScale(responsiveSize(12)),
-    fontFamily: 'Figtree-Regular',
+    fontSize: fontScale(responsiveSize(11)),
     textAlign: 'center',
   },
 
-  /** BOTTOM SECTION **/
   bottomSection: {
     position: 'absolute',
     bottom: 0,
     width: '100%',
-    padding: responsiveSize(20),
+    padding: responsiveSize(16),
     borderTopWidth: 1,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: -2 },
         shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowRadius: 3,
       },
       android: {
-        elevation: 8,
+        elevation: 6,
       },
     }),
   },
@@ -847,35 +799,37 @@ const styles = StyleSheet.create({
     alignItems: 'flex-end',
   },
   totalLabelBottom: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(14)),
     fontWeight: '700',
-    fontFamily: 'Figtree-Bold',
   },
   itemsText: {
-    fontSize: fontScale(responsiveSize(12)),
-    fontFamily: 'Figtree-Regular',
+    fontSize: fontScale(responsiveSize(11)),
   },
   totalValueBottom: {
-    fontSize: fontScale(responsiveSize(18)),
+    fontSize: fontScale(responsiveSize(16)),
     fontWeight: '700',
-    fontFamily: 'Figtree-Bold',
   },
 
   payBtn: {
-    borderRadius: responsiveSize(10),
-    marginTop: responsiveSize(15),
-    paddingVertical: responsiveSize(14),
+    borderRadius: responsiveSize(9),
+    marginTop: responsiveSize(12),
+    paddingVertical: responsiveSize(12),
     alignItems: 'center',
-    elevation: 2,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 3,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.15,
+        shadowRadius: 3,
+      },
+      android: {
+        elevation: 2,
+      },
+    }),
   },
   payBtnText: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(14)),
     fontWeight: '700',
-    fontFamily: 'Figtree-Bold',
   },
 
   loadingContainer: {
@@ -883,13 +837,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-
   spinner: {
-    width: responsiveSize(20),
-    height: responsiveSize(20),
+    width: responsiveSize(18),
+    height: responsiveSize(18),
   },
 
-  /** ERROR/SUCCESS POPUP **/
   popupOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.5)',
@@ -898,129 +850,123 @@ const styles = StyleSheet.create({
     paddingHorizontal: width * 0.05,
   },
   popupBox: {
-    width: width * 0.85,
-    borderRadius: responsiveSize(16),
-    padding: responsiveSize(25),
+    width: width * 0.88,
+    borderRadius: responsiveSize(14),
+    padding: responsiveSize(20),
     alignItems: 'center',
     position: 'relative',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 4 },
-        shadowOpacity: 0.2,
-        shadowRadius: 8,
+        shadowOpacity: 0.15,
+        shadowRadius: 6,
       },
       android: {
-        elevation: 10,
+        elevation: 8,
       },
     }),
   },
   popupIconContainer: {
-    width: responsiveSize(60),
-    height: responsiveSize(60),
-    borderRadius: responsiveSize(30),
+    width: responsiveSize(52),
+    height: responsiveSize(52),
+    borderRadius: responsiveSize(26),
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: responsiveSize(15),
+    marginBottom: responsiveSize(12),
   },
   popupStatusIcon: {
-    width: responsiveSize(30),
-    height: responsiveSize(30),
+    width: responsiveSize(26),
+    height: responsiveSize(26),
   },
   popupText: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(14)),
     textAlign: 'center',
-    marginBottom: responsiveSize(25),
-    lineHeight: responsiveSize(22),
-    fontFamily: 'Figtree-Medium',
+    marginBottom: responsiveSize(20),
+    lineHeight: responsiveSize(19),
   },
   popupButton: {
-    borderRadius: responsiveSize(10),
-    paddingVertical: responsiveSize(12),
-    paddingHorizontal: responsiveSize(40),
+    borderRadius: responsiveSize(9),
+    paddingVertical: responsiveSize(10),
+    paddingHorizontal: responsiveSize(32),
     width: '100%',
     alignItems: 'center',
   },
   popupButtonText: {
     fontWeight: '700',
-    fontSize: fontScale(responsiveSize(14)),
-    fontFamily: 'Figtree-Bold',
+    fontSize: fontScale(responsiveSize(13)),
   },
   closeIconWrapper: {
     position: 'absolute',
-    top: responsiveSize(15),
-    right: responsiveSize(15),
-    padding: responsiveSize(5),
+    top: responsiveSize(12),
+    right: responsiveSize(12),
+    padding: responsiveSize(4),
   },
   closeIcon: {
-    width: responsiveSize(18),
-    height: responsiveSize(18),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
   },
 
-  /** SUCCESS POPUP WITH IMAGE **/
   successPopupOverlay: {
     flex: 1,
     backgroundColor: 'rgba(0,0,0,0.7)',
     alignItems: 'center',
     justifyContent: 'center',
-    paddingHorizontal: width * 0.1,
+    paddingHorizontal: width * 0.08,
   },
   successPopupBox: {
-    width: width * 0.85,
-    borderRadius: responsiveSize(20),
-    padding: responsiveSize(30),
+    width: width * 0.88,
+    borderRadius: responsiveSize(16),
+    padding: responsiveSize(24),
     alignItems: 'center',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
-        shadowOffset: { width: 0, height: 10 },
-        shadowOpacity: 0.3,
-        shadowRadius: 20,
+        shadowOffset: { width: 0, height: 8 },
+        shadowOpacity: 0.2,
+        shadowRadius: 12,
       },
       android: {
-        elevation: 15,
+        elevation: 12,
       },
     }),
   },
   successIconContainer: {
-    width: responsiveSize(80),
-    height: responsiveSize(80),
-    borderRadius: responsiveSize(40),
+    width: responsiveSize(68),
+    height: responsiveSize(68),
+    borderRadius: responsiveSize(34),
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: responsiveSize(20),
+    marginBottom: responsiveSize(16),
   },
   successImage: {
-    width: responsiveSize(40),
-    height: responsiveSize(40),
+    width: responsiveSize(34),
+    height: responsiveSize(34),
   },
   successTitle: {
-    fontSize: fontScale(responsiveSize(22)),
+    fontSize: fontScale(responsiveSize(18)),
     fontWeight: '700',
     textAlign: 'center',
-    marginBottom: responsiveSize(10),
-    fontFamily: 'Figtree-Bold',
+    marginBottom: responsiveSize(8),
   },
   successSubtitle: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(14)),
     textAlign: 'center',
-    lineHeight: responsiveSize(22),
-    marginBottom: responsiveSize(25),
-    fontFamily: 'Figtree-Regular',
+    lineHeight: responsiveSize(19),
+    marginBottom: responsiveSize(20),
   },
   progressBar: {
     width: '100%',
-    height: responsiveSize(4),
-    borderRadius: responsiveSize(2),
-    marginBottom: responsiveSize(15),
+    height: responsiveSize(3),
+    borderRadius: responsiveSize(1.5),
+    marginBottom: responsiveSize(12),
     overflow: 'hidden',
   },
   progressFill: {
     height: '100%',
-    borderRadius: responsiveSize(2),
+    borderRadius: responsiveSize(1.5),
   },
   redirectText: {
-    fontSize: fontScale(responsiveSize(14)),
-    fontFamily: 'Figtree-Regular',
+    fontSize: fontScale(responsiveSize(12.5)),
   },
 });

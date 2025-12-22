@@ -14,8 +14,8 @@ import { useColor } from '../../../util/ColorSwitcher';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive sizing
-const responsiveSize = size => (width / 375) * size;
+// Slightly reduced responsive sizing
+const responsiveSize = size => (width / 400) * size;
 
 // Platform detection
 const isIOS = Platform.OS === 'ios';
@@ -102,7 +102,7 @@ export default function OfferClone({ navigation }) {
 
         <Text style={styles.headerTitle}>Offers</Text>
 
-        <View style={{ width: responsiveSize(40) }} />
+        <View style={{ width: responsiveSize(32) }} />
       </View>
 
       <ScrollView
@@ -119,8 +119,8 @@ export default function OfferClone({ navigation }) {
                 backgroundColor: textColor,
                 marginBottom:
                   index === offersData.length - 1
-                    ? responsiveSize(20)
-                    : responsiveSize(16),
+                    ? responsiveSize(16)
+                    : responsiveSize(12),
               },
             ]}
           >
@@ -152,7 +152,7 @@ export default function OfferClone({ navigation }) {
         ))}
 
         {/* Extra padding for bottom tab */}
-        <View style={{ height: responsiveSize(80) }} />
+        <View style={{ height: responsiveSize(64) }} />
       </ScrollView>
     </View>
   );
@@ -167,33 +167,33 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom:
-      Platform.OS === 'ios' ? responsiveSize(100) : responsiveSize(90),
-    paddingHorizontal: responsiveSize(15),
-    paddingTop: responsiveSize(10),
+      Platform.OS === 'ios' ? responsiveSize(80) : responsiveSize(72),
+    paddingHorizontal: responsiveSize(12),
+    paddingTop: responsiveSize(8),
   },
 
-  /* HEADER - Same as HomeFilter */
+  /* HEADER - compact */
   header: {
-    height: Platform.OS === 'ios' ? responsiveSize(100) : responsiveSize(90),
+    height: Platform.OS === 'ios' ? responsiveSize(90) : responsiveSize(82),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: responsiveSize(18),
+    paddingHorizontal: responsiveSize(14),
     justifyContent: 'space-between',
-    paddingTop: Platform.OS === 'ios' ? responsiveSize(50) : responsiveSize(30),
-    paddingBottom: responsiveSize(0),
+    paddingTop: Platform.OS === 'ios' ? responsiveSize(44) : responsiveSize(26),
+    paddingBottom: 0,
   },
   headerTitle: {
     color: '#fff',
-    fontSize: responsiveSize(20),
+    fontSize: responsiveSize(16),
     fontWeight: '700',
     textAlign: 'center',
     flex: 1,
-    marginHorizontal: responsiveSize(10),
+    marginHorizontal: responsiveSize(8),
   },
   iconBtn: {
-    width: responsiveSize(40),
-    height: responsiveSize(40),
-    borderRadius: responsiveSize(12),
+    width: responsiveSize(34),
+    height: responsiveSize(34),
+    borderRadius: responsiveSize(10),
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
@@ -209,56 +209,57 @@ const styles = StyleSheet.create({
     }),
   },
   icon: {
-    width: responsiveSize(20),
-    height: responsiveSize(20),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
+    resizeMode: 'contain',
   },
 
   /* OFFER CARD */
   offerCard: {
-    borderRadius: scaleSize(responsiveSize(16)),
+    borderRadius: scaleSize(responsiveSize(13)),
     flexDirection: 'row',
     alignItems: 'center',
-    padding: scaleSize(responsiveSize(18)),
+    padding: scaleSize(responsiveSize(14)),
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
+        shadowOpacity: 0.08,
+        shadowRadius: 3,
       },
       android: {
-        elevation: 3,
+        elevation: 2,
       },
     }),
   },
   offerContent: {
     flex: 1,
-    marginRight: responsiveSize(12),
+    marginRight: responsiveSize(10),
   },
   offerHeader: {
     fontWeight: '700',
-    fontSize: fontScale(responsiveSize(20)),
-    marginBottom: responsiveSize(6),
+    fontSize: fontScale(responsiveSize(15)),
+    marginBottom: responsiveSize(4),
   },
   offerSubTxt: {
-    fontSize: fontScale(responsiveSize(14)),
-    marginBottom: responsiveSize(18),
-    lineHeight: responsiveSize(22),
+    fontSize: fontScale(responsiveSize(11)),
+    marginBottom: responsiveSize(12),
+    lineHeight: responsiveSize(17),
   },
   offerButton: {
-    borderRadius: scaleSize(responsiveSize(10)),
-    paddingVertical: isIOS ? responsiveSize(14) : responsiveSize(12),
-    paddingHorizontal: responsiveSize(18),
+    borderRadius: scaleSize(responsiveSize(8)),
+    paddingVertical: isIOS ? responsiveSize(10) : responsiveSize(9),
+    paddingHorizontal: responsiveSize(14),
     alignSelf: 'flex-start',
   },
   offerBtnText: {
     fontWeight: '700',
-    fontSize: fontScale(responsiveSize(13)),
-    letterSpacing: 0.3,
+    fontSize: fontScale(responsiveSize(11)),
+    letterSpacing: 0.25,
   },
   offerImageWrap: {
-    width: responsiveSize(90),
-    height: responsiveSize(90),
+    width: responsiveSize(70),
+    height: responsiveSize(70),
     justifyContent: 'center',
     alignItems: 'center',
   },

@@ -17,7 +17,13 @@ import { useColor } from '../../../util/ColorSwitcher';
 
 const { width, height } = Dimensions.get('window');
 const MAP_HEIGHT = height * 0.32;
-const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight;
+const STATUS_BAR_HEIGHT =
+  Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 24;
+
+// compact scale based on 375
+const BASE_WIDTH = 375;
+const scale = width / BASE_WIDTH;
+const rs = size => size * scale;
 
 const ICONS = {
   location: require('../../../assets/location.png'),
@@ -41,22 +47,21 @@ const TrackOrder = () => {
   const navigation = useNavigation();
   const { bgColor, textColor } = useColor();
 
-  // Responsive calculations
-  const headerTop = STATUS_BAR_HEIGHT + 10;
-  const markerSize = width * 0.08;
-  const boyIconSize = width * 0.15;
-  const lineWidth = width * 0.015;
-  const horizontalLineLength = width * 0.18;
+  const headerTop = STATUS_BAR_HEIGHT + rs(6);
+  const markerSize = width * 0.07;
+  const boyIconSize = width * 0.13;
+  const lineWidth = width * 0.012;
+  const horizontalLineLength = width * 0.16;
 
   const handleCall = () => {
     const phoneNumber = '+911234567890';
-    Linking.openURL(`tel:${phoneNumber}`).catch(err => {
-      console.log('Error making phone call:', err);
-    });
+    Linking.openURL(`tel:${phoneNumber}`).catch(err =>
+      console.log('Error making phone call:', err),
+    );
   };
 
   const handleMessage = () => {
-    navigation.navigate('chat');
+    navigation.navigate('Chat');
   };
 
   return (
@@ -67,7 +72,7 @@ const TrackOrder = () => {
         translucent
       />
 
-      {/* Fixed Map Area with proper status bar handling */}
+      {/* Fixed Map Area */}
       <View style={styles.fixedMapArea}>
         <View style={styles.statusBarOverlay} />
         <Image
@@ -75,7 +80,7 @@ const TrackOrder = () => {
           style={styles.mapBg}
         />
 
-        {/* HEADER - Updated to match PaymentScreen style with color switcher */}
+        {/* Header */}
         <View style={[styles.header, { top: headerTop }]}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
@@ -87,13 +92,10 @@ const TrackOrder = () => {
               style={[styles.backIcon, { tintColor: bgColor }]}
             />
           </TouchableOpacity>
-          {/* <Text style={[styles.headerTitle, { color: textColor }]}>
-            Track Order
-          </Text> */}
-          <View style={{ width: 40 }} />
+          <View style={{ width: rs(30) }} />
         </View>
 
-        {/* ZIG-ZAG PROGRESS LINE */}
+        {/* Zig-zag line */}
         <View style={styles.absFill}>
           <View
             style={[
@@ -133,7 +135,7 @@ const TrackOrder = () => {
           />
         </View>
 
-        {/* ICONS ON LINE */}
+        {/* Icons on line */}
         <View style={[styles.absFill, { alignItems: 'center' }]}>
           {/* Pickup */}
           <View
@@ -154,6 +156,7 @@ const TrackOrder = () => {
               ]}
             />
           </View>
+
           {/* Boy */}
           <Image
             source={ICONS.boy}
@@ -168,6 +171,7 @@ const TrackOrder = () => {
               },
             ]}
           />
+
           {/* Drop */}
           <View
             style={[
@@ -183,8 +187,8 @@ const TrackOrder = () => {
               style={[
                 styles.mapMarkerDrop,
                 {
-                  width: markerSize * 0.8,
-                  height: markerSize * 0.8,
+                  width: markerSize * 0.75,
+                  height: markerSize * 0.75,
                   tintColor: bgColor,
                 },
               ]}
@@ -193,13 +197,13 @@ const TrackOrder = () => {
         </View>
       </View>
 
-      {/* SCROLLABLE SECTION (Starts below fixed MAP) */}
+      {/* Scrollable section */}
       <ScrollView
         style={styles.scrollSection}
         contentContainerStyle={styles.scrollContent}
         showsVerticalScrollIndicator={false}
       >
-        {/* ORDER CARD */}
+        {/* Order card */}
         <View style={styles.orderCard}>
           <Image
             source={require('../../../assets/mobile2.png')}
@@ -225,7 +229,7 @@ const TrackOrder = () => {
           </View>
         </View>
 
-        {/* DELIVERY STATUS ICONS */}
+        {/* Delivery status icons */}
         <View style={styles.deliveryIconsRow}>
           {deliverySteps.map((item, idx) => (
             <React.Fragment key={item.step}>
@@ -250,7 +254,6 @@ const TrackOrder = () => {
                   <View style={styles.tickPlaceholder} />
                 )}
               </View>
-              {/* Show connector line except after the last icon */}
               {idx !== deliverySteps.length - 1 && (
                 <View style={styles.connectorLine} />
               )}
@@ -260,7 +263,7 @@ const TrackOrder = () => {
 
         <Text style={styles.deliveryText}>Packet In Delivery</Text>
 
-        {/* ORDER STATUS DETAILS */}
+        {/* Order status details */}
         <View style={styles.statusSection}>
           <Text style={styles.statusTitle}>Order Status Details</Text>
           {[
@@ -300,14 +303,18 @@ const TrackOrder = () => {
                 <View
                   style={[
                     styles.circle,
-                    { backgroundColor: item.done ? bgColor : '#C7C7C7' },
+                    {
+                      backgroundColor: item.done ? bgColor : '#C7C7C7',
+                    },
                   ]}
                 />
                 {index < 4 && (
                   <View
                     style={[
                       styles.dottedLine,
-                      { borderColor: item.done ? bgColor : '#C7C7C7' },
+                      {
+                        borderColor: item.done ? bgColor : '#C7C7C7',
+                      },
                     ]}
                   />
                 )}
@@ -321,7 +328,7 @@ const TrackOrder = () => {
           ))}
         </View>
 
-        {/* DELIVERY AGENT SECTION */}
+        {/* Delivery agent */}
         <View style={styles.agentSection}>
           <Image
             source={require('../../../assets/user2.png')}
@@ -363,6 +370,7 @@ export default TrackOrder;
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
   absFill: { ...StyleSheet.absoluteFillObject, zIndex: 2 },
+
   fixedMapArea: {
     width: '100%',
     height: MAP_HEIGHT,
@@ -386,21 +394,22 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
     position: 'absolute',
   },
+
   header: {
     position: 'absolute',
-    left: 20,
-    right: 20,
+    left: rs(14),
+    right: rs(14),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     zIndex: 10,
-    paddingTop: 10,
-    paddingBottom: 10,
+    paddingTop: rs(6),
+    paddingBottom: rs(6),
   },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: rs(32),
+    height: rs(32),
+    borderRadius: rs(10),
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
@@ -416,26 +425,25 @@ const styles = StyleSheet.create({
     }),
   },
   backIcon: {
-    width: 20,
-    height: 20,
+    width: rs(16),
+    height: rs(16),
+    resizeMode: 'contain',
   },
   headerTitle: {
-    fontSize: 18,
+    fontSize: rs(14),
     fontWeight: '700',
     fontFamily: 'Figtree-Bold',
     textAlign: 'center',
     flex: 1,
-    marginHorizontal: 10,
+    marginHorizontal: rs(8),
   },
 
-  // ZIG-ZAG LINE
   zigzagLine: {
     position: 'absolute',
     borderRadius: 2,
     zIndex: 5,
   },
 
-  // Map Markers
   mapMarkerContainer: {
     position: 'absolute',
     alignItems: 'center',
@@ -457,27 +465,26 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
 
-  // Scroll area
   scrollSection: {
     flex: 1,
     backgroundColor: '#fff',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    marginTop: -20,
+    borderTopLeftRadius: rs(16),
+    borderTopRightRadius: rs(16),
+    marginTop: -rs(16),
     zIndex: 8,
   },
   scrollContent: {
-    paddingBottom: 50,
-    paddingTop: 10,
+    paddingBottom: rs(40),
+    paddingTop: rs(8),
   },
 
   orderCard: {
     flexDirection: 'row',
-    padding: 15,
+    padding: rs(11),
     backgroundColor: '#fff',
-    borderRadius: 15,
-    marginHorizontal: 15,
-    marginTop: 18,
+    borderRadius: rs(12),
+    marginHorizontal: rs(14),
+    marginTop: rs(13),
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -492,85 +499,84 @@ const styles = StyleSheet.create({
   },
   orderInfoContainer: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: rs(8),
   },
   foodImg: {
-    width: 70,
-    height: 70,
-    borderRadius: 10,
+    width: rs(56),
+    height: rs(56),
+    borderRadius: rs(8),
+    resizeMode: 'contain',
   },
   orderId: {
     fontWeight: '500',
-    fontSize: 13,
+    fontSize: rs(11),
     fontFamily: 'Figtree-Medium',
   },
   price: {
     color: '#000',
     fontWeight: '700',
-    fontSize: 15,
+    fontSize: rs(13),
     fontFamily: 'Figtree-Bold',
   },
   foodName: {
     fontWeight: '600',
-    fontSize: 16,
+    fontSize: rs(13),
     color: '#000',
-    marginTop: 2,
+    marginTop: rs(2),
     fontFamily: 'Figtree-SemiBold',
   },
   orderInfo: {
-    fontSize: 12,
+    fontSize: rs(10.5),
     color: '#777',
-    marginBottom: 5,
+    marginBottom: rs(4),
     fontFamily: 'Figtree-Medium',
     fontWeight: '500',
   },
   estimateLabel: {
-    fontSize: 12,
+    fontSize: rs(10.5),
     color: '#777',
     fontFamily: 'Figtree-Medium',
     fontWeight: '500',
   },
   estimateTime: {
     color: '#259E29',
-    fontSize: 14,
+    fontSize: rs(11.5),
     fontFamily: 'Figtree-SemiBold',
     fontWeight: '600',
   },
   foodStatus: {
-    fontSize: 13,
+    fontSize: rs(11),
     color: '#000',
     fontFamily: 'Figtree-SemiBold',
     fontWeight: '600',
   },
-
   rowBetween: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
 
-  // DELIVERY STATUS ICONS ROW
   deliveryIconsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 25,
-    marginHorizontal: 22,
+    marginTop: rs(18),
+    marginHorizontal: rs(16),
   },
   deliveryStepContainer: {
     alignItems: 'center',
     justifyContent: 'center',
   },
   deliveryIcon: {
-    width: 38,
-    height: 38,
+    width: rs(30),
+    height: rs(30),
     resizeMode: 'contain',
   },
   tickWrap: {
-    marginTop: 5,
-    width: 22,
-    height: 22,
-    borderRadius: 11,
+    marginTop: rs(4),
+    width: rs(18),
+    height: rs(18),
+    borderRadius: rs(9),
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
@@ -579,78 +585,79 @@ const styles = StyleSheet.create({
     elevation: 2,
   },
   tickPlaceholder: {
-    marginTop: 5,
-    width: 22,
-    height: 22,
+    marginTop: rs(4),
+    width: rs(18),
+    height: rs(18),
   },
   tickIcon: {
-    width: 12,
-    height: 12,
+    width: rs(10),
+    height: rs(10),
+    resizeMode: 'contain',
   },
   connectorLine: {
-    width: 40,
-    height: 2,
+    width: rs(32),
+    height: rs(2),
     backgroundColor: '#E5E5E5',
-    marginHorizontal: 8,
+    marginHorizontal: rs(6),
   },
 
   deliveryText: {
     textAlign: 'center',
     color: '#000',
     fontWeight: '600',
-    marginTop: 10,
-    fontSize: 14,
+    marginTop: rs(7),
+    fontSize: rs(11.5),
     fontFamily: 'Figtree-SemiBold',
   },
 
   statusSection: {
-    paddingHorizontal: 20,
-    marginTop: 25,
+    paddingHorizontal: rs(16),
+    marginTop: rs(18),
   },
   statusTitle: {
-    fontSize: 16,
+    fontSize: rs(13),
     fontWeight: '600',
     color: '#000',
-    marginBottom: 15,
+    marginBottom: rs(11),
     fontFamily: 'Figtree-SemiBold',
   },
   statusRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
-    marginBottom: 20,
+    marginBottom: rs(14),
   },
   statusLeft: {
     alignItems: 'center',
-    marginRight: 15,
-    width: 16,
+    marginRight: rs(11),
+    width: rs(14),
   },
   circle: {
-    width: 16,
-    height: 16,
-    borderRadius: 8,
+    width: rs(14),
+    height: rs(14),
+    borderRadius: rs(7),
   },
   dottedLine: {
-    height: 28,
+    height: rs(22),
     borderLeftWidth: 2,
     borderStyle: 'dotted',
-    marginTop: 2,
+    marginTop: rs(1),
   },
   statusContent: { flex: 1 },
   statusText: {
     color: '#000',
     fontWeight: '600',
-    fontSize: 14,
+    fontSize: rs(11.5),
     fontFamily: 'Figtree-SemiBold',
   },
   statusTime: {
     color: '#777',
-    fontSize: 12,
+    fontSize: rs(10.5),
     fontFamily: 'Figtree-Medium',
     fontWeight: '500',
   },
   statusDate: {
     color: '#777',
-    fontSize: 12,
+    fontSize: rs(10.5),
     fontFamily: 'Figtree-Medium',
     fontWeight: '500',
   },
@@ -658,27 +665,28 @@ const styles = StyleSheet.create({
   agentSection: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 20,
-    marginTop: 10,
-    marginBottom: 40,
+    paddingHorizontal: rs(16),
+    marginTop: rs(8),
+    marginBottom: rs(30),
   },
   agentInfo: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: rs(8),
   },
   agentImg: {
-    width: 55,
-    height: 55,
-    borderRadius: 27.5,
+    width: rs(44),
+    height: rs(44),
+    borderRadius: rs(22),
+    resizeMode: 'cover',
   },
   agentId: {
-    fontSize: 12,
+    fontSize: rs(10.5),
     color: '#777',
     fontFamily: 'Figtree-Regular',
     fontWeight: '400',
   },
   agentName: {
-    fontSize: 15,
+    fontSize: rs(12.5),
     color: '#000',
     fontFamily: 'Figtree-SemiBold',
     fontWeight: '600',
@@ -690,32 +698,34 @@ const styles = StyleSheet.create({
   },
   callBtn: {
     flexDirection: 'row',
-    paddingHorizontal: 15,
-    paddingVertical: 10,
-    borderRadius: 8,
-    marginRight: 10,
+    paddingHorizontal: rs(12),
+    paddingVertical: rs(8),
+    borderRadius: rs(7),
+    marginRight: rs(7),
     alignItems: 'center',
   },
   callIcon: {
-    width: 16,
-    height: 16,
-    marginRight: 5,
+    width: rs(13),
+    height: rs(13),
+    marginRight: rs(4),
+    resizeMode: 'contain',
   },
   callText: {
-    fontSize: 13,
+    fontSize: rs(11.5),
     fontFamily: 'Figtree-SemiBold',
     fontWeight: '600',
   },
   msgBtn: {
     backgroundColor: '#fff',
     borderWidth: 1,
-    padding: 10,
-    borderRadius: 8,
+    padding: rs(8),
+    borderRadius: rs(7),
     alignItems: 'center',
     justifyContent: 'center',
   },
   msgIcon: {
-    width: 18,
-    height: 18,
+    width: rs(14),
+    height: rs(14),
+    resizeMode: 'contain',
   },
 });

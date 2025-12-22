@@ -20,8 +20,8 @@ import { useNavigation } from '@react-navigation/native';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive sizing
-const responsiveSize = size => (width / 375) * size;
+// Slightly reduced scaling to make everything smaller
+const responsiveSize = size => (width / 400) * size;
 const isSmallScreen = width < 375;
 
 // Get proper status bar height for both platforms
@@ -37,7 +37,6 @@ const statusBarHeight = getStatusBarHeight();
 // Safe vibration function with permission check
 const safeVibrate = (duration = 40) => {
   try {
-    // Check if Vibration is available and we're on a supported platform
     if (Platform.OS === 'android' || Platform.OS === 'ios') {
       if (Vibration && typeof Vibration.vibrate === 'function') {
         Vibration.vibrate(duration);
@@ -45,7 +44,6 @@ const safeVibrate = (duration = 40) => {
     }
   } catch (error) {
     console.log('Vibration error:', error);
-    // Silently fail - don't crash the app if vibration fails
   }
 };
 
@@ -192,45 +190,37 @@ export default function HealthHome({ activeTab, setActiveTab }) {
   const heartButtonScales = useRef({});
 
   const onCategoryPress = id => {
-    // Safe check for setActiveTab function
     if (setActiveTab && typeof setActiveTab === 'function') {
       setActiveTab(id);
     }
     switchColor(id);
   };
 
-  // Handle search navigation
   const handleSearchPress = () => {
     navigation.navigate('Search');
   };
 
-  // Handle filter press
   const handleFilterPress = () => {
     navigation.navigate('HomeFilter');
   };
 
-  // Handle store press - Navigate to Store screen
   const handleStorePress = store => {
     navigation.navigate('Store', { store });
   };
 
-  // Handle view all stores press
   const handleViewAllStores = () => {
     navigation.navigate('StoreList', { stores: dummyStores });
   };
 
-  // Handle special offers see all press
   const handleSeeAllOffers = () => {
     navigation.navigate('OffersClone');
   };
 
-  // Handle medical device press
   const handleMedicalDevicePress = index => {
     const device = medicalDevicesData[index];
     if (device) {
       navigation.navigate('Items', { item: device });
     } else {
-      // Fallback medical device item
       const fallbackDevice = {
         id: `medical_${index}`,
         title: [
@@ -262,13 +252,11 @@ export default function HealthHome({ activeTab, setActiveTab }) {
     }
   };
 
-  // Handle health product press
   const handleHealthProductPress = index => {
     const product = healthProductsData[index];
     if (product) {
       navigation.navigate('Items', { item: product });
     } else {
-      // Fallback health product item
       const fallbackProduct = {
         id: `health_${index}`,
         title: [
@@ -300,7 +288,6 @@ export default function HealthHome({ activeTab, setActiveTab }) {
     }
   };
 
-  // Get or create scale animation for heart (store)
   const getStoreHeartButtonScale = storeId => {
     if (!heartButtonScales.current[storeId]) {
       heartButtonScales.current[storeId] = new Animated.Value(1);
@@ -309,9 +296,8 @@ export default function HealthHome({ activeTab, setActiveTab }) {
   };
 
   const handleStoreHeartPress = storeId => {
-    safeVibrate(40); // Vibration effect
+    safeVibrate(40);
 
-    // Scale animation
     const scaleAnim = getStoreHeartButtonScale(storeId);
     Animated.sequence([
       Animated.timing(scaleAnim, {
@@ -369,7 +355,6 @@ export default function HealthHome({ activeTab, setActiveTab }) {
         </TouchableOpacity>
 
         <View style={styles.storeBody}>
-          {/* ⭐ RATING BADGE ABOVE TITLE */}
           <View style={[styles.ratingBadgeNew, { backgroundColor: bgColor }]}>
             <Image
               source={assets.star}
@@ -381,7 +366,6 @@ export default function HealthHome({ activeTab, setActiveTab }) {
 
           <Text style={styles.storeTitle}>{item.name}</Text>
 
-          {/* Delivery row */}
           <View style={styles.deliveryRow}>
             <View style={styles.deliveryItem}>
               <Image
@@ -402,7 +386,6 @@ export default function HealthHome({ activeTab, setActiveTab }) {
             </View>
           </View>
 
-          {/* Tags */}
           <View style={styles.tagsRow}>
             {item.tags &&
               item.tags.map((tag, idx) => (
@@ -444,7 +427,6 @@ export default function HealthHome({ activeTab, setActiveTab }) {
       >
         {/* Header top */}
         <View style={[styles.topHeader, { backgroundColor: bgColor }]}>
-          {/* iOS Safe Area Spacer */}
           {Platform.OS === 'ios' && <View style={styles.iosSafeArea} />}
 
           <View style={styles.topRow}>
@@ -591,7 +573,7 @@ export default function HealthHome({ activeTab, setActiveTab }) {
         </TouchableOpacity>
 
         {/* Popular Stores */}
-        <View style={[styles.sectionHeader, { marginTop: responsiveSize(24) }]}>
+        <View style={[styles.sectionHeader, { marginTop: responsiveSize(20) }]}>
           <Text style={styles.sectionTitle}>Popular Store's</Text>
           <TouchableOpacity onPress={handleViewAllStores} activeOpacity={0.7}>
             <Text style={[styles.sectionLink, { color: bgColor }]}>
@@ -713,17 +695,16 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom:
-      Platform.OS === 'ios' ? responsiveSize(100) : responsiveSize(90),
+      Platform.OS === 'ios' ? responsiveSize(80) : responsiveSize(72),
   },
 
-  // HEADER - Proper handling for both iOS and Android
+  // HEADER
   topHeader: {
-    paddingHorizontal: responsiveSize(18),
-    paddingBottom: responsiveSize(20),
-    borderBottomLeftRadius: responsiveSize(20),
-    borderBottomRightRadius: responsiveSize(20),
-    // Android uses paddingTop, iOS uses the safe area view
-    paddingTop: Platform.OS === 'android' ? statusBarHeight : 20,
+    paddingHorizontal: responsiveSize(14),
+    paddingBottom: responsiveSize(16),
+    borderBottomLeftRadius: responsiveSize(18),
+    borderBottomRightRadius: responsiveSize(18),
+    paddingTop: Platform.OS === 'android' ? statusBarHeight : 18,
   },
   iosSafeArea: {
     height: statusBarHeight,
@@ -732,7 +713,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: Platform.OS === 'ios' ? responsiveSize(8) : responsiveSize(20),
+    marginTop: Platform.OS === 'ios' ? responsiveSize(6) : responsiveSize(16),
   },
   locationWrap: {
     flexDirection: 'row',
@@ -740,7 +721,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   locationTextContainer: {
-    marginLeft: responsiveSize(8),
+    marginLeft: responsiveSize(6),
     flex: 1,
   },
   addressRow: {
@@ -748,42 +729,42 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   iconSmall: {
-    width: responsiveSize(18),
-    height: responsiveSize(18),
+    width: responsiveSize(14),
+    height: responsiveSize(14),
     tintColor: '#fff',
   },
   dropdown: {
-    width: responsiveSize(8),
-    height: responsiveSize(8),
+    width: responsiveSize(7),
+    height: responsiveSize(7),
     tintColor: '#fff',
-    marginLeft: responsiveSize(6),
+    marginLeft: responsiveSize(4),
   },
 
   deliverText: {
     color: '#fff',
-    fontSize: responsiveSize(12),
+    fontSize: responsiveSize(10),
   },
   addressText: {
     color: '#fff',
     fontWeight: '700',
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(12),
   },
   userIcon: {
-    width: responsiveSize(40),
-    height: responsiveSize(40),
-    borderRadius: responsiveSize(20),
+    width: responsiveSize(34),
+    height: responsiveSize(34),
+    borderRadius: responsiveSize(17),
   },
   headerTitle: {
     color: '#fff',
-    fontSize: responsiveSize(20),
+    fontSize: responsiveSize(16),
     fontWeight: '700',
-    marginTop: responsiveSize(16),
-    lineHeight: responsiveSize(26),
+    marginTop: responsiveSize(12),
+    lineHeight: responsiveSize(22),
   },
 
   searchRow: {
     flexDirection: 'row',
-    marginTop: responsiveSize(18),
+    marginTop: responsiveSize(14),
     alignItems: 'center',
   },
   searchBox: {
@@ -791,85 +772,85 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: '#fff',
-    paddingHorizontal: responsiveSize(14),
-    borderRadius: responsiveSize(12),
-    height: Platform.OS === 'ios' ? responsiveSize(52) : responsiveSize(50),
-    elevation: 2,
+    paddingHorizontal: responsiveSize(12),
+    borderRadius: responsiveSize(10),
+    height: Platform.OS === 'ios' ? responsiveSize(46) : responsiveSize(44),
+    elevation: 1.5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 1.5,
   },
   searchIcon: {
-    width: responsiveSize(18),
-    height: responsiveSize(18),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
   },
   filterIcon: {
-    width: responsiveSize(18),
-    height: responsiveSize(18),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
   },
   searchInput: {
-    marginLeft: responsiveSize(10),
-    fontSize: responsiveSize(14),
+    marginLeft: responsiveSize(8),
+    fontSize: responsiveSize(12),
     flex: 1,
     color: '#333',
     paddingVertical: 0,
     height: '100%',
   },
   filterBtn: {
-    width: Platform.OS === 'ios' ? responsiveSize(52) : responsiveSize(50),
-    height: Platform.OS === 'ios' ? responsiveSize(52) : responsiveSize(50),
-    marginLeft: responsiveSize(12),
+    width: Platform.OS === 'ios' ? responsiveSize(46) : responsiveSize(44),
+    height: Platform.OS === 'ios' ? responsiveSize(46) : responsiveSize(44),
+    marginLeft: responsiveSize(10),
     backgroundColor: '#fff',
-    borderRadius: responsiveSize(12),
+    borderRadius: responsiveSize(10),
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    elevation: 2,
+    elevation: 1.5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 1.5,
   },
 
-  // CATEGORY - Fixed to show proper highlighting
+  // CATEGORY
   categoryRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingHorizontal: responsiveSize(18),
-    marginTop: responsiveSize(16),
+    paddingHorizontal: responsiveSize(14),
+    marginTop: responsiveSize(14),
     backgroundColor: '#fff',
-    paddingVertical: responsiveSize(16),
+    paddingVertical: responsiveSize(12),
     marginHorizontal: responsiveSize(8),
-    borderRadius: responsiveSize(12),
-    elevation: 2,
+    borderRadius: responsiveSize(10),
+    elevation: 1.5,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
+    shadowOpacity: 0.08,
+    shadowRadius: 1.5,
   },
   categoryItem: {
     alignItems: 'center',
     flex: 1,
-    paddingHorizontal: responsiveSize(4),
+    paddingHorizontal: responsiveSize(2),
   },
   catIcon: {
-    width: responsiveSize(36),
-    height: responsiveSize(36),
-    marginBottom: responsiveSize(8),
-    tintColor: '#999', // Default color
+    width: responsiveSize(30),
+    height: responsiveSize(30),
+    marginBottom: responsiveSize(6),
+    tintColor: '#999',
   },
   catLabel: {
-    fontSize: responsiveSize(12),
-    color: '#333', // Default color
+    fontSize: responsiveSize(11),
+    color: '#333',
     fontWeight: '500',
     textAlign: 'center',
   },
   catUnderline: {
-    height: responsiveSize(3),
-    width: responsiveSize(32),
-    marginTop: responsiveSize(6),
-    borderRadius: responsiveSize(3),
+    height: responsiveSize(2),
+    width: responsiveSize(26),
+    marginTop: responsiveSize(4),
+    borderRadius: responsiveSize(2),
   },
 
   // SECTION
@@ -877,93 +858,92 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginTop: responsiveSize(24),
-    paddingHorizontal: responsiveSize(18),
-    marginBottom: responsiveSize(8),
+    marginTop: responsiveSize(20),
+    paddingHorizontal: responsiveSize(14),
+    marginBottom: responsiveSize(6),
   },
   sectionTitle: {
-    fontSize: responsiveSize(18),
+    fontSize: responsiveSize(16),
     fontWeight: '700',
     color: '#222',
   },
   sectionLink: {
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(12),
     fontWeight: '500',
   },
 
-  // SPECIAL CARD - Increased height
+  // SPECIAL CARD
   specialCard: {
     flexDirection: 'row',
-    marginHorizontal: responsiveSize(18),
-    padding: responsiveSize(20),
-    borderRadius: responsiveSize(16),
+    marginHorizontal: responsiveSize(14),
+    padding: responsiveSize(16),
+    borderRadius: responsiveSize(14),
     alignItems: 'center',
-    marginTop: responsiveSize(12),
+    marginTop: responsiveSize(10),
     overflow: 'hidden',
-    minHeight: responsiveSize(140),
-    elevation: 4,
+    minHeight: responsiveSize(120),
+    elevation: 3,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowOpacity: 0.18,
+    shadowRadius: 3,
   },
   specialLeft: { flex: 1 },
   specialPercent: {
-    fontSize: responsiveSize(32),
+    fontSize: responsiveSize(26),
     fontWeight: '800',
     color: '#fff',
   },
   specialTitle: {
-    fontSize: responsiveSize(20),
+    fontSize: responsiveSize(18),
     fontWeight: '700',
     color: '#fff',
-    marginTop: responsiveSize(8),
+    marginTop: responsiveSize(6),
   },
   specialDesc: {
     color: '#fff',
-    marginTop: responsiveSize(8),
-    fontSize: responsiveSize(13),
+    marginTop: responsiveSize(6),
+    fontSize: responsiveSize(11),
     width: '90%',
-    lineHeight: responsiveSize(18),
+    lineHeight: responsiveSize(15),
   },
   specialImage: {
-    width: responsiveSize(140),
-    height: responsiveSize(120),
+    width: responsiveSize(110),
+    height: responsiveSize(100),
   },
 
-  // STORE CARDS - Fixed store card height and content with reduced space
+  // STORE CARDS
   storeListContent: {
-    paddingLeft: responsiveSize(15),
-    paddingRight: responsiveSize(8),
-    paddingBottom: responsiveSize(10),
+    paddingLeft: responsiveSize(12),
+    paddingRight: responsiveSize(6),
+    paddingBottom: responsiveSize(8),
   },
   storeCard: {
-    width: width * 0.72,
-    marginRight: responsiveSize(16),
-    borderRadius: responsiveSize(16),
+    width: width * 0.7,
+    marginRight: responsiveSize(12),
+    borderRadius: responsiveSize(14),
     backgroundColor: '#fff',
     overflow: 'hidden',
-    elevation: 3,
+    elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
-    shadowRadius: 4,
-    marginBottom: responsiveSize(10),
+    shadowRadius: 3,
+    marginBottom: responsiveSize(8),
   },
   storeImage: {
     width: '100%',
-    height: responsiveSize(160),
+    height: responsiveSize(140),
   },
 
-  // Heart wrapper for stores
   heartWrapper: {
     position: 'absolute',
-    right: responsiveSize(12),
-    top: responsiveSize(12),
-    padding: responsiveSize(8),
-    borderRadius: responsiveSize(20),
-    width: responsiveSize(36),
-    height: responsiveSize(36),
+    right: responsiveSize(10),
+    top: responsiveSize(10),
+    padding: responsiveSize(6),
+    borderRadius: responsiveSize(18),
+    width: responsiveSize(30),
+    height: responsiveSize(30),
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
@@ -971,71 +951,70 @@ const styles = StyleSheet.create({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.2,
-        shadowRadius: 2,
+        shadowOpacity: 0.18,
+        shadowRadius: 1.5,
       },
       android: {
-        elevation: 3,
+        elevation: 2,
       },
     }),
   },
   heartIcon: {
-    width: responsiveSize(20),
-    height: responsiveSize(20),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
   },
 
   storeBody: {
-    padding: responsiveSize(16),
-    paddingBottom: responsiveSize(16),
+    padding: responsiveSize(12),
+    paddingBottom: responsiveSize(12),
   },
 
-  // ⭐ NEW RATING INSIDE STORE BODY - Reduced space
   ratingBadgeNew: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: responsiveSize(10),
-    paddingVertical: responsiveSize(5),
-    borderRadius: responsiveSize(20),
+    paddingHorizontal: responsiveSize(8),
+    paddingVertical: responsiveSize(4),
+    borderRadius: responsiveSize(18),
     alignSelf: 'flex-start',
-    marginBottom: responsiveSize(6), // Reduced from 12 to 6
+    marginBottom: responsiveSize(4),
   },
   starIcon: {
-    width: responsiveSize(12),
-    height: responsiveSize(12),
-    marginRight: responsiveSize(6),
+    width: responsiveSize(10),
+    height: responsiveSize(10),
+    marginRight: responsiveSize(4),
     tintColor: '#fff',
   },
   ratingTextNew: {
     color: '#fff',
-    fontSize: responsiveSize(12),
+    fontSize: responsiveSize(10),
     fontWeight: '700',
   },
 
   storeTitle: {
-    fontSize: responsiveSize(16),
+    fontSize: responsiveSize(14),
     fontWeight: '700',
     color: '#222',
-    marginBottom: responsiveSize(8),
+    marginBottom: responsiveSize(6),
   },
 
   deliveryRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: responsiveSize(12),
+    marginBottom: responsiveSize(10),
   },
   deliveryItem: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginRight: responsiveSize(16),
+    marginRight: responsiveSize(12),
   },
   metaIcon: {
-    width: responsiveSize(14),
-    height: responsiveSize(14),
+    width: responsiveSize(12),
+    height: responsiveSize(12),
   },
   metaText: {
     color: '#777',
-    fontSize: responsiveSize(12),
-    marginLeft: responsiveSize(6),
+    fontSize: responsiveSize(11),
+    marginLeft: responsiveSize(4),
     textTransform: 'capitalize',
   },
 
@@ -1045,15 +1024,15 @@ const styles = StyleSheet.create({
   },
   tag: {
     backgroundColor: 'transparent',
-    paddingHorizontal: responsiveSize(10),
-    paddingVertical: responsiveSize(6),
-    borderRadius: responsiveSize(12),
+    paddingHorizontal: responsiveSize(8),
+    paddingVertical: responsiveSize(4),
+    borderRadius: responsiveSize(10),
     borderWidth: 1,
-    marginRight: responsiveSize(8),
+    marginRight: responsiveSize(6),
     marginBottom: responsiveSize(4),
   },
   tagText: {
-    fontSize: responsiveSize(12),
+    fontSize: responsiveSize(11),
     fontWeight: '500',
   },
 
@@ -1061,28 +1040,28 @@ const styles = StyleSheet.create({
   gridWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    paddingHorizontal: responsiveSize(15),
-    marginTop: responsiveSize(12),
+    paddingHorizontal: responsiveSize(12),
+    marginTop: responsiveSize(10),
     justifyContent: 'space-between',
   },
   gridItemWrapper: {
-    width: (width - responsiveSize(60)) / 4,
-    marginBottom: responsiveSize(20),
+    width: (width - responsiveSize(52)) / 4,
+    marginBottom: responsiveSize(16),
   },
   gridItem: {
     alignItems: 'center',
-    padding: responsiveSize(8),
+    padding: responsiveSize(6),
   },
   gridImage: {
-    width: responsiveSize(60),
-    height: responsiveSize(60),
+    width: responsiveSize(50),
+    height: responsiveSize(50),
   },
   gridLabel: {
-    fontSize: responsiveSize(12),
+    fontSize: responsiveSize(10),
     textAlign: 'center',
-    marginTop: responsiveSize(10),
+    marginTop: responsiveSize(6),
     color: '#333',
     fontWeight: '500',
-    lineHeight: responsiveSize(16),
+    lineHeight: responsiveSize(13),
   },
 });

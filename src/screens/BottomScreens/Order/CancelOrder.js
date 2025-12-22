@@ -1,4 +1,6 @@
-import React, { useState, useRef, useEffect } from 'react';
+// CancelOrder.jsx
+
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,46 +12,54 @@ import {
   Dimensions,
   Platform,
   Modal,
+  FlatList,
+  PermissionsAndroid,
+  Alert,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { launchCamera, launchImageLibrary } from 'react-native-image-picker';
+import { useColor } from '../../../util/ColorSwitcher';
 
 const { width, height } = Dimensions.get('window');
+
+// Slightly compact scaling
+const BASE_WIDTH = 375;
+const scale = width / BASE_WIDTH;
+const rs = size => size * scale;
+
 const MAP_HEIGHT = height * 0.32;
-const STATUS_BAR_HEIGHT =
-  Platform.OS === 'ios' ? 44 : StatusBar.currentHeight || 24;
-const CIRCLE_SIZE = Math.min(74, width * 0.18);
-const PRIMARY_COLOR = '#FF8303';
+const STATUS_BAR_HEIGHT = Platform.OS === 'ios' ? 44 : StatusBar.currentHeight;
 
 const IMAGES = {
   mapbg: require('../../../assets/mapbgg.png'),
   location: require('../../../assets/location.png'),
   greendrop: require('../../../assets/drop.png'),
   boy: require('../../../assets/user2.png'),
-  c1: require('../../../assets/clock.png'),
   bikee: require('../../../assets/bike.png'),
-  o1: require('../../../assets/clock.png'),
   h1: require('../../../assets/office.png'),
   h2: require('../../../assets/ghar.png'),
   tick: require('../../../assets/tick.png'),
   back: require('../../../assets/back.png'),
   upload: require('../../../assets/upload.png'),
+  close: require('../../../assets/close.png'),
 };
 
 const CancelOrder = () => {
   const navigation = useNavigation();
+  const { bgColor, textColor } = useColor();
   const [showCancelPopup, setShowCancelPopup] = useState(false);
   const [showCanceledPopup, setShowCanceledPopup] = useState(false);
-  const [timeLeft, setTimeLeft] = useState(59);
-  const timerRef = useRef(null);
+  const [showImagePickerPopup, setShowImagePickerPopup] = useState(false);
+  const [uploadedImages, setUploadedImages] = useState([]);
+  const [maxImagesReached, setMaxImagesReached] = useState(false);
 
-  useEffect(() => {
-    timerRef.current = setInterval(() => {
-      setTimeLeft(prev => (prev > 0 ? prev - 1 : 0));
-    }, 1000);
-    return () => clearInterval(timerRef.current);
-  }, []);
+  const MAX_IMAGES = 5;
 
-  const handlePressCancel = () => setShowCancelPopup(true);
+  const handlePressCancel = () => {
+    if (uploadedImages.length > 0) {
+      setShowCancelPopup(true);
+    }
+  };
 
   const handleConfirmCancel = () => {
     setShowCancelPopup(false);
@@ -62,13 +72,256 @@ const CancelOrder = () => {
 
   const handleKeepOrder = () => navigation.goBack();
 
-  const renderTime = () => {
-    const mm = `0${Math.floor(timeLeft / 60)}`;
-    const ss = timeLeft % 60 < 10 ? `0${timeLeft % 60}` : timeLeft % 60;
-    return `${mm}:${ss}`;
+  const openImagePickerPopup = () => {
+    if (uploadedImages.length >= MAX_IMAGES) {
+      setMaxImagesReached(true);
+      return;
+    }
+    setShowImagePickerPopup(true);
   };
 
-  const markerSize = Math.min(34, width * 0.085);
+  const closeImagePickerPopup = () => {
+    setShowImagePickerPopup(false);
+    setMaxImagesReached(false);
+  };
+
+  const requestCameraPermission = async () => {
+    if (Platform.OS === 'android') {
+      try {
+        const getCheckPermissionPromise = () => {
+          if (Platform.Version >= 33) {
+            return Promise.all([
+              PermissionsAndroid.check(
+                PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+              ),
+              PermissionsAndroid.check(
+                PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+              ),
+            ]).then(
+              ([hasReadMediaImagesPermission, hasReadMediaVideoPermission]) =>
+                hasReadMediaImagesPermission && hasReadMediaVideoPermission,
+            );
+          } else {
+            return PermissionsAndroid.check(
+              PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+            );
+          }
+        };
+
+        const hasPermission = await getCheckPermissionPromise();
+        if (hasPermission) {
+          return true;
+        }
+
+        const getRequestPermissionPromise = () => {
+          if (Platform.Version >= 33) {
+            return PermissionsAndroid.requestMultiple([
+              PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES,
+              PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO,
+              PermissionsAndroid.PERMISSIONS.CAMERA,
+            ]).then(
+              statuses =>
+                statuses[PermissionsAndroid.PERMISSIONS.READ_MEDIA_IMAGES] ===
+                  PermissionsAndroid.RESULTS.GRANTED &&
+                statuses[PermissionsAndroid.PERMISSIONS.READ_MEDIA_VIDEO] ===
+                  PermissionsAndroid.RESULTS.GRANTED &&
+                statuses[PermissionsAndroid.PERMISSIONS.CAMERA] ===
+                  PermissionsAndroid.RESULTS.GRANTED,
+            );
+          } else {
+            return PermissionsAndroid.requestMultiple([
+              PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE,
+              PermissionsAndroid.PERMISSIONS.CAMERA,
+            ]).then(
+              statuses =>
+                statuses[
+                  PermissionsAndroid.PERMISSIONS.READ_EXTERNAL_STORAGE
+                ] === PermissionsAndroid.RESULTS.GRANTED &&
+                statuses[PermissionsAndroid.PERMISSIONS.CAMERA] ===
+                  PermissionsAndroid.RESULTS.GRANTED,
+            );
+          }
+        };
+
+        const granted = await getRequestPermissionPromise();
+        return granted;
+      } catch (err) {
+        console.warn('Camera permission error:', err);
+        return false;
+      }
+    }
+    return true;
+  };
+
+  const openCamera = async () => {
+    closeImagePickerPopup();
+
+    const hasPermission = await requestCameraPermission();
+    if (!hasPermission) {
+      Alert.alert(
+        'Permission Required',
+        'Camera permission is required to take photos',
+        [{ text: 'OK' }],
+      );
+      return;
+    }
+
+    launchCamera(
+      {
+        mediaType: 'photo',
+        includeBase64: false,
+        maxHeight: 2000,
+        maxWidth: 2000,
+        saveToPhotos: true,
+        cameraType: 'back',
+        quality: 0.8,
+      },
+      response => {
+        if (response.didCancel) {
+          console.log('User cancelled camera');
+        } else if (response.error) {
+          console.log('Camera Error: ', response.error);
+          Alert.alert('Error', 'Failed to take photo');
+        } else if (response.assets && response.assets[0]) {
+          const newImage = {
+            id: Date.now().toString(),
+            uri: response.assets[0].uri,
+          };
+          setUploadedImages(prev => [...prev, newImage]);
+          if (uploadedImages.length + 1 >= MAX_IMAGES) {
+            setMaxImagesReached(true);
+          }
+        }
+      },
+    );
+  };
+
+  const openGallery = async () => {
+    closeImagePickerPopup();
+
+    if (Platform.OS === 'android') {
+      const hasPermission = await requestCameraPermission();
+      if (!hasPermission) {
+        Alert.alert(
+          'Permission Required',
+          'Storage permission is required to access photos',
+          [{ text: 'OK' }],
+        );
+        return;
+      }
+    }
+
+    launchImageLibrary(
+      {
+        mediaType: 'photo',
+        includeBase64: false,
+        maxHeight: 2000,
+        maxWidth: 2000,
+        selectionLimit: MAX_IMAGES - uploadedImages.length,
+        quality: 0.8,
+      },
+      response => {
+        if (response.didCancel) {
+          console.log('User cancelled image picker');
+        } else if (response.error) {
+          console.log('ImagePicker Error: ', response.error);
+          Alert.alert('Error', 'Failed to load images');
+        } else if (response.assets && response.assets.length > 0) {
+          const newImages = response.assets.map((asset, index) => ({
+            id: Date.now().toString() + index,
+            uri: asset.uri,
+          }));
+          setUploadedImages(prev => [...prev, ...newImages]);
+          if (uploadedImages.length + response.assets.length >= MAX_IMAGES) {
+            setMaxImagesReached(true);
+          }
+        }
+      },
+    );
+  };
+
+  const removeImage = id => {
+    setUploadedImages(prev => prev.filter(img => img.id !== id));
+    if (maxImagesReached && uploadedImages.length <= MAX_IMAGES) {
+      setMaxImagesReached(false);
+    }
+  };
+
+  const renderImageItem = ({ item }) => (
+    <View style={styles.imageItemContainer}>
+      <Image
+        source={{ uri: item.uri }}
+        style={styles.uploadedImageThumb}
+        resizeMode="cover"
+      />
+      <TouchableOpacity
+        style={styles.removeImageBtn}
+        onPress={() => removeImage(item.id)}
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+      >
+        <Image
+          source={IMAGES.close}
+          style={[styles.removeIcon, { tintColor: '#fff' }]}
+        />
+      </TouchableOpacity>
+    </View>
+  );
+
+  const getUploadButtonPosition = () => {
+    return uploadedImages.length === 0 ? 'center' : 'right';
+  };
+
+  const renderUploadButton = () => {
+    const buttonPosition = getUploadButtonPosition();
+
+    if (uploadedImages.length < MAX_IMAGES) {
+      return (
+        <TouchableOpacity
+          style={[
+            styles.uploadButtonContainer,
+            buttonPosition === 'center'
+              ? styles.uploadButtonCenter
+              : styles.uploadButtonRight,
+          ]}
+          onPress={openImagePickerPopup}
+          activeOpacity={0.7}
+        >
+          <View style={[styles.uploadButton, { backgroundColor: bgColor }]}>
+            <Image
+              source={IMAGES.upload}
+              style={[styles.uploadButtonIcon, { tintColor: textColor }]}
+            />
+          </View>
+          <Text style={[styles.uploadButtonText, { color: textColor }]}>
+            {uploadedImages.length === 0 ? 'Upload' : 'Add more'}
+          </Text>
+        </TouchableOpacity>
+      );
+    } else {
+      return (
+        <View
+          style={[
+            styles.uploadButtonContainer,
+            buttonPosition === 'center'
+              ? styles.uploadButtonCenter
+              : styles.uploadButtonRight,
+          ]}
+        >
+          <View style={[styles.uploadButton, styles.uploadButtonDisabled]}>
+            <Image
+              source={IMAGES.upload}
+              style={[styles.uploadButtonIcon, { tintColor: '#999' }]}
+            />
+          </View>
+          <Text style={[styles.uploadButtonText, { color: '#999' }]}>
+            Maximum reached
+          </Text>
+        </View>
+      );
+    }
+  };
+
+  const markerSize = Math.min(rs(26), width * 0.08);
   const startX = width * 0.5 - markerSize / 2;
   const startY = MAP_HEIGHT * 0.32;
   const verticalLength = MAP_HEIGHT * 0.18;
@@ -87,19 +340,28 @@ const CancelOrder = () => {
         barStyle="dark-content"
         translucent
       />
+
+      {/* Fixed Map Area */}
       <View style={[styles.fixedMapArea, { height: MAP_HEIGHT }]}>
+        <View style={styles.statusBarOverlay} />
         <Image source={IMAGES.mapbg} style={styles.mapBg} />
-        <View style={[styles.header, { top: STATUS_BAR_HEIGHT + 6 }]}>
+
+        {/* Header */}
+        <View style={[styles.header, { top: STATUS_BAR_HEIGHT + rs(6) }]}>
           <TouchableOpacity
             onPress={() => navigation.goBack()}
-            style={styles.iconBtn}
+            style={[styles.iconBtn, { backgroundColor: textColor }]}
+            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
           >
-            <Image source={IMAGES.back} style={styles.backIcon} />
+            <Image
+              source={IMAGES.back}
+              style={[styles.backIcon, { tintColor: bgColor }]}
+            />
           </TouchableOpacity>
-          <Text style={styles.headerTitle}>Cancel Order</Text>
-          <View style={{ width: 40 }} />
+          <View style={{ width: rs(30) }} />
         </View>
 
+        {/* Route Map */}
         <View style={styles.absFill}>
           <Image
             source={IMAGES.location}
@@ -111,7 +373,7 @@ const CancelOrder = () => {
                 position: 'absolute',
                 top: startY,
                 left: startX,
-                tintColor: PRIMARY_COLOR,
+                tintColor: bgColor,
               },
             ]}
           />
@@ -124,6 +386,7 @@ const CancelOrder = () => {
                 left: startX + markerSize / 2 - 2,
                 height: verticalLength,
                 width: 4,
+                backgroundColor: bgColor,
               },
             ]}
           />
@@ -136,6 +399,7 @@ const CancelOrder = () => {
                 left: startX + markerSize / 2,
                 height: 4,
                 width: horizontalLength,
+                backgroundColor: bgColor,
               },
             ]}
           />
@@ -148,6 +412,7 @@ const CancelOrder = () => {
                 left: horizontalRightX + markerSize / 2 - 2,
                 height: verticalLength,
                 width: 4,
+                backgroundColor: bgColor,
               },
             ]}
           />
@@ -160,6 +425,7 @@ const CancelOrder = () => {
                 left: startX + markerSize / 2,
                 height: 4,
                 width: horizontalLength,
+                backgroundColor: bgColor,
               },
             ]}
           />
@@ -168,13 +434,13 @@ const CancelOrder = () => {
             style={[
               styles.boyIcon,
               {
-                width: Math.min(44, width * 0.12),
-                height: Math.min(44, width * 0.12),
-                borderRadius: Math.min(22, (width * 0.12) / 2),
+                width: Math.min(rs(32), width * 0.1),
+                height: Math.min(rs(32), width * 0.1),
+                borderRadius: Math.min(rs(16), (width * 0.1) / 2),
                 position: 'absolute',
                 top: boyY,
                 left: boyX,
-                borderColor: PRIMARY_COLOR,
+                borderColor: bgColor,
               },
             ]}
           />
@@ -188,65 +454,25 @@ const CancelOrder = () => {
                 position: 'absolute',
                 top: leftY,
                 left: startX,
-                tintColor: PRIMARY_COLOR,
+                tintColor: bgColor,
               },
             ]}
           />
         </View>
       </View>
 
-      {/* Timer Section */}
+      {/* Order Status Section */}
       <View style={styles.timerSection}>
-        <View style={styles.timerCircleWrap}>
-          <View
-            style={[
-              styles.circleBorder,
-              {
-                width: CIRCLE_SIZE,
-                height: CIRCLE_SIZE,
-                borderRadius: CIRCLE_SIZE / 2,
-                borderColor: PRIMARY_COLOR,
-              },
-            ]}
-          >
-            <Image
-              source={IMAGES.c1}
-              style={[
-                styles.clockIcon,
-                { width: CIRCLE_SIZE * 0.52, height: CIRCLE_SIZE * 0.52 },
-              ]}
-            />
-          </View>
-          <Text
-            style={[
-              styles.timeLeftText,
-              { fontSize: Math.min(20, width * 0.055) },
-            ]}
-          >
-            {renderTime()}
-          </Text>
-          <Text
-            style={[
-              styles.timeSubtext,
-              { fontSize: Math.min(13, width * 0.035) },
-            ]}
-          >
-            Time left
-          </Text>
-        </View>
-
-        <View style={styles.horizontalLine} />
-
-        {/* Order Status Section */}
         <View style={styles.orderStatusSection}>
-          <View style={styles.orderStatusRow}>
+          <View style={[styles.orderStatusRow, { backgroundColor: '#f8f8f8' }]}>
             <Image
               source={IMAGES.bikee}
               style={[
                 styles.bikeImg,
                 {
-                  width: Math.min(38, width * 0.1),
-                  height: Math.min(38, width * 0.1),
+                  width: Math.min(rs(28), width * 0.08),
+                  height: Math.min(rs(28), width * 0.08),
+                  tintColor: bgColor,
                 },
               ]}
             />
@@ -254,7 +480,7 @@ const CancelOrder = () => {
               <Text
                 style={[
                   styles.orderStatusText,
-                  { fontSize: Math.min(16, width * 0.045) },
+                  { fontSize: Math.min(rs(12.5), width * 0.04) },
                 ]}
               >
                 Your order is Delivered
@@ -262,7 +488,7 @@ const CancelOrder = () => {
               <Text
                 style={[
                   styles.orderStatusTime,
-                  { fontSize: Math.min(14, width * 0.038) },
+                  { fontSize: Math.min(rs(11), width * 0.034) },
                 ]}
               >
                 at 5.52 p.m.
@@ -274,10 +500,10 @@ const CancelOrder = () => {
 
       <ScrollView
         style={styles.scrollArea}
-        contentContainerStyle={{ paddingBottom: 50 }}
+        contentContainerStyle={{ paddingBottom: rs(40) }}
       >
         {/* Store and Address Section */}
-        <View style={styles.storeAddressCard}>
+        <View style={[styles.storeAddressCard, { backgroundColor: '#f8f8f8' }]}>
           <View style={styles.storeAddressRow}>
             <View style={styles.addressIconContainer}>
               <Image
@@ -285,8 +511,9 @@ const CancelOrder = () => {
                 style={[
                   styles.addressIcon,
                   {
-                    width: Math.min(24, width * 0.06),
-                    height: Math.min(24, width * 0.06),
+                    width: Math.min(rs(18), width * 0.05),
+                    height: Math.min(rs(18), width * 0.05),
+                    tintColor: bgColor,
                   },
                 ]}
               />
@@ -295,24 +522,27 @@ const CancelOrder = () => {
               <Text
                 style={[
                   styles.addressLabel,
-                  { fontSize: Math.min(14, width * 0.037) },
+                  { fontSize: Math.min(rs(11), width * 0.034) },
                 ]}
               >
                 From :-{' '}
-                <Text style={styles.addressValue}>Rahat Grocery Store</Text>
+                <Text style={[styles.addressValue, { color: 'black' }]}>
+                  Rahat Grocery Store
+                </Text>
               </Text>
             </View>
           </View>
 
-          <View style={[styles.storeAddressRow, { marginTop: 12 }]}>
+          <View style={[styles.storeAddressRow, { marginTop: rs(10) }]}>
             <View style={styles.addressIconContainer}>
               <Image
                 source={IMAGES.h2}
                 style={[
                   styles.addressIcon,
                   {
-                    width: Math.min(24, width * 0.06),
-                    height: Math.min(24, width * 0.06),
+                    width: Math.min(rs(18), width * 0.05),
+                    height: Math.min(rs(18), width * 0.05),
+                    tintColor: bgColor,
                   },
                 ]}
               />
@@ -321,11 +551,11 @@ const CancelOrder = () => {
               <Text
                 style={[
                   styles.addressLabel,
-                  { fontSize: Math.min(14, width * 0.037) },
+                  { fontSize: Math.min(rs(11), width * 0.034) },
                 ]}
               >
                 To :-{' '}
-                <Text style={styles.addressValue}>
+                <Text style={[styles.addressValue, { color: 'black' }]}>
                   Behria sector 8, building 6.8 Apart 37 D
                 </Text>
               </Text>
@@ -338,30 +568,48 @@ const CancelOrder = () => {
           <Text
             style={[
               styles.uploadTitle,
-              { fontSize: Math.min(15, width * 0.04) },
+              { fontSize: Math.min(rs(12.5), width * 0.038) },
             ]}
           >
-            Upload image
+            Upload images ({uploadedImages.length}/{MAX_IMAGES})
           </Text>
           <Text
             style={[
               styles.uploadSubtitle,
-              { fontSize: Math.min(13, width * 0.035) },
+              { fontSize: Math.min(rs(10.5), width * 0.032) },
             ]}
           >
-            Upload img.
+            {uploadedImages.length > 0
+              ? `${uploadedImages.length} image${
+                  uploadedImages.length > 1 ? 's' : ''
+                } uploaded`
+              : 'Upload images as proof'}
           </Text>
 
-          <View style={styles.uploadBox}>
-            <Image source={IMAGES.upload} style={styles.uploadIcon} />
-            <Text style={styles.uploadBoxText}>Upload</Text>
+          <View style={styles.uploadContainer}>
+            {uploadedImages.length > 0 && (
+              <FlatList
+                data={uploadedImages}
+                renderItem={renderImageItem}
+                keyExtractor={item => item.id}
+                numColumns={4}
+                scrollEnabled={false}
+                columnWrapperStyle={styles.imagesGridRow}
+                contentContainerStyle={styles.imagesGridContainer}
+              />
+            )}
+
+            {renderUploadButton()}
           </View>
         </View>
 
         {/* Note Section */}
         <View style={styles.noteSection}>
           <Text
-            style={[styles.noteText, { fontSize: Math.min(13, width * 0.035) }]}
+            style={[
+              styles.noteText,
+              { fontSize: Math.min(rs(10.5), width * 0.032) },
+            ]}
           >
             Please note: This order can only be back only when product is
             damaged or defective.
@@ -371,28 +619,40 @@ const CancelOrder = () => {
         {/* Buttons */}
         <View style={styles.btnRow}>
           <TouchableOpacity
-            style={styles.uploadBtn}
-            onPress={() => {
-              /* Handle upload */
-            }}
+            style={[
+              styles.cancelBtn,
+              {
+                backgroundColor:
+                  uploadedImages.length > 0 ? bgColor : '#f3f3f3',
+                opacity: uploadedImages.length > 0 ? 1 : 0.5,
+              },
+            ]}
+            onPress={uploadedImages.length > 0 ? handlePressCancel : null}
+            disabled={uploadedImages.length === 0}
           >
             <Text
               style={[
-                styles.uploadBtnText,
-                { fontSize: Math.min(16, width * 0.04) },
+                styles.cancelBtnText,
+                {
+                  color: uploadedImages.length > 0 ? textColor : '#000',
+                  fontSize: rs(12.5),
+                },
               ]}
             >
-              Upload
+              Cancel Order
             </Text>
           </TouchableOpacity>
           <TouchableOpacity
-            style={[styles.keepBtn, { backgroundColor: PRIMARY_COLOR }]}
+            style={[styles.keepBtn, { backgroundColor: bgColor }]}
             onPress={handleKeepOrder}
           >
             <Text
               style={[
                 styles.keepBtnText,
-                { fontSize: Math.min(16, width * 0.04) },
+                {
+                  fontSize: Math.min(rs(13.5), width * 0.038),
+                  color: textColor,
+                },
               ]}
             >
               Keep Order
@@ -401,35 +661,126 @@ const CancelOrder = () => {
         </View>
       </ScrollView>
 
-      {/* Cancel popup */}
+      {/* Image Picker Popup */}
+      <Modal
+        transparent
+        visible={showImagePickerPopup}
+        animationType="fade"
+        onRequestClose={closeImagePickerPopup}
+      >
+        <View style={styles.popupOverlay}>
+          <View style={styles.popupBox}>
+            <Text style={[styles.popupTitle, { color: textColor }]}>
+              Upload Image
+            </Text>
+            <Text style={[styles.popupSubtitle, { color: '#666' }]}>
+              Choose an option to upload image
+            </Text>
+
+            <TouchableOpacity
+              style={[styles.imageOptionBtn, { backgroundColor: bgColor }]}
+              onPress={openCamera}
+            >
+              <Text style={[styles.imageOptionText, { color: textColor }]}>
+                Take a Photo
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.imageOptionBtn, { backgroundColor: bgColor }]}
+              onPress={openGallery}
+            >
+              <Text style={[styles.imageOptionText, { color: textColor }]}>
+                Choose from Gallery
+              </Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={[styles.imageOptionBtn, { backgroundColor: '#f0f0f0' }]}
+              onPress={closeImagePickerPopup}
+            >
+              <Text style={[styles.imageOptionText, { color: '#000' }]}>
+                Cancel
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Max Images Reached Popup */}
+      <Modal
+        transparent
+        visible={maxImagesReached}
+        animationType="fade"
+        onRequestClose={() => setMaxImagesReached(false)}
+      >
+        <View style={styles.popupOverlay}>
+          <View style={styles.popupBox}>
+            <Text style={[styles.popupTitle, { color: textColor }]}>
+              Maximum Images Reached
+            </Text>
+            <Text style={[styles.maxImagesPopupText, { color: '#666' }]}>
+              You can only upload up to {MAX_IMAGES} images. Please remove some
+              images to add more.
+            </Text>
+            <TouchableOpacity
+              style={[styles.popupBtn, { backgroundColor: bgColor }]}
+              onPress={() => setMaxImagesReached(false)}
+            >
+              <Text style={[styles.popupBtnText, { color: textColor }]}>
+                OK
+              </Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
+      {/* Cancel Confirmation Popup */}
       <Modal transparent visible={showCancelPopup} animationType="fade">
         <View style={styles.popupOverlay}>
           <View style={styles.popupBox}>
-            <Text style={styles.popupTitle}>Are you sure want to cancel?</Text>
+            <Text style={[styles.popupTitle, { color: textColor }]}>
+              Are you sure want to cancel?
+            </Text>
+            <Text style={[styles.popupSubtitle, { color: '#666' }]}>
+              This action cannot be undone
+            </Text>
             <View style={styles.popupBtnRow}>
               <TouchableOpacity
-                style={[styles.popupBtn, { backgroundColor: PRIMARY_COLOR }]}
+                style={[styles.popupBtn, { backgroundColor: bgColor }]}
                 onPress={handleConfirmCancel}
               >
-                <Text style={styles.popupBtnText}>OK</Text>
+                <Text style={[styles.popupBtnText, { color: textColor }]}>
+                  Yes, Cancel
+                </Text>
               </TouchableOpacity>
               <TouchableOpacity
-                style={[styles.popupBtn, { backgroundColor: PRIMARY_COLOR }]}
+                style={[styles.popupBtn, { backgroundColor: '#f0f0f0' }]}
                 onPress={() => setShowCancelPopup(false)}
               >
-                <Text style={styles.popupBtnText}>No</Text>
+                <Text style={[styles.popupBtnText, { color: '#000' }]}>
+                  No, Keep
+                </Text>
               </TouchableOpacity>
             </View>
           </View>
         </View>
       </Modal>
 
-      {/* Canceled popup */}
+      {/* Canceled Success Popup */}
       <Modal transparent visible={showCanceledPopup} animationType="fade">
         <View style={styles.popupOverlay}>
           <View style={styles.popupBox}>
-            <Image source={IMAGES.tick} style={styles.tickIconLarge} />
-            <Text style={styles.popupTitle}>Order Canceled</Text>
+            <Image
+              source={IMAGES.tick}
+              style={[styles.tickIconLarge, { tintColor: bgColor }]}
+            />
+            <Text style={[styles.popupTitle, { color: textColor }]}>
+              Order Canceled
+            </Text>
+            <Text style={[styles.popupSubtitle, { color: '#666' }]}>
+              Your order has been successfully canceled
+            </Text>
           </View>
         </View>
       </Modal>
@@ -444,10 +795,20 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#fff',
   },
+  statusBarOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: STATUS_BAR_HEIGHT,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    zIndex: 11,
+  },
   fixedMapArea: {
     width: '100%',
     backgroundColor: '#f5f4f9',
     position: 'relative',
+    overflow: 'hidden',
   },
   mapBg: {
     width: '100%',
@@ -457,17 +818,19 @@ const styles = StyleSheet.create({
   },
   header: {
     position: 'absolute',
-    left: 10,
-    right: 10,
+    left: rs(16),
+    right: rs(16),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
     zIndex: 10,
+    paddingTop: rs(6),
+    paddingBottom: rs(6),
   },
   iconBtn: {
-    width: 40,
-    height: 40,
-    borderRadius: 12,
+    width: rs(32),
+    height: rs(32),
+    borderRadius: rs(10),
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
@@ -483,17 +846,11 @@ const styles = StyleSheet.create({
     }),
   },
   backIcon: {
-    width: 20,
-    height: 20,
-    tintColor: '#000',
+    width: rs(16),
+    height: rs(16),
+    resizeMode: 'contain',
   },
-  headerTitle: {
-    fontSize: 20,
-    fontWeight: '700',
-    color: '#222',
-    letterSpacing: 0.1,
-  },
-  absFill: { ...StyleSheet.absoluteFillObject },
+  absFill: { ...StyleSheet.absoluteFillObject, zIndex: 2 },
   markerIcon: { resizeMode: 'contain' },
   boyIcon: {
     borderWidth: 2,
@@ -501,240 +858,292 @@ const styles = StyleSheet.create({
     zIndex: 4,
   },
   routeLine: {
-    backgroundColor: PRIMARY_COLOR,
     borderRadius: 2,
   },
   timerSection: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 18,
-    borderTopRightRadius: 18,
-    marginTop: -10,
-    paddingTop: 20,
-  },
-  timerCircleWrap: {
-    alignItems: 'center',
-    marginBottom: 16,
-    zIndex: 22,
-  },
-  circleBorder: {
-    borderWidth: 3.5,
-    borderStyle: 'dashed',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#fff',
-    marginBottom: 7,
-    ...Platform.select({
-      ios: {
-        shadowColor: '#000',
-        shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
-        shadowRadius: 4,
-      },
-      android: {
-        elevation: 3,
-      },
-    }),
-  },
-  clockIcon: {
-    resizeMode: 'contain',
-    tintColor: PRIMARY_COLOR,
-  },
-  timeLeftText: {
-    fontWeight: '700',
-    color: '#222',
-    marginTop: -2,
-  },
-  timeSubtext: {
-    color: '#aaa',
-    fontWeight: '600',
-    marginTop: 0,
-  },
-  horizontalLine: {
-    borderBottomColor: '#e3e3e3',
-    borderBottomWidth: 1,
-    marginHorizontal: 20,
-    marginBottom: 20,
+    borderTopLeftRadius: rs(14),
+    borderTopRightRadius: rs(14),
+    marginTop: -rs(8),
+    paddingTop: rs(14),
+    paddingBottom: rs(14),
   },
   orderStatusSection: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    marginHorizontal: rs(16),
   },
   orderStatusRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f8f8f8',
-    borderRadius: 12,
-    padding: 15,
+    borderRadius: rs(10),
+    padding: rs(11),
   },
   bikeImg: {
     resizeMode: 'contain',
-    marginRight: 15,
-    tintColor: PRIMARY_COLOR,
+    marginRight: rs(11),
   },
   orderStatusTextContainer: {
     flex: 1,
   },
   orderStatusText: {
     fontWeight: '600',
-    color: '#333',
     marginBottom: 2,
+    fontFamily: 'Figtree-SemiBold',
+    color: '#000',
   },
   orderStatusTime: {
     color: '#666',
     fontWeight: '500',
+    fontFamily: 'Figtree-Medium',
   },
   scrollArea: {
     flex: 1,
     backgroundColor: '#fff',
   },
   storeAddressCard: {
-    backgroundColor: '#f8f8f8',
-    borderRadius: 12,
-    padding: 18,
-    marginHorizontal: 20,
-    marginBottom: 20,
+    borderRadius: rs(10),
+    padding: rs(14),
+    marginHorizontal: rs(16),
+    marginBottom: rs(14),
   },
   storeAddressRow: {
     flexDirection: 'row',
     alignItems: 'flex-start',
   },
   addressIconContainer: {
-    width: 30,
+    width: rs(24),
     alignItems: 'center',
   },
   addressIcon: {
     resizeMode: 'contain',
-    tintColor: '#666',
   },
   addressTextContainer: {
     flex: 1,
-    marginLeft: 10,
+    marginLeft: rs(8),
   },
   addressLabel: {
-    color: '#666',
+    color: '#444',
     fontWeight: '500',
-    lineHeight: 20,
+    lineHeight: rs(16),
+    fontFamily: 'Figtree-Medium',
   },
   addressValue: {
-    color: '#222',
     fontWeight: '600',
+    fontFamily: 'Figtree-SemiBold',
   },
   uploadSection: {
-    marginHorizontal: 20,
-    marginBottom: 20,
+    marginHorizontal: rs(16),
+    marginBottom: rs(16),
   },
   uploadTitle: {
     fontWeight: '600',
-    color: '#333',
     marginBottom: 4,
+    fontFamily: 'Figtree-SemiBold',
+    color: '#000',
   },
   uploadSubtitle: {
     color: '#888',
-    marginBottom: 15,
+    marginBottom: rs(11),
     fontWeight: '500',
+    fontFamily: 'Figtree-Medium',
   },
-  uploadBox: {
-    backgroundColor: '#f0f0f0',
+  uploadContainer: {
     borderWidth: 1,
     borderColor: '#ddd',
     borderStyle: 'dashed',
-    borderRadius: 10,
-    padding: 25,
+    borderRadius: rs(8),
+    backgroundColor: '#f9f9f9',
+    padding: rs(11),
+    minHeight: rs(80),
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+  },
+  uploadedImageThumb: {
+    width: rs(48),
+    height: rs(48),
+    borderRadius: rs(6),
+    margin: rs(3),
+  },
+  imagesGridContainer: {
+    flex: 1,
+  },
+  imagesGridRow: {
+    justifyContent: 'flex-start',
+    marginBottom: rs(6),
+  },
+  imageItemContainer: {
+    position: 'relative',
+    margin: rs(3),
+  },
+  removeImageBtn: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    width: rs(16),
+    height: rs(16),
+    borderRadius: rs(8),
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    transform: [{ translateX: 4 }, { translateY: -4 }],
+  },
+  removeIcon: {
+    width: rs(8),
+    height: rs(8),
+    resizeMode: 'contain',
+  },
+  uploadButtonContainer: {
     alignItems: 'center',
     justifyContent: 'center',
+    margin: rs(6),
+    width: rs(52),
+    height: rs(70),
   },
-  uploadIcon: {
-    width: 40,
-    height: 40,
+  uploadButtonCenter: {
+    alignSelf: 'center',
+  },
+  uploadButtonRight: {
+    alignSelf: 'flex-end',
+  },
+  uploadButton: {
+    width: rs(52),
+    height: rs(52),
+    borderRadius: rs(8),
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: rs(4),
+  },
+  uploadButtonDisabled: {
+    backgroundColor: '#f0f0f0',
+  },
+  uploadButtonIcon: {
+    width: rs(18),
+    height: rs(18),
     resizeMode: 'contain',
-    marginBottom: 8,
-    tintColor: '#888',
   },
-  uploadBoxText: {
-    color: '#666',
+  uploadButtonText: {
+    fontSize: rs(10),
     fontWeight: '500',
-    fontSize: 14,
+    fontFamily: 'Figtree-Medium',
+    textAlign: 'center',
   },
   noteSection: {
-    marginHorizontal: 20,
-    marginBottom: 25,
+    marginHorizontal: rs(16),
+    marginBottom: rs(18),
   },
   noteText: {
     color: '#F44336',
     fontWeight: '500',
     textAlign: 'center',
-    lineHeight: 18,
+    lineHeight: rs(14),
+    fontFamily: 'Figtree-Medium',
   },
   btnRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginHorizontal: 20,
+    marginHorizontal: rs(16),
   },
-  uploadBtn: {
+  cancelBtn: {
     flex: 1,
-    backgroundColor: '#f3f3f3',
-    paddingVertical: 15,
+    paddingVertical: rs(11),
     alignItems: 'center',
-    borderRadius: 10,
-    marginRight: 9,
+    borderRadius: rs(8),
+    marginRight: rs(7),
   },
-  uploadBtnText: {
-    color: '#000',
+  cancelBtnText: {
     fontWeight: '600',
+    fontFamily: 'Figtree-SemiBold',
   },
   keepBtn: {
     flex: 1,
-    paddingVertical: 15,
+    paddingVertical: rs(11),
     alignItems: 'center',
-    borderRadius: 10,
-    marginLeft: 9,
+    borderRadius: rs(8),
+    marginLeft: rs(7),
   },
   keepBtnText: {
-    color: '#fff',
     fontWeight: '600',
+    fontFamily: 'Figtree-SemiBold',
   },
   popupOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.22)',
+    backgroundColor: 'rgba(0,0,0,0.5)',
     justifyContent: 'center',
     alignItems: 'center',
+    padding: rs(16),
   },
   popupBox: {
     backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 25,
-    width: width * 0.76,
+    borderRadius: rs(14),
+    padding: rs(18),
+    width: '100%',
+    maxWidth: width * 0.85,
     alignItems: 'center',
     elevation: 5,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 3.84,
   },
   popupTitle: {
     fontWeight: '700',
-    fontSize: 17,
-    color: '#222',
-    marginBottom: 15,
+    fontSize: rs(14),
+    marginBottom: rs(6),
+    fontFamily: 'Figtree-Bold',
+    textAlign: 'center',
+  },
+  popupSubtitle: {
+    fontSize: rs(11),
+    textAlign: 'center',
+    marginBottom: rs(14),
+    fontFamily: 'Figtree-Medium',
+    lineHeight: rs(16),
   },
   popupBtnRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     width: '100%',
+    marginTop: rs(8),
   },
   popupBtn: {
     flex: 1,
-    marginHorizontal: 6,
-    paddingVertical: 11,
+    marginHorizontal: rs(5),
+    paddingVertical: rs(10),
     alignItems: 'center',
-    borderRadius: 9,
+    borderRadius: rs(8),
+    minHeight: rs(36),
+    justifyContent: 'center',
   },
   popupBtnText: {
-    color: '#fff',
-    fontWeight: '700',
-    fontSize: 16,
+    fontWeight: '600',
+    fontSize: rs(12),
+    fontFamily: 'Figtree-SemiBold',
   },
   tickIconLarge: {
-    width: 40,
-    height: 40,
+    width: rs(36),
+    height: rs(36),
     resizeMode: 'contain',
-    marginBottom: 12,
+    marginBottom: rs(10),
+  },
+  imageOptionBtn: {
+    width: '100%',
+    paddingVertical: rs(11),
+    alignItems: 'center',
+    borderRadius: rs(8),
+    marginBottom: rs(8),
+  },
+  imageOptionText: {
+    fontWeight: '600',
+    fontSize: rs(12),
+    fontFamily: 'Figtree-SemiBold',
+  },
+  maxImagesPopupText: {
+    fontSize: rs(11),
+    textAlign: 'center',
+    marginBottom: rs(14),
+    fontFamily: 'Figtree-Medium',
+    lineHeight: rs(16),
   },
 });

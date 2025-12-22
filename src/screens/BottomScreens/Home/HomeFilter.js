@@ -15,7 +15,8 @@ import { useColor } from '../../../util/ColorSwitcher';
 import MultiSlider from '@ptomasroos/react-native-multi-slider';
 
 const { width } = Dimensions.get('window');
-const responsiveSize = size => (width / 375) * size;
+// Slightly reduced scaling to make everything smaller
+const responsiveSize = size => (width / 400) * size;
 
 // Category data specific for home screen
 const HOME_CATEGORIES = [
@@ -31,7 +32,7 @@ const HOME_CATEGORIES = [
 ];
 
 export default function HomeFilter({ navigation }) {
-  const { bgColor, textColor } = useColor();
+  const { bgColor } = useColor();
   const [selectedCategories, setSelectedCategories] = useState({});
   const [rating, setRating] = useState(4);
   const [sortBy, setSortBy] = useState('Popular');
@@ -72,7 +73,7 @@ export default function HomeFilter({ navigation }) {
 
         <Text style={styles.headerTitle}>Home Filters</Text>
 
-        <View style={{ width: responsiveSize(40) }} />
+        <View style={{ width: responsiveSize(34) }} />
       </View>
 
       <ScrollView
@@ -109,7 +110,7 @@ export default function HomeFilter({ navigation }) {
         </View>
 
         {/* Sort By */}
-        <Text style={[styles.sectionTitle, { marginTop: responsiveSize(20) }]}>
+        <Text style={[styles.sectionTitle, { marginTop: responsiveSize(18) }]}>
           Sort by
         </Text>
 
@@ -142,7 +143,7 @@ export default function HomeFilter({ navigation }) {
         </View>
 
         {/* Rating */}
-        <Text style={[styles.sectionTitle, { marginTop: responsiveSize(20) }]}>
+        <Text style={[styles.sectionTitle, { marginTop: responsiveSize(18) }]}>
           Minimum Rating
         </Text>
 
@@ -169,7 +170,7 @@ export default function HomeFilter({ navigation }) {
         </View>
 
         {/* Price Range */}
-        <Text style={[styles.sectionTitle, { marginTop: responsiveSize(20) }]}>
+        <Text style={[styles.sectionTitle, { marginTop: responsiveSize(18) }]}>
           Price Range
         </Text>
 
@@ -186,7 +187,7 @@ export default function HomeFilter({ navigation }) {
           <View style={styles.sliderContainer}>
             <MultiSlider
               values={[priceRange[0], priceRange[1]]}
-              sliderLength={width - responsiveSize(48)}
+              sliderLength={width - responsiveSize(44)}
               onValuesChange={handlePriceChange}
               min={100}
               max={10000}
@@ -211,7 +212,7 @@ export default function HomeFilter({ navigation }) {
         </View>
 
         {/* Distance Range */}
-        <Text style={[styles.sectionTitle, { marginTop: responsiveSize(20) }]}>
+        <Text style={[styles.sectionTitle, { marginTop: responsiveSize(18) }]}>
           Distance (km)
         </Text>
 
@@ -224,7 +225,7 @@ export default function HomeFilter({ navigation }) {
           <View style={styles.sliderContainer}>
             <MultiSlider
               values={[distance[0], distance[1]]}
-              sliderLength={width - responsiveSize(48)}
+              sliderLength={width - responsiveSize(44)}
               onValuesChange={handleDistanceChange}
               min={0}
               max={20}
@@ -249,7 +250,7 @@ export default function HomeFilter({ navigation }) {
         </View>
 
         {/* Additional Filters */}
-        <Text style={[styles.sectionTitle, { marginTop: responsiveSize(20) }]}>
+        <Text style={[styles.sectionTitle, { marginTop: responsiveSize(18) }]}>
           Additional Filters
         </Text>
 
@@ -260,7 +261,7 @@ export default function HomeFilter({ navigation }) {
             'Offers Available',
             'Credit Card Accepted',
             'Home Delivery',
-          ].map((filter, index) => (
+          ].map(filter => (
             <TouchableOpacity
               key={filter}
               style={styles.additionalFilterBox}
@@ -294,7 +295,7 @@ export default function HomeFilter({ navigation }) {
           </TouchableOpacity>
         </View>
 
-        <View style={{ height: responsiveSize(50) }} />
+        <View style={{ height: responsiveSize(40) }} />
       </ScrollView>
     </View>
   );
@@ -308,26 +309,26 @@ const styles = StyleSheet.create({
 
   /* HEADER */
   header: {
-    height: Platform.OS === 'ios' ? responsiveSize(100) : responsiveSize(90),
+    height: Platform.OS === 'ios' ? responsiveSize(90) : responsiveSize(82),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: responsiveSize(18),
+    paddingHorizontal: responsiveSize(14),
     justifyContent: 'space-between',
-    paddingTop: Platform.OS === 'ios' ? responsiveSize(50) : responsiveSize(30),
+    paddingTop: Platform.OS === 'ios' ? responsiveSize(42) : responsiveSize(26),
     paddingBottom: responsiveSize(0),
   },
   headerTitle: {
     color: '#fff',
-    fontSize: responsiveSize(20),
+    fontSize: responsiveSize(16),
     fontWeight: '700',
     textAlign: 'center',
     flex: 1,
-    marginHorizontal: responsiveSize(10),
+    marginHorizontal: responsiveSize(8),
   },
   iconBtn: {
-    width: responsiveSize(40),
-    height: responsiveSize(40),
-    borderRadius: responsiveSize(12),
+    width: responsiveSize(34),
+    height: responsiveSize(34),
+    borderRadius: responsiveSize(10),
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
@@ -343,17 +344,17 @@ const styles = StyleSheet.create({
     }),
   },
   icon: {
-    width: responsiveSize(20),
-    height: responsiveSize(20),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
   },
 
   content: {
-    padding: responsiveSize(16),
+    padding: responsiveSize(14),
   },
   sectionTitle: {
-    fontSize: responsiveSize(16),
+    fontSize: responsiveSize(14),
     fontWeight: '700',
-    marginBottom: responsiveSize(10),
+    marginBottom: responsiveSize(8),
     color: '#000',
   },
 
@@ -361,20 +362,20 @@ const styles = StyleSheet.create({
   catWrap: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: responsiveSize(10),
+    gap: responsiveSize(8),
   },
   catBox: {
     flexDirection: 'row',
     backgroundColor: '#fff',
-    padding: responsiveSize(10),
-    borderRadius: responsiveSize(10),
+    padding: responsiveSize(8),
+    borderRadius: responsiveSize(8),
     alignItems: 'center',
-    minWidth: responsiveSize(100),
+    minWidth: responsiveSize(90),
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.08,
         shadowRadius: 3,
       },
       android: {
@@ -384,13 +385,13 @@ const styles = StyleSheet.create({
   },
   catActive: {},
   catImg: {
-    width: responsiveSize(28),
-    height: responsiveSize(28),
-    marginRight: responsiveSize(8),
+    width: responsiveSize(24),
+    height: responsiveSize(24),
+    marginRight: responsiveSize(6),
   },
   catTxt: {
     color: '#000',
-    fontSize: responsiveSize(13),
+    fontSize: responsiveSize(11),
     fontWeight: '500',
   },
 
@@ -398,18 +399,18 @@ const styles = StyleSheet.create({
   sortRow: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: responsiveSize(10),
+    gap: responsiveSize(8),
   },
   sortBox: {
-    paddingHorizontal: responsiveSize(12),
-    paddingVertical: responsiveSize(10),
+    paddingHorizontal: responsiveSize(10),
+    paddingVertical: responsiveSize(8),
     backgroundColor: '#fff',
-    borderRadius: responsiveSize(10),
+    borderRadius: responsiveSize(8),
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.08,
         shadowRadius: 3,
       },
       android: {
@@ -419,7 +420,7 @@ const styles = StyleSheet.create({
   },
   sortActive: {},
   sortTxt: {
-    fontSize: responsiveSize(12),
+    fontSize: responsiveSize(11),
     color: '#000',
     fontWeight: '500',
   },
@@ -430,17 +431,17 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   ratingBtn: {
-    paddingVertical: responsiveSize(12),
-    paddingHorizontal: responsiveSize(16),
+    paddingVertical: responsiveSize(9),
+    paddingHorizontal: responsiveSize(12),
     backgroundColor: '#fff',
-    borderRadius: responsiveSize(10),
-    marginRight: responsiveSize(10),
-    marginBottom: responsiveSize(10),
+    borderRadius: responsiveSize(8),
+    marginRight: responsiveSize(8),
+    marginBottom: responsiveSize(8),
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.08,
         shadowRadius: 3,
       },
       android: {
@@ -451,48 +452,48 @@ const styles = StyleSheet.create({
   ratingActive: {},
   ratingTxt: {
     fontWeight: '700',
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(12),
     color: '#000',
   },
 
   /* Range Containers (Price & Distance) */
   rangeContainer: {
     backgroundColor: '#f8f9fa',
-    borderRadius: responsiveSize(12),
-    padding: responsiveSize(16),
-    marginTop: responsiveSize(5),
-    marginBottom: responsiveSize(10),
+    borderRadius: responsiveSize(10),
+    padding: responsiveSize(12),
+    marginTop: responsiveSize(4),
+    marginBottom: responsiveSize(8),
   },
   rangeLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: responsiveSize(20),
+    marginBottom: responsiveSize(14),
   },
   rangeLabel: {
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(12),
     fontWeight: '600',
     color: '#000',
   },
   sliderContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginVertical: responsiveSize(10),
+    marginVertical: responsiveSize(8),
   },
   trackStyle: {
-    height: responsiveSize(4),
+    height: responsiveSize(3),
     borderRadius: responsiveSize(2),
   },
   markerStyle: {
-    height: responsiveSize(24),
-    width: responsiveSize(24),
-    borderRadius: responsiveSize(12),
+    height: responsiveSize(20),
+    width: responsiveSize(20),
+    borderRadius: responsiveSize(10),
     borderWidth: responsiveSize(2),
     borderColor: '#fff',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.3,
+        shadowOpacity: 0.25,
         shadowRadius: 3,
       },
       android: {
@@ -501,17 +502,17 @@ const styles = StyleSheet.create({
     }),
   },
   pressedMarkerStyle: {
-    height: responsiveSize(28),
-    width: responsiveSize(28),
-    borderRadius: responsiveSize(14),
+    height: responsiveSize(24),
+    width: responsiveSize(24),
+    borderRadius: responsiveSize(12),
   },
   rangeLimitLabels: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: responsiveSize(10),
+    marginTop: responsiveSize(8),
   },
   rangeLimitText: {
-    fontSize: responsiveSize(12),
+    fontSize: responsiveSize(10),
     color: '#666',
     fontWeight: '500',
   },
@@ -520,21 +521,21 @@ const styles = StyleSheet.create({
   additionalFilters: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    gap: responsiveSize(10),
-    marginTop: responsiveSize(5),
+    gap: responsiveSize(8),
+    marginTop: responsiveSize(4),
   },
   additionalFilterBox: {
-    paddingHorizontal: responsiveSize(14),
-    paddingVertical: responsiveSize(10),
+    paddingHorizontal: responsiveSize(10),
+    paddingVertical: responsiveSize(8),
     backgroundColor: '#fff',
-    borderRadius: responsiveSize(10),
+    borderRadius: responsiveSize(8),
     borderWidth: 1,
     borderColor: '#E0E0E0',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.08,
         shadowRadius: 2,
       },
       android: {
@@ -543,7 +544,7 @@ const styles = StyleSheet.create({
     }),
   },
   additionalFilterText: {
-    fontSize: responsiveSize(12),
+    fontSize: responsiveSize(11),
     color: '#000',
     fontWeight: '500',
   },
@@ -551,23 +552,23 @@ const styles = StyleSheet.create({
   /* Buttons */
   buttonContainer: {
     flexDirection: 'row',
-    marginTop: responsiveSize(30),
+    marginTop: responsiveSize(24),
   },
   resetBtn: {
     flex: 1,
-    height: responsiveSize(50),
-    borderRadius: responsiveSize(12),
+    height: responsiveSize(44),
+    borderRadius: responsiveSize(10),
     backgroundColor: '#fff',
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: responsiveSize(14),
-    borderWidth: responsiveSize(2),
+    marginRight: responsiveSize(10),
+    borderWidth: responsiveSize(1.5),
     borderColor: '#E0E0E0',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.1,
+        shadowOpacity: 0.08,
         shadowRadius: 3,
       },
       android: {
@@ -577,20 +578,20 @@ const styles = StyleSheet.create({
   },
   resetTxt: {
     fontWeight: '700',
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(12),
     color: '#000',
   },
   applyBtn: {
     flex: 1,
-    height: responsiveSize(50),
-    borderRadius: responsiveSize(12),
+    height: responsiveSize(44),
+    borderRadius: responsiveSize(10),
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
       ios: {
         shadowColor: '#000',
         shadowOffset: { width: 0, height: 2 },
-        shadowOpacity: 0.2,
+        shadowOpacity: 0.18,
         shadowRadius: 4,
       },
       android: {
@@ -601,6 +602,6 @@ const styles = StyleSheet.create({
   applyTxt: {
     fontWeight: '700',
     color: '#fff',
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(12),
   },
 });

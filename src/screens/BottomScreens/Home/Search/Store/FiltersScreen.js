@@ -178,7 +178,7 @@ const FiltersScreen = ({
             <View style={styles.section}>
               <Text style={styles.sectionTitle}>Other Filters</Text>
 
-              <View style={styles.filterRow}>
+              <View className="filterRow" style={styles.filterRow}>
                 <Text style={styles.filterLabel}>In Stock Only</Text>
                 <Switch
                   value={inStock}
@@ -227,48 +227,48 @@ const getStyles = (bgColor, textColor) =>
     },
     modalContainer: {
       backgroundColor: '#fff',
-      borderTopLeftRadius: wp('6%'),
-      borderTopRightRadius: wp('6%'),
-      maxHeight: hp('80%'),
+      borderTopLeftRadius: wp('5%'),
+      borderTopRightRadius: wp('5%'),
+      maxHeight: hp('75%'),
     },
     header: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      paddingHorizontal: wp('5%'),
-      paddingVertical: hp('2%'),
+      paddingHorizontal: wp('4%'),
+      paddingVertical: hp('1.6%'),
       borderBottomWidth: 1,
       borderBottomColor: '#f0f0f0',
     },
     headerTitle: {
-      fontSize: hp('2.2%'),
+      fontSize: hp('1.9%'),
       fontWeight: 'bold',
       color: '#000',
     },
     closeButton: {
-      width: wp('8%'),
-      height: wp('8%'),
-      borderRadius: wp('4%'),
+      width: wp('7%'),
+      height: wp('7%'),
+      borderRadius: wp('3.5%'),
       justifyContent: 'center',
       alignItems: 'center',
     },
     closeButtonText: {
-      fontSize: hp('2.5%'),
+      fontSize: hp('2.1%'),
       fontWeight: '300',
     },
     content: {
-      paddingHorizontal: wp('5%'),
-      paddingVertical: hp('2%'),
-      maxHeight: hp('60%'),
+      paddingHorizontal: wp('4%'),
+      paddingVertical: hp('1.6%'),
+      maxHeight: hp('56%'),
     },
     section: {
-      marginBottom: hp('3%'),
+      marginBottom: hp('2.4%'),
     },
     sectionTitle: {
-      fontSize: hp('1.8%'),
+      fontSize: hp('1.6%'),
       fontWeight: 'bold',
       color: '#000',
-      marginBottom: hp('1.5%'),
+      marginBottom: hp('1.1%'),
     },
     priceRangeContainer: {
       flexDirection: 'row',
@@ -276,22 +276,22 @@ const getStyles = (bgColor, textColor) =>
     },
     priceInputContainer: {
       flex: 1,
-      marginHorizontal: wp('1%'),
+      marginHorizontal: wp('0.8%'),
     },
     priceLabel: {
-      fontSize: hp('1.4%'),
+      fontSize: hp('1.25%'),
       color: '#666',
-      marginBottom: hp('0.5%'),
+      marginBottom: hp('0.4%'),
     },
     priceInput: {
       borderWidth: 1,
       borderColor: '#ddd',
-      borderRadius: wp('2%'),
-      padding: wp('3%'),
+      borderRadius: wp('1.8%'),
+      padding: wp('2.5%'),
       backgroundColor: '#f9f9f9',
     },
     priceText: {
-      fontSize: hp('1.6%'),
+      fontSize: hp('1.4%'),
       color: '#000',
     },
     tagsContainer: {
@@ -301,11 +301,11 @@ const getStyles = (bgColor, textColor) =>
     tag: {
       borderWidth: 1,
       borderColor: '#ddd',
-      borderRadius: wp('3%'),
-      paddingHorizontal: wp('3%'),
-      paddingVertical: hp('0.8%'),
-      marginRight: wp('2%'),
-      marginBottom: hp('1%'),
+      borderRadius: wp('2.5%'),
+      paddingHorizontal: wp('2.6%'),
+      paddingVertical: hp('0.6%'),
+      marginRight: wp('1.8%'),
+      marginBottom: hp('0.8%'),
       backgroundColor: '#fff',
     },
     tagSelected: {
@@ -313,7 +313,7 @@ const getStyles = (bgColor, textColor) =>
       borderColor: bgColor,
     },
     tagText: {
-      fontSize: hp('1.4%'),
+      fontSize: hp('1.25%'),
       color: '#666',
     },
     tagTextSelected: {
@@ -323,45 +323,45 @@ const getStyles = (bgColor, textColor) =>
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      paddingVertical: hp('1%'),
+      paddingVertical: hp('0.8%'),
       borderBottomWidth: 1,
       borderBottomColor: '#f0f0f0',
     },
     filterLabel: {
-      fontSize: hp('1.6%'),
+      fontSize: hp('1.4%'),
       color: '#000',
     },
     actionButtons: {
       flexDirection: 'row',
-      paddingHorizontal: wp('5%'),
-      paddingVertical: hp('2%'),
+      paddingHorizontal: wp('4%'),
+      paddingVertical: hp('1.6%'),
       borderTopWidth: 1,
       borderTopColor: '#f0f0f0',
     },
     resetButton: {
       flex: 1,
-      paddingVertical: hp('1.5%'),
-      borderRadius: wp('3%'),
+      paddingVertical: hp('1.2%'),
+      borderRadius: wp('2.5%'),
       borderWidth: 1,
       borderColor: '#ddd',
       alignItems: 'center',
-      marginRight: wp('2%'),
+      marginRight: wp('1.6%'),
     },
     resetButtonText: {
       color: '#666',
-      fontSize: hp('1.6%'),
+      fontSize: hp('1.4%'),
       fontWeight: '600',
     },
     applyButton: {
       flex: 1,
-      paddingVertical: hp('1.5%'),
-      borderRadius: wp('3%'),
+      paddingVertical: hp('1.2%'),
+      borderRadius: wp('2.5%'),
       alignItems: 'center',
-      marginLeft: wp('2%'),
+      marginLeft: wp('1.6%'),
     },
     applyButtonText: {
       color: '#fff',
-      fontSize: hp('1.6%'),
+      fontSize: hp('1.4%'),
       fontWeight: 'bold',
     },
   });

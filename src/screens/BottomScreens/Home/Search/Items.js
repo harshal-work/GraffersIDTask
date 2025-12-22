@@ -18,8 +18,8 @@ import { useColor } from '../../../../util/ColorSwitcher';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive sizing
-const responsiveSize = size => (width / 375) * size;
+// Slightly reduced scaling to make everything smaller
+const responsiveSize = size => (width / 400) * size;
 
 // Platform detection
 const isIOS = Platform.OS === 'ios';
@@ -135,10 +135,8 @@ export default function Items({ navigation }) {
 
   const showAddToCartPopup = useCallback(
     product => {
-      // Set the selected product
       setSelectedProduct(product);
 
-      // Add product to cart
       const newCartCount = cartCount + 1;
       setCartCount(newCartCount);
       setCartItems(prev => [
@@ -152,12 +150,10 @@ export default function Items({ navigation }) {
         },
       ]);
 
-      // Reset animation values
       popupScale.setValue(0);
       popupOpacity.setValue(0);
       productImageScale.setValue(0.5);
 
-      // Show popup with animation
       setShowPopup(true);
       safeVibrate(50);
 
@@ -240,15 +236,12 @@ export default function Items({ navigation }) {
         }),
       ]).start();
 
-      // FIXED: Check state BEFORE toggling to ensure popup shows on FIRST press
       const wasAddedBefore = !!addedMapRef[id];
 
-      // Show popup ONLY on first press (when it was NOT added before)
       if (!wasAddedBefore) {
         showAddToCartPopup(product);
       }
 
-      // Toggle the state AFTER checking
       addedMapRef[id] = !addedMapRef[id];
       setTick(t => t + 1);
     },
@@ -399,7 +392,7 @@ export default function Items({ navigation }) {
 
           <View style={styles.deliverTextWrap}>
             <Text style={[styles.deliverText, { color: textColor }]}>
-              Deliver to :{' '}
+              Deliver to:{' '}
               <Text
                 style={[
                   styles.deliverAddr,
@@ -423,7 +416,7 @@ export default function Items({ navigation }) {
       <ScrollView
         style={[styles.content, { backgroundColor: textColor }]}
         showsVerticalScrollIndicator={false}
-        contentContainerStyle={{ paddingBottom: responsiveSize(120) }}
+        contentContainerStyle={{ paddingBottom: responsiveSize(110) }}
       >
         <View style={styles.sectionTitleContainer}>
           <Text style={[styles.sectionTitleText, { color: bgColor }]}>
@@ -449,9 +442,9 @@ export default function Items({ navigation }) {
                   style={[
                     styles.categoryItem,
                     active && {
-                      borderBottomWidth: responsiveSize(3),
+                      borderBottomWidth: responsiveSize(2),
                       borderBottomColor: bgColor,
-                      paddingBottom: responsiveSize(6),
+                      paddingBottom: responsiveSize(5),
                     },
                   ]}
                 >
@@ -622,7 +615,7 @@ export default function Items({ navigation }) {
         </View>
       </ScrollView>
 
-      {/* Add to Cart Popup - FIXED IMAGE SIZE */}
+      {/* Add to Cart Popup */}
       {showPopup && selectedProduct && (
         <View style={styles.popupOverlay}>
           <Animated.View
@@ -635,7 +628,6 @@ export default function Items({ navigation }) {
               },
             ]}
           >
-            {/* FIXED: Proper image container with increased height and proper padding */}
             <View
               style={[
                 styles.popupImageContainer,
@@ -707,27 +699,27 @@ const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#fff' },
 
   statusBarSpacer: {
-    height: Platform.OS === 'ios' ? responsiveSize(40) : 0,
+    height: Platform.OS === 'ios' ? responsiveSize(36) : 0,
   },
 
   topBlue: {
     width: '100%',
-    paddingBottom: responsiveSize(12),
+    paddingBottom: responsiveSize(10),
     paddingTop: Platform.OS === 'ios' ? 0 : StatusBar.currentHeight,
   },
 
   topHeader: {
-    height: responsiveSize(68),
-    paddingHorizontal: responsiveSize(16),
+    height: responsiveSize(60),
+    paddingHorizontal: responsiveSize(14),
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: Platform.OS === 'ios' ? responsiveSize(10) : 0,
+    marginTop: Platform.OS === 'ios' ? responsiveSize(8) : 0,
   },
 
   iconBtn: {
-    width: responsiveSize(40),
-    height: responsiveSize(40),
+    width: responsiveSize(34),
+    height: responsiveSize(34),
     borderRadius: responsiveSize(10),
     justifyContent: 'center',
     alignItems: 'center',
@@ -743,19 +735,19 @@ const styles = StyleSheet.create({
   },
 
   icon: {
-    width: responsiveSize(18),
-    height: responsiveSize(18),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
     resizeMode: 'contain',
   },
 
   searchContainer: {
     flex: 1,
-    marginHorizontal: responsiveSize(12),
-    height: responsiveSize(40),
-    borderRadius: responsiveSize(10),
+    marginHorizontal: responsiveSize(10),
+    height: responsiveSize(36),
+    borderRadius: responsiveSize(9),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: responsiveSize(12),
+    paddingHorizontal: responsiveSize(10),
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -768,21 +760,21 @@ const styles = StyleSheet.create({
   },
 
   searchIcon: {
-    width: responsiveSize(16),
-    height: responsiveSize(16),
+    width: responsiveSize(14),
+    height: responsiveSize(14),
     resizeMode: 'contain',
   },
 
   searchText: {
-    marginLeft: responsiveSize(10),
-    fontSize: fontScale(responsiveSize(13)),
+    marginLeft: responsiveSize(8),
+    fontSize: fontScale(responsiveSize(11)),
     fontWeight: '500',
     flex: 1,
   },
 
   filterBtn: {
-    width: responsiveSize(40),
-    height: responsiveSize(40),
+    width: responsiveSize(34),
+    height: responsiveSize(34),
     borderRadius: responsiveSize(10),
     justifyContent: 'center',
     alignItems: 'center',
@@ -798,26 +790,26 @@ const styles = StyleSheet.create({
   },
 
   filterIcon: {
-    width: responsiveSize(18),
-    height: responsiveSize(18),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
     resizeMode: 'contain',
   },
 
   deliverRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: responsiveSize(16),
-    paddingHorizontal: responsiveSize(16),
-    height: responsiveSize(42),
+    marginTop: responsiveSize(12),
+    paddingHorizontal: responsiveSize(14),
+    height: responsiveSize(38),
   },
 
   locIconWrap: {
-    width: responsiveSize(42),
-    height: responsiveSize(42),
+    width: responsiveSize(36),
+    height: responsiveSize(36),
     borderRadius: responsiveSize(10),
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: responsiveSize(10),
+    marginRight: responsiveSize(8),
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -830,8 +822,8 @@ const styles = StyleSheet.create({
   },
 
   locIcon: {
-    width: responsiveSize(18),
-    height: responsiveSize(18),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
     resizeMode: 'contain',
   },
 
@@ -841,38 +833,38 @@ const styles = StyleSheet.create({
   },
 
   deliverText: {
-    fontSize: fontScale(responsiveSize(14)),
+    fontSize: fontScale(responsiveSize(12)),
     fontWeight: '500',
-    lineHeight: responsiveSize(20),
+    lineHeight: responsiveSize(18),
   },
 
   deliverAddr: {
-    fontSize: fontScale(responsiveSize(14)),
+    fontSize: fontScale(responsiveSize(12)),
   },
 
   dropdownBtn: {
-    padding: responsiveSize(8),
+    padding: responsiveSize(6),
     marginLeft: responsiveSize(4),
   },
 
   dropdownIcon: {
-    width: responsiveSize(12),
-    height: responsiveSize(12),
+    width: responsiveSize(10),
+    height: responsiveSize(10),
     resizeMode: 'contain',
   },
 
   content: { flex: 1 },
 
   sectionTitleContainer: {
-    paddingHorizontal: responsiveSize(16),
-    paddingTop: responsiveSize(20),
-    paddingBottom: responsiveSize(10),
+    paddingHorizontal: responsiveSize(14),
+    paddingTop: responsiveSize(18),
+    paddingBottom: responsiveSize(8),
   },
 
   sectionTitleText: {
-    fontSize: fontScale(responsiveSize(18)),
+    fontSize: fontScale(responsiveSize(16)),
     fontWeight: '700',
-    marginBottom: responsiveSize(8),
+    marginBottom: responsiveSize(6),
   },
 
   titleLine: {
@@ -881,28 +873,28 @@ const styles = StyleSheet.create({
   },
 
   categoriesWrapper: {
-    marginTop: responsiveSize(8),
-    paddingLeft: responsiveSize(16),
-    paddingRight: responsiveSize(8),
-    paddingBottom: responsiveSize(16),
+    marginTop: responsiveSize(6),
+    paddingLeft: responsiveSize(14),
+    paddingRight: responsiveSize(6),
+    paddingBottom: responsiveSize(14),
   },
 
   categoriesScroll: {
     alignItems: 'center',
-    paddingRight: responsiveSize(8),
+    paddingRight: responsiveSize(6),
   },
 
   categoryItem: {
-    width: responsiveSize(70),
+    width: responsiveSize(64),
     alignItems: 'center',
-    marginRight: responsiveSize(12),
-    paddingVertical: responsiveSize(6),
+    marginRight: responsiveSize(10),
+    paddingVertical: responsiveSize(5),
   },
 
   categoryIconWrap: {
-    width: responsiveSize(56),
-    height: responsiveSize(56),
-    borderRadius: responsiveSize(28),
+    width: responsiveSize(50),
+    height: responsiveSize(50),
+    borderRadius: responsiveSize(25),
     justifyContent: 'center',
     alignItems: 'center',
     overflow: 'hidden',
@@ -921,12 +913,12 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     resizeMode: 'cover',
-    borderRadius: responsiveSize(28),
+    borderRadius: responsiveSize(25),
   },
 
   categoryLabel: {
-    marginTop: responsiveSize(6),
-    fontSize: fontScale(responsiveSize(12)),
+    marginTop: responsiveSize(4),
+    fontSize: fontScale(responsiveSize(11)),
     textAlign: 'center',
     fontWeight: '500',
     width: '100%',
@@ -942,22 +934,22 @@ const styles = StyleSheet.create({
   },
 
   sectionHeader: {
-    paddingHorizontal: responsiveSize(16),
-    paddingTop: responsiveSize(10),
-    paddingBottom: responsiveSize(12),
+    paddingHorizontal: responsiveSize(14),
+    paddingTop: responsiveSize(8),
+    paddingBottom: responsiveSize(10),
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
 
   sectionTitle: {
-    fontSize: fontScale(responsiveSize(18)),
+    fontSize: fontScale(responsiveSize(16)),
     fontWeight: '700',
     letterSpacing: 0.3,
   },
 
   viewAllText: {
-    fontSize: fontScale(responsiveSize(14)),
+    fontSize: fontScale(responsiveSize(12)),
     fontWeight: '600',
   },
 
@@ -965,15 +957,15 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     flexWrap: 'wrap',
     justifyContent: 'space-between',
-    paddingHorizontal: responsiveSize(16),
+    paddingHorizontal: responsiveSize(14),
   },
 
   card: {
-    width: (width - responsiveSize(48)) / 2,
+    width: (width - responsiveSize(44)) / 2,
     backgroundColor: '#fff',
-    borderRadius: responsiveSize(12),
-    marginBottom: responsiveSize(16),
-    paddingBottom: responsiveSize(14),
+    borderRadius: responsiveSize(10),
+    marginBottom: responsiveSize(14),
+    paddingBottom: responsiveSize(12),
     borderWidth: 1,
     borderColor: '#f0f0f0',
     overflow: 'hidden',
@@ -981,22 +973,22 @@ const styles = StyleSheet.create({
   },
 
   cardLeft: {
-    marginRight: responsiveSize(8),
+    marginRight: responsiveSize(6),
   },
 
   cardRight: {
-    marginLeft: responsiveSize(8),
+    marginLeft: responsiveSize(6),
   },
 
   cardImageWrap: {
     width: '100%',
-    height: responsiveSize(140),
+    height: responsiveSize(120),
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
     overflow: 'hidden',
-    borderTopLeftRadius: responsiveSize(12),
-    borderTopRightRadius: responsiveSize(12),
+    borderTopLeftRadius: responsiveSize(10),
+    borderTopRightRadius: responsiveSize(10),
   },
 
   cardImageCover: {
@@ -1005,31 +997,30 @@ const styles = StyleSheet.create({
     resizeMode: 'cover',
   },
 
-  // FIXED: Popup image container with proper padding and height
   popupImageContainer: {
     width: '100%',
-    height: responsiveSize(200), // Increased height for better display
+    height: responsiveSize(180),
     justifyContent: 'center',
     alignItems: 'center',
     borderRadius: responsiveSize(12),
-    marginBottom: responsiveSize(20),
-    paddingHorizontal: responsiveSize(20), // Added horizontal padding
+    marginBottom: responsiveSize(18),
+    paddingHorizontal: responsiveSize(18),
     overflow: 'hidden',
   },
 
   popupImage: {
     width: '100%',
     height: '100%',
-    resizeMode: 'contain', // Changed to contain to show full image
+    resizeMode: 'contain',
   },
 
   ratingBadgeBottom: {
     position: 'absolute',
-    left: responsiveSize(8),
-    bottom: responsiveSize(8),
-    paddingHorizontal: responsiveSize(8),
-    paddingVertical: responsiveSize(4),
-    borderRadius: responsiveSize(8),
+    left: responsiveSize(6),
+    bottom: responsiveSize(6),
+    paddingHorizontal: responsiveSize(6),
+    paddingVertical: responsiveSize(3),
+    borderRadius: responsiveSize(7),
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: 'rgba(255,255,255,0.92)',
@@ -1045,24 +1036,24 @@ const styles = StyleSheet.create({
   },
 
   starIconSmall: {
-    width: responsiveSize(12),
-    height: responsiveSize(12),
-    marginRight: responsiveSize(6),
+    width: responsiveSize(10),
+    height: responsiveSize(10),
+    marginRight: responsiveSize(4),
     resizeMode: 'contain',
   },
 
   ratingTextBadge: {
-    fontSize: fontScale(responsiveSize(11)),
+    fontSize: fontScale(responsiveSize(10)),
     fontWeight: '700',
   },
 
   heartBtn: {
     position: 'absolute',
-    right: responsiveSize(8),
-    top: responsiveSize(8),
-    width: responsiveSize(32),
-    height: responsiveSize(32),
-    borderRadius: responsiveSize(16),
+    right: responsiveSize(6),
+    top: responsiveSize(6),
+    width: responsiveSize(28),
+    height: responsiveSize(28),
+    borderRadius: responsiveSize(14),
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
@@ -1079,28 +1070,28 @@ const styles = StyleSheet.create({
   },
 
   heartIcon: {
-    width: responsiveSize(18),
-    height: responsiveSize(18),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
     resizeMode: 'contain',
   },
 
   cardBody: {
-    paddingHorizontal: responsiveSize(10),
-    paddingTop: responsiveSize(8),
-    paddingBottom: responsiveSize(8),
+    paddingHorizontal: responsiveSize(8),
+    paddingTop: responsiveSize(6),
+    paddingBottom: responsiveSize(6),
   },
 
   cardTitle: {
-    fontSize: fontScale(responsiveSize(14)),
+    fontSize: fontScale(responsiveSize(12)),
     fontWeight: '700',
-    marginBottom: responsiveSize(4),
-    lineHeight: responsiveSize(18),
+    marginBottom: responsiveSize(3),
+    lineHeight: responsiveSize(16),
   },
 
   cardSeller: {
-    fontSize: fontScale(responsiveSize(12)),
-    marginBottom: responsiveSize(8),
-    lineHeight: responsiveSize(16),
+    fontSize: fontScale(responsiveSize(10)),
+    marginBottom: responsiveSize(6),
+    lineHeight: responsiveSize(14),
   },
 
   priceRow: {
@@ -1111,7 +1102,7 @@ const styles = StyleSheet.create({
   },
 
   priceText: {
-    fontSize: fontScale(responsiveSize(15)),
+    fontSize: fontScale(responsiveSize(13)),
     fontWeight: '700',
     flex: 1,
   },
@@ -1119,31 +1110,31 @@ const styles = StyleSheet.create({
   timeRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: responsiveSize(8),
+    marginTop: responsiveSize(6),
   },
 
   clockIcon: {
-    width: responsiveSize(14),
-    height: responsiveSize(14),
-    marginRight: responsiveSize(6),
+    width: responsiveSize(12),
+    height: responsiveSize(12),
+    marginRight: responsiveSize(4),
     resizeMode: 'contain',
   },
 
   timeText: {
-    fontSize: fontScale(responsiveSize(12)),
+    fontSize: fontScale(responsiveSize(10)),
     fontWeight: '500',
   },
 
   plusBtn: {
     position: 'absolute',
-    right: responsiveSize(10),
-    bottom: responsiveSize(10),
-    width: responsiveSize(30),
-    height: responsiveSize(30),
-    borderRadius: responsiveSize(19),
+    right: responsiveSize(8),
+    bottom: responsiveSize(8),
+    width: responsiveSize(26),
+    height: responsiveSize(26),
+    borderRadius: responsiveSize(16),
     justifyContent: 'center',
     alignItems: 'center',
-    borderWidth: 3,
+    borderWidth: 2.5,
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -1158,8 +1149,8 @@ const styles = StyleSheet.create({
   },
 
   plusIcon: {
-    width: responsiveSize(15),
-    height: responsiveSize(15),
+    width: responsiveSize(13),
+    height: responsiveSize(13),
     resizeMode: 'contain',
   },
 
@@ -1178,8 +1169,8 @@ const styles = StyleSheet.create({
 
   popupContainer: {
     width: width * 0.85,
-    borderRadius: responsiveSize(20),
-    padding: responsiveSize(25),
+    borderRadius: responsiveSize(18),
+    padding: responsiveSize(22),
     alignItems: 'center',
     ...Platform.select({
       ios: {
@@ -1195,39 +1186,39 @@ const styles = StyleSheet.create({
   },
 
   popupProductTitle: {
-    fontSize: fontScale(responsiveSize(18)),
+    fontSize: fontScale(responsiveSize(16)),
     fontWeight: '700',
     textAlign: 'center',
     marginBottom: responsiveSize(4),
   },
 
   popupSeller: {
-    fontSize: fontScale(responsiveSize(14)),
+    fontSize: fontScale(responsiveSize(12)),
     fontWeight: '500',
     textAlign: 'center',
-    marginBottom: responsiveSize(15),
+    marginBottom: responsiveSize(12),
   },
 
   popupSpacer: {
-    height: responsiveSize(10),
+    height: responsiveSize(8),
   },
 
   popupSpacerSmall: {
-    height: responsiveSize(5),
+    height: responsiveSize(4),
   },
 
   popupSuccessText: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(14)),
     fontWeight: '600',
     textAlign: 'center',
-    lineHeight: responsiveSize(22),
+    lineHeight: responsiveSize(20),
   },
 
   popupCartCount: {
-    fontSize: fontScale(responsiveSize(14)),
+    fontSize: fontScale(responsiveSize(12)),
     fontWeight: '500',
     textAlign: 'center',
-    marginBottom: responsiveSize(25),
+    marginBottom: responsiveSize(20),
   },
 
   popupButtons: {
@@ -1238,29 +1229,29 @@ const styles = StyleSheet.create({
 
   viewCartButton: {
     flex: 1,
-    marginRight: responsiveSize(10),
-    paddingVertical: responsiveSize(14),
-    borderRadius: responsiveSize(12),
+    marginRight: responsiveSize(8),
+    paddingVertical: responsiveSize(12),
+    borderRadius: responsiveSize(10),
     alignItems: 'center',
     justifyContent: 'center',
   },
 
   viewCartText: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(14)),
     fontWeight: '700',
   },
 
   laterButton: {
     flex: 1,
-    paddingVertical: responsiveSize(14),
-    borderRadius: responsiveSize(12),
+    paddingVertical: responsiveSize(12),
+    borderRadius: responsiveSize(10),
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 2,
   },
 
   laterText: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(14)),
     fontWeight: '700',
   },
 
@@ -1272,9 +1263,9 @@ const styles = StyleSheet.create({
   },
 
   filtersContent: {
-    borderTopLeftRadius: responsiveSize(20),
-    borderTopRightRadius: responsiveSize(20),
-    padding: responsiveSize(20),
+    borderTopLeftRadius: responsiveSize(18),
+    borderTopRightRadius: responsiveSize(18),
+    padding: responsiveSize(18),
     maxHeight: height * 0.7,
   },
 
@@ -1282,73 +1273,73 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: responsiveSize(20),
+    marginBottom: responsiveSize(16),
   },
 
   filtersTitle: {
-    fontSize: fontScale(responsiveSize(22)),
+    fontSize: fontScale(responsiveSize(18)),
     fontWeight: '700',
   },
 
   closeFilters: {
-    fontSize: fontScale(responsiveSize(24)),
+    fontSize: fontScale(responsiveSize(20)),
     fontWeight: '300',
   },
 
   filtersList: {
-    marginBottom: responsiveSize(20),
+    marginBottom: responsiveSize(16),
   },
 
   filterOption: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingVertical: responsiveSize(16),
-    paddingHorizontal: responsiveSize(10),
-    borderRadius: responsiveSize(10),
-    marginBottom: responsiveSize(8),
+    paddingVertical: responsiveSize(12),
+    paddingHorizontal: responsiveSize(8),
+    borderRadius: responsiveSize(8),
+    marginBottom: responsiveSize(6),
   },
 
   filterOptionText: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(14)),
     fontWeight: '500',
   },
 
   selectedDot: {
-    width: responsiveSize(12),
-    height: responsiveSize(12),
-    borderRadius: responsiveSize(6),
+    width: responsiveSize(10),
+    height: responsiveSize(10),
+    borderRadius: responsiveSize(5),
   },
 
   filterButtons: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    paddingTop: responsiveSize(10),
+    paddingTop: responsiveSize(8),
   },
 
   clearFiltersBtn: {
     flex: 1,
-    marginRight: responsiveSize(10),
-    paddingVertical: responsiveSize(15),
-    borderRadius: responsiveSize(12),
+    marginRight: responsiveSize(8),
+    paddingVertical: responsiveSize(12),
+    borderRadius: responsiveSize(10),
     alignItems: 'center',
     borderWidth: 2,
   },
 
   clearFiltersText: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(14)),
     fontWeight: '600',
   },
 
   applyFiltersBtn: {
     flex: 1,
-    paddingVertical: responsiveSize(15),
-    borderRadius: responsiveSize(12),
+    paddingVertical: responsiveSize(12),
+    borderRadius: responsiveSize(10),
     alignItems: 'center',
   },
 
   applyFiltersText: {
-    fontSize: fontScale(responsiveSize(16)),
+    fontSize: fontScale(responsiveSize(14)),
     fontWeight: '600',
   },
 });

@@ -16,8 +16,8 @@ import { useColor } from '../../../util/ColorSwitcher';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive sizing
-const responsiveSize = size => (width / 375) * size;
+// Slightly reduced responsive sizing
+const responsiveSize = size => (width / 400) * size;
 
 export default function MyCart({ navigation }) {
   const { bgColor, textColor } = useColor();
@@ -265,10 +265,7 @@ export default function MyCart({ navigation }) {
                   style={[
                     styles.radioOuter,
                     { borderColor: bgColor },
-                    delivery === opt && [
-                      styles.radioOuterActive,
-                      { borderColor: bgColor },
-                    ],
+                    delivery === opt && styles.radioOuterActive,
                   ]}
                 >
                   {delivery === opt && (
@@ -294,7 +291,6 @@ export default function MyCart({ navigation }) {
                   styles.radioOuter,
                   { borderColor: bgColor },
                   styles.radioOuterActive,
-                  { borderColor: bgColor },
                 ]}
               >
                 <View
@@ -323,7 +319,7 @@ export default function MyCart({ navigation }) {
           <Text style={styles.checkoutText}>CHECKOUT</Text>
         </TouchableOpacity>
 
-        <View style={{ height: 40 }} />
+        <View style={{ height: 36 }} />
       </ScrollView>
     </View>
   );
@@ -339,48 +335,48 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingBottom:
-      Platform.OS === 'ios' ? responsiveSize(100) : responsiveSize(90),
+      Platform.OS === 'ios' ? responsiveSize(90) : responsiveSize(80),
   },
 
   /* HEADER */
   header: {
-    height: Platform.OS === 'ios' ? responsiveSize(100) : responsiveSize(90),
+    height: Platform.OS === 'ios' ? responsiveSize(90) : responsiveSize(82),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: responsiveSize(18),
+    paddingHorizontal: responsiveSize(14),
     justifyContent: 'space-between',
-    paddingTop: Platform.OS === 'ios' ? responsiveSize(50) : responsiveSize(30),
-    paddingBottom: responsiveSize(0),
+    paddingTop: Platform.OS === 'ios' ? responsiveSize(44) : responsiveSize(26),
+    paddingBottom: 0,
   },
   headerTitle: {
     color: '#fff',
-    fontSize: responsiveSize(20),
+    fontSize: responsiveSize(16),
     fontWeight: '700',
     textAlign: 'center',
     flex: 1,
-    marginHorizontal: responsiveSize(10),
+    marginHorizontal: responsiveSize(8),
   },
 
   /* OFFERS SECTION */
   offersCard: {
-    marginTop: responsiveSize(15),
-    marginHorizontal: responsiveSize(15),
+    marginTop: responsiveSize(12),
+    marginHorizontal: responsiveSize(12),
     backgroundColor: '#fff',
-    borderRadius: responsiveSize(10),
-    padding: responsiveSize(15),
+    borderRadius: responsiveSize(8),
+    padding: responsiveSize(12),
     borderWidth: 1,
     borderColor: '#e0e0e0',
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 2,
   },
   offersTitle: {
-    fontSize: responsiveSize(16),
+    fontSize: responsiveSize(13),
     fontWeight: '700',
     color: '#000',
-    marginBottom: responsiveSize(20),
+    marginBottom: responsiveSize(14),
     textAlign: 'center',
   },
   offerSteps: {
@@ -398,27 +394,27 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   stepIconContainer: {
-    width: responsiveSize(24),
-    height: responsiveSize(24),
+    width: responsiveSize(20),
+    height: responsiveSize(20),
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: responsiveSize(8),
+    marginBottom: responsiveSize(6),
   },
   stepIcon: {
-    width: responsiveSize(18),
-    height: responsiveSize(18),
+    width: responsiveSize(14),
+    height: responsiveSize(14),
   },
   stepText: {
-    fontSize: responsiveSize(10),
+    fontSize: responsiveSize(9),
     color: '#666',
     textAlign: 'center',
     fontWeight: '500',
-    lineHeight: responsiveSize(12),
-    paddingHorizontal: responsiveSize(4),
+    lineHeight: responsiveSize(11),
+    paddingHorizontal: responsiveSize(3),
   },
   stepLine: {
     position: 'absolute',
-    top: responsiveSize(12),
+    top: responsiveSize(10),
     left: '50%',
     width: '100%',
     height: 2,
@@ -427,11 +423,11 @@ const styles = StyleSheet.create({
 
   /* PRODUCT CARD */
   productCard: {
-    marginTop: responsiveSize(15),
-    marginHorizontal: responsiveSize(15),
+    marginTop: responsiveSize(12),
+    marginHorizontal: responsiveSize(12),
     backgroundColor: '#fff',
-    borderRadius: responsiveSize(10),
-    padding: responsiveSize(12),
+    borderRadius: responsiveSize(8),
+    padding: responsiveSize(10),
     flexDirection: 'row',
     alignItems: 'flex-start',
     borderWidth: 1,
@@ -439,79 +435,79 @@ const styles = StyleSheet.create({
     elevation: 1,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.08,
     shadowRadius: 2,
     position: 'relative',
   },
   productImg: {
-    width: responsiveSize(70),
-    height: responsiveSize(90),
-    borderRadius: responsiveSize(6),
-    marginRight: responsiveSize(12),
+    width: responsiveSize(62),
+    height: responsiveSize(80),
+    borderRadius: responsiveSize(5),
+    marginRight: responsiveSize(10),
   },
   productInfo: {
     flex: 1,
   },
   productName: {
-    fontSize: responsiveSize(16),
+    fontSize: responsiveSize(13.5),
     fontWeight: '700',
     color: '#000',
     marginBottom: responsiveSize(2),
   },
   soldBy: {
     color: '#666',
-    fontSize: responsiveSize(12),
-    marginBottom: responsiveSize(6),
+    fontSize: responsiveSize(10.5),
+    marginBottom: responsiveSize(5),
   },
   price: {
-    fontSize: responsiveSize(16),
+    fontSize: responsiveSize(13.5),
     fontWeight: '700',
-    marginBottom: responsiveSize(8),
+    marginBottom: responsiveSize(6),
   },
 
-  /* QUANTITY - After price */
+  /* QUANTITY */
   qtyContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   qtyBtn: {
-    width: responsiveSize(24),
-    height: responsiveSize(24),
-    borderRadius: responsiveSize(12),
+    width: responsiveSize(22),
+    height: responsiveSize(22),
+    borderRadius: responsiveSize(11),
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 2,
   },
   qtyBtnTxt: {
     color: '#fff',
-    fontSize: responsiveSize(12),
+    fontSize: responsiveSize(11),
     fontWeight: 'bold',
-    lineHeight: responsiveSize(14),
+    lineHeight: responsiveSize(13),
   },
   qtyNumber: {
-    fontSize: responsiveSize(11),
+    fontSize: responsiveSize(10.5),
     fontWeight: '600',
-    marginHorizontal: responsiveSize(6),
+    marginHorizontal: responsiveSize(5),
     color: '#000',
-    minWidth: responsiveSize(18),
+    minWidth: responsiveSize(16),
     textAlign: 'center',
   },
 
-  /* Remove Button - Top Right Corner */
+  /* Remove Button */
   removeBtn: {
     position: 'absolute',
-    top: responsiveSize(8),
-    right: responsiveSize(8),
-    width: responsiveSize(20),
-    height: responsiveSize(20),
-    borderRadius: responsiveSize(10),
+    top: responsiveSize(6),
+    right: responsiveSize(6),
+    width: responsiveSize(18),
+    height: responsiveSize(18),
+    borderRadius: responsiveSize(9),
     backgroundColor: '#f0f0f0',
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 1,
   },
   remove: {
-    fontSize: responsiveSize(12),
+    fontSize: responsiveSize(10),
     color: '#666',
     fontWeight: '300',
   },
@@ -519,44 +515,44 @@ const styles = StyleSheet.create({
   divider: {
     height: 1,
     backgroundColor: '#e0e0e0',
-    marginHorizontal: responsiveSize(15),
-    marginVertical: responsiveSize(12),
+    marginHorizontal: responsiveSize(12),
+    marginVertical: responsiveSize(10),
   },
 
   /* RECOMMENDED */
   recommendedTitle: {
-    fontSize: responsiveSize(15),
+    fontSize: responsiveSize(13),
     fontWeight: '700',
-    marginHorizontal: responsiveSize(15),
-    marginBottom: responsiveSize(12),
+    marginHorizontal: responsiveSize(12),
+    marginBottom: responsiveSize(10),
     color: '#000',
   },
   recommendedContainer: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginHorizontal: responsiveSize(15),
-    marginBottom: responsiveSize(8),
+    marginHorizontal: responsiveSize(12),
+    marginBottom: responsiveSize(6),
   },
   recoItem: {
     alignItems: 'center',
-    width: responsiveSize(75),
+    width: responsiveSize(68),
   },
   recoContent: {
     position: 'relative',
     alignItems: 'center',
   },
   recoImg: {
-    width: responsiveSize(60),
-    height: responsiveSize(60),
-    borderRadius: responsiveSize(6),
-    marginBottom: responsiveSize(6),
+    width: responsiveSize(54),
+    height: responsiveSize(54),
+    borderRadius: responsiveSize(5),
+    marginBottom: responsiveSize(5),
   },
   checkbox: {
     position: 'absolute',
     top: -3,
     right: -3,
-    width: responsiveSize(18),
-    height: responsiveSize(18),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
     borderWidth: 1,
     borderRadius: responsiveSize(3),
     backgroundColor: '#fff',
@@ -564,40 +560,40 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   checkboxSelected: {
-    backgroundColor: '#1d3f72', // Fallback color
+    backgroundColor: '#1d3f72',
   },
   checkmark: {
     color: '#fff',
-    fontSize: responsiveSize(10),
+    fontSize: responsiveSize(9),
     fontWeight: 'bold',
   },
   recoText: {
-    fontSize: responsiveSize(11),
+    fontSize: responsiveSize(10.5),
     textAlign: 'center',
     color: '#000',
     fontWeight: '500',
-    marginTop: responsiveSize(2),
+    marginTop: responsiveSize(1.5),
   },
 
   offerNote: {
     color: '#666',
-    marginHorizontal: responsiveSize(15),
+    marginHorizontal: responsiveSize(12),
     marginTop: responsiveSize(4),
-    marginBottom: responsiveSize(15),
-    fontSize: responsiveSize(11),
+    marginBottom: responsiveSize(12),
+    fontSize: responsiveSize(10.5),
     fontStyle: 'italic',
     textAlign: 'center',
   },
 
   /* PROMO CODE */
   promoSection: {
-    marginHorizontal: responsiveSize(15),
-    marginBottom: responsiveSize(15),
+    marginHorizontal: responsiveSize(12),
+    marginBottom: responsiveSize(12),
   },
   promoTitle: {
-    fontSize: responsiveSize(15),
+    fontSize: responsiveSize(13),
     fontWeight: '700',
-    marginBottom: responsiveSize(8),
+    marginBottom: responsiveSize(6),
     color: '#000',
   },
   promoRow: {
@@ -606,136 +602,134 @@ const styles = StyleSheet.create({
   promoInput: {
     flex: 1,
     backgroundColor: '#f8f8f8',
-    paddingHorizontal: responsiveSize(12),
-    borderRadius: responsiveSize(6),
-    height: responsiveSize(40),
-    fontSize: responsiveSize(13),
+    paddingHorizontal: responsiveSize(10),
+    borderRadius: responsiveSize(5),
+    height: responsiveSize(36),
+    fontSize: responsiveSize(11.5),
     color: '#000',
     borderWidth: 1,
     borderColor: '#ddd',
   },
   applyBtn: {
-    paddingHorizontal: responsiveSize(16),
+    paddingHorizontal: responsiveSize(14),
     justifyContent: 'center',
-    borderRadius: responsiveSize(6),
-    marginLeft: responsiveSize(8),
-    minWidth: responsiveSize(70),
+    borderRadius: responsiveSize(5),
+    marginLeft: responsiveSize(6),
+    minWidth: responsiveSize(64),
   },
   applyTxt: {
     color: '#fff',
     fontWeight: '700',
-    fontSize: responsiveSize(13),
+    fontSize: responsiveSize(11.5),
   },
 
   /* PRICE SECTION */
   priceSection: {
-    marginHorizontal: responsiveSize(15),
-    marginBottom: responsiveSize(15),
+    marginHorizontal: responsiveSize(12),
+    marginBottom: responsiveSize(12),
     backgroundColor: '#f8f8f8',
-    borderRadius: responsiveSize(8),
-    padding: responsiveSize(12),
+    borderRadius: responsiveSize(7),
+    padding: responsiveSize(10),
   },
   priceRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginVertical: responsiveSize(4),
+    marginVertical: responsiveSize(3),
   },
   priceLabel: {
     color: '#666',
-    fontSize: responsiveSize(13),
+    fontSize: responsiveSize(11.5),
   },
   priceValue: {
     fontWeight: '500',
-    fontSize: responsiveSize(13),
+    fontSize: responsiveSize(11.5),
     color: '#000',
   },
   totalRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginTop: responsiveSize(8),
-    paddingTop: responsiveSize(8),
+    marginTop: responsiveSize(6),
+    paddingTop: responsiveSize(6),
     borderTopWidth: 1,
     borderTopColor: '#ddd',
   },
   totalLabel: {
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(12.5),
     fontWeight: '600',
     color: '#000',
   },
   totalValue: {
-    fontSize: responsiveSize(15),
+    fontSize: responsiveSize(13.5),
     fontWeight: '700',
   },
 
   /* SECTIONS */
   sectionTitle: {
-    fontSize: responsiveSize(15),
+    fontSize: responsiveSize(13),
     fontWeight: '700',
-    marginHorizontal: responsiveSize(15),
-    marginBottom: responsiveSize(10),
+    marginHorizontal: responsiveSize(12),
+    marginBottom: responsiveSize(8),
     color: '#000',
   },
 
   /* DELIVERY OPTIONS */
   deliveryOptions: {
     flexDirection: 'row',
-    marginHorizontal: responsiveSize(15),
-    marginBottom: responsiveSize(15),
+    marginHorizontal: responsiveSize(12),
+    marginBottom: responsiveSize(12),
   },
   deliveryOption: {
-    marginRight: responsiveSize(20),
+    marginRight: responsiveSize(16),
   },
   radioContainer: {
     flexDirection: 'row',
     alignItems: 'center',
   },
   radioOuter: {
-    width: responsiveSize(18),
-    height: responsiveSize(18),
-    borderRadius: responsiveSize(9),
+    width: responsiveSize(16),
+    height: responsiveSize(16),
+    borderRadius: responsiveSize(8),
     borderWidth: 1.5,
     justifyContent: 'center',
     alignItems: 'center',
-    marginRight: responsiveSize(6),
+    marginRight: responsiveSize(5),
   },
-  radioOuterActive: {
-    // Border color handled inline
-  },
+  radioOuterActive: {},
   radioInner: {
-    width: responsiveSize(8),
-    height: responsiveSize(8),
-    borderRadius: responsiveSize(4),
+    width: responsiveSize(7),
+    height: responsiveSize(7),
+    borderRadius: responsiveSize(3.5),
   },
   radioLabel: {
-    fontSize: responsiveSize(13),
+    fontSize: responsiveSize(11.5),
     color: '#000',
   },
 
   /* LOCATION */
   locationCard: {
-    marginHorizontal: responsiveSize(15),
+    marginHorizontal: responsiveSize(12),
     backgroundColor: '#f8f8f8',
-    borderRadius: responsiveSize(6),
-    padding: responsiveSize(12),
+    borderRadius: responsiveSize(5),
+    padding: responsiveSize(10),
     borderWidth: 1,
     borderColor: '#ddd',
-    marginBottom: responsiveSize(15),
+    marginBottom: responsiveSize(12),
   },
   locationRow: {
-    marginBottom: responsiveSize(10),
+    marginBottom: responsiveSize(8),
   },
   locationText: {
     color: '#000',
-    fontSize: responsiveSize(13),
+    fontSize: responsiveSize(11.5),
     flex: 1,
   },
 
   landmarkInput: {
     backgroundColor: '#fff',
-    height: responsiveSize(90),
-    borderRadius: responsiveSize(6),
-    paddingHorizontal: responsiveSize(10),
-    fontSize: responsiveSize(12),
+    height: responsiveSize(80),
+    borderRadius: responsiveSize(5),
+    paddingHorizontal: responsiveSize(8),
+    fontSize: responsiveSize(11),
     color: '#000',
     borderWidth: 1,
     borderColor: '#ddd',
@@ -743,21 +737,21 @@ const styles = StyleSheet.create({
 
   /* CHECKOUT BTN */
   checkoutBtn: {
-    marginHorizontal: responsiveSize(15),
-    height: responsiveSize(45),
-    borderRadius: responsiveSize(6),
+    marginHorizontal: responsiveSize(12),
+    height: responsiveSize(40),
+    borderRadius: responsiveSize(5),
     justifyContent: 'center',
     alignItems: 'center',
     elevation: 2,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
+    shadowOpacity: 0.16,
     shadowRadius: 3,
-    marginTop: responsiveSize(8),
+    marginTop: responsiveSize(6),
   },
   checkoutText: {
     color: '#fff',
-    fontSize: responsiveSize(15),
+    fontSize: responsiveSize(13),
     fontWeight: '700',
   },
 });

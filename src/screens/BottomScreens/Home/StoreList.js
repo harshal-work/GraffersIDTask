@@ -18,13 +18,12 @@ import { useColor } from '../../../util/ColorSwitcher';
 
 const { width, height } = Dimensions.get('window');
 
-// Responsive sizing
-const responsiveSize = (size) => (width / 375) * size;
+// Slightly reduced scaling to make everything smaller
+const responsiveSize = size => (width / 400) * size;
 
 // Safe vibration function with permission check
 const safeVibrate = (duration = 40) => {
   try {
-    // Check if Vibration is available and we're on a supported platform
     if (Platform.OS === 'android' || Platform.OS === 'ios') {
       if (Vibration && typeof Vibration.vibrate === 'function') {
         Vibration.vibrate(duration);
@@ -32,7 +31,6 @@ const safeVibrate = (duration = 40) => {
     }
   } catch (error) {
     console.log('Vibration error:', error);
-    // Silently fail - don't crash the app if vibration fails
   }
 };
 
@@ -89,7 +87,7 @@ const ALL_STORES = [
     deliveryFee: '₹20',
     minOrder: '₹99',
   },
-  
+
   // Electronics Stores
   {
     id: 'electronics_1',
@@ -133,7 +131,7 @@ const ALL_STORES = [
     deliveryFee: 'Free',
     minOrder: '₹999',
   },
-  
+
   // Health Stores
   {
     id: 'health_1',
@@ -222,21 +220,18 @@ const ALL_STORES = [
 ];
 
 export default function StoreList({ navigation, route }) {
-  // Get category and switchColor from route params
   const categoryFromRoute = route?.params?.category || 'ALL';
   const { bgColor, switchColor } = useColor();
-  
+
   const [selectedCategory, setSelectedCategory] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [likedStores, setLikedStores] = useState({});
   const heartButtonScales = useRef({});
-  
-  // Initialize with the category from navigation and set color
+
   useEffect(() => {
     if (route?.params?.category) {
       const category = route.params.category;
-      
-      // Map route category to filter category
+
       if (category === 'GROCERY') {
         setSelectedCategory('grocery');
       } else if (category === 'ELECTRONICS') {
@@ -246,24 +241,21 @@ export default function StoreList({ navigation, route }) {
       } else {
         setSelectedCategory('all');
       }
-      
-      // Switch to the correct color based on category
+
       switchColor(category);
     }
   }, [route?.params?.category, switchColor]);
 
-  // Get or create scale animation for heart (store)
-  const getStoreHeartButtonScale = (storeId) => {
+  const getStoreHeartButtonScale = storeId => {
     if (!heartButtonScales.current[storeId]) {
       heartButtonScales.current[storeId] = new Animated.Value(1);
     }
     return heartButtonScales.current[storeId];
   };
 
-  const handleStoreHeartPress = (storeId) => {
-    safeVibrate(40); // Vibration effect
-    
-    // Scale animation
+  const handleStoreHeartPress = storeId => {
+    safeVibrate(40);
+
     const scaleAnim = getStoreHeartButtonScale(storeId);
     Animated.sequence([
       Animated.timing(scaleAnim, {
@@ -280,19 +272,17 @@ export default function StoreList({ navigation, route }) {
 
     setLikedStores(prev => ({
       ...prev,
-      [storeId]: !prev[storeId]
+      [storeId]: !prev[storeId],
     }));
   };
 
-  const handleStorePress = (store) => {
+  const handleStorePress = store => {
     navigation.navigate('Store', { store });
   };
 
-  // Handle category change with color switching
-  const handleCategoryPress = (categoryId) => {
+  const handleCategoryPress = categoryId => {
     setSelectedCategory(categoryId);
-    
-    // Switch color based on selected category
+
     if (categoryId === 'grocery') {
       switchColor('GROCERY');
     } else if (categoryId === 'electronics') {
@@ -304,14 +294,11 @@ export default function StoreList({ navigation, route }) {
     }
   };
 
-  // Filter stores based on selected category and search query
   const filteredStores = ALL_STORES.filter(store => {
-    // Filter by category
     if (selectedCategory !== 'all' && store.category !== selectedCategory) {
       return false;
     }
-    
-    // Filter by search query
+
     if (searchQuery.trim() !== '') {
       const query = searchQuery.toLowerCase();
       return (
@@ -320,11 +307,10 @@ export default function StoreList({ navigation, route }) {
         store.locationText.toLowerCase().includes(query)
       );
     }
-    
+
     return true;
   });
 
-  // Get header title based on selected category
   const getHeaderTitle = () => {
     switch (selectedCategory) {
       case 'grocery':
@@ -338,7 +324,7 @@ export default function StoreList({ navigation, route }) {
     }
   };
 
-  const renderStore = (store) => {
+  const renderStore = store => {
     const isLiked = likedStores[store.id];
     const heartScale = getStoreHeartButtonScale(store.id);
 
@@ -348,9 +334,11 @@ export default function StoreList({ navigation, route }) {
         <TouchableOpacity
           style={[
             styles.storeHeartWrapper,
-            { 
-              backgroundColor: isLiked ? 'rgba(255, 255, 255, 0.9)' : 'rgba(255, 255, 255, 0.3)',
-            }
+            {
+              backgroundColor: isLiked
+                ? 'rgba(255, 255, 255, 0.9)'
+                : 'rgba(255, 255, 255, 0.3)',
+            },
           ]}
           onPress={() => handleStoreHeartPress(store.id)}
           activeOpacity={0.7}
@@ -375,13 +363,17 @@ export default function StoreList({ navigation, route }) {
           activeOpacity={0.9}
           onPress={() => handleStorePress(store)}
         >
-          <Image source={store.img} style={styles.storeImage} resizeMode="cover" />
+          <Image
+            source={store.img}
+            style={styles.storeImage}
+            resizeMode="cover"
+          />
 
           {/* Store Rating Badge on Image */}
           <View style={[styles.storeRatingBadge, { backgroundColor: bgColor }]}>
-            <Image 
-              source={require('../../../assets/star.png')} 
-              style={[styles.storeStarIcon, { tintColor: '#fff' }]} 
+            <Image
+              source={require('../../../assets/star.png')}
+              style={[styles.storeStarIcon, { tintColor: '#fff' }]}
               resizeMode="contain"
             />
             <Text style={styles.storeRatingTxt}>{store.rating}</Text>
@@ -391,37 +383,37 @@ export default function StoreList({ navigation, route }) {
             <Text style={styles.storeName}>{store.name}</Text>
 
             <View style={styles.metaRow}>
-              <Image 
-                source={require('../../../assets/location.png')} 
-                style={[styles.metaIcon, { tintColor: bgColor }]} 
+              <Image
+                source={require('../../../assets/location.png')}
+                style={[styles.metaIcon, { tintColor: bgColor }]}
                 resizeMode="contain"
               />
               <Text style={styles.metaText}>{store.locationText}</Text>
             </View>
 
-            <View style={[styles.metaRow, { marginTop: responsiveSize(8) }]}>
+            <View style={[styles.metaRow, { marginTop: responsiveSize(6) }]}>
               <View style={styles.metaInline}>
-                <Image 
-                  source={require('../../../assets/location2.png')} 
-                  style={[styles.smallIcon, { tintColor: bgColor }]} 
+                <Image
+                  source={require('../../../assets/location2.png')}
+                  style={[styles.smallIcon, { tintColor: bgColor }]}
                   resizeMode="contain"
                 />
                 <Text style={styles.metaText}>{store.distance}</Text>
               </View>
 
               <View style={styles.metaInline}>
-                <Image 
-                  source={require('../../../assets/clock.png')} 
-                  style={[styles.smallIcon, { tintColor: bgColor }]} 
+                <Image
+                  source={require('../../../assets/clock.png')}
+                  style={[styles.smallIcon, { tintColor: bgColor }]}
                   resizeMode="contain"
                 />
                 <Text style={styles.metaText}>{store.time}</Text>
               </View>
 
               <View style={styles.metaInline}>
-                <Image 
-                  source={require('../../../assets/order.png')} 
-                  style={[styles.smallIcon, { tintColor: bgColor }]} 
+                <Image
+                  source={require('../../../assets/order.png')}
+                  style={[styles.smallIcon, { tintColor: bgColor }]}
                   resizeMode="contain"
                 />
                 <Text style={styles.metaText}>{store.orders}</Text>
@@ -429,14 +421,18 @@ export default function StoreList({ navigation, route }) {
             </View>
 
             {/* Delivery Info */}
-            <View style={[styles.deliveryRow, { marginTop: responsiveSize(8) }]}>
+            <View
+              style={[styles.deliveryRow, { marginTop: responsiveSize(6) }]}
+            >
               <View style={styles.deliveryInfo}>
-                <Image 
-                  source={require('../../../assets/bike.png')} 
-                  style={[styles.bikeIcon, { tintColor: bgColor }]} 
+                <Image
+                  source={require('../../../assets/bike.png')}
+                  style={[styles.bikeIcon, { tintColor: bgColor }]}
                   resizeMode="contain"
                 />
-                <Text style={styles.deliveryText}>{store.deliveryFee} delivery</Text>
+                <Text style={styles.deliveryText}>
+                  {store.deliveryFee} delivery
+                </Text>
               </View>
               <View style={styles.minOrder}>
                 <Text style={[styles.minOrderText, { color: bgColor }]}>
@@ -448,8 +444,13 @@ export default function StoreList({ navigation, route }) {
             {/* Tags */}
             <View style={styles.tagsContainer}>
               {store.tags.map((tag, index) => (
-                <View key={index} style={[styles.tag, { borderColor: bgColor }]}>
-                  <Text style={[styles.tagText, { color: bgColor }]}>{tag}</Text>
+                <View
+                  key={index}
+                  style={[styles.tag, { borderColor: bgColor }]}
+                >
+                  <Text style={[styles.tagText, { color: bgColor }]}>
+                    {tag}
+                  </Text>
                 </View>
               ))}
             </View>
@@ -462,34 +463,34 @@ export default function StoreList({ navigation, route }) {
   return (
     <View style={styles.container}>
       <StatusBar backgroundColor={bgColor} barStyle="light-content" />
-      
+
       {/* HEADER */}
       <View style={[styles.header, { backgroundColor: bgColor }]}>
-        <TouchableOpacity 
-          onPress={() => navigation.goBack()} 
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
           style={[styles.iconBtn, { backgroundColor: '#FFFFFF' }]}
         >
-          <Image 
-            source={require('../../../assets/back.png')} 
-            style={[styles.icon, { tintColor: bgColor }]} 
+          <Image
+            source={require('../../../assets/back.png')}
+            style={[styles.icon, { tintColor: bgColor }]}
           />
         </TouchableOpacity>
 
         <Text style={styles.headerTitle}>{getHeaderTitle()}</Text>
 
-        <View style={{ width: responsiveSize(40) }} />
+        <View style={{ width: responsiveSize(34) }} />
       </View>
 
-      <ScrollView 
-        contentContainerStyle={styles.content} 
+      <ScrollView
+        contentContainerStyle={styles.content}
         showsVerticalScrollIndicator={false}
       >
         {/* Search Row */}
         <View style={styles.searchRow}>
           <View style={styles.searchBox}>
-            <Image 
-              source={require('../../../assets/search.png')} 
-              style={[styles.searchIcon, { tintColor: '#666' }]} 
+            <Image
+              source={require('../../../assets/search.png')}
+              style={[styles.searchIcon, { tintColor: '#666' }]}
             />
             <TextInput
               placeholder="Search for stores..."
@@ -503,33 +504,39 @@ export default function StoreList({ navigation, route }) {
           <TouchableOpacity
             style={[styles.filterBtn, { backgroundColor: bgColor }]}
           >
-            <Image 
-              source={require('../../../assets/filter.png')} 
-              style={[styles.filterIcon, { tintColor: '#FFFFFF' }]} 
+            <Image
+              source={require('../../../assets/filter.png')}
+              style={[styles.filterIcon, { tintColor: '#FFFFFF' }]}
             />
           </TouchableOpacity>
         </View>
 
         {/* Category Filter */}
         <View style={styles.categoryContainer}>
-          <ScrollView 
-            horizontal 
+          <ScrollView
+            horizontal
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={styles.categoryScrollContent}
           >
-            {STORE_CATEGORIES.map((category) => (
+            {STORE_CATEGORIES.map(category => (
               <TouchableOpacity
                 key={category.id}
                 style={[
                   styles.categoryBtn,
-                  selectedCategory === category.id && [styles.categoryActive, { backgroundColor: bgColor }]
+                  selectedCategory === category.id && [
+                    styles.categoryActive,
+                    { backgroundColor: bgColor },
+                  ],
                 ]}
                 onPress={() => handleCategoryPress(category.id)}
               >
-                <Text style={[
-                  styles.categoryTxt,
-                  selectedCategory === category.id && styles.categoryTxtActive
-                ]}>
+                <Text
+                  style={[
+                    styles.categoryTxt,
+                    selectedCategory === category.id &&
+                      styles.categoryTxtActive,
+                  ]}
+                >
                   {category.title}
                 </Text>
               </TouchableOpacity>
@@ -540,10 +547,13 @@ export default function StoreList({ navigation, route }) {
         {/* Results Count */}
         <View style={styles.resultsRow}>
           <Text style={styles.resultsText}>
-            {filteredStores.length} {filteredStores.length === 1 ? 'Store' : 'Stores'} Found
+            {filteredStores.length}{' '}
+            {filteredStores.length === 1 ? 'Store' : 'Stores'} Found
           </Text>
           <TouchableOpacity>
-            <Text style={[styles.sortText, { color: bgColor }]}>Sort by: Nearest</Text>
+            <Text style={[styles.sortText, { color: bgColor }]}>
+              Sort by: Nearest
+            </Text>
           </TouchableOpacity>
         </View>
 
@@ -552,14 +562,15 @@ export default function StoreList({ navigation, route }) {
           filteredStores.map(store => renderStore(store))
         ) : (
           <View style={styles.noResultsContainer}>
-            <Image 
-              source={require('../../../assets/store.png')} 
+            <Image
+              source={require('../../../assets/store.png')}
               style={styles.noResultsImage}
               resizeMode="contain"
             />
             <Text style={styles.noResultsTitle}>No Stores Found</Text>
             <Text style={styles.noResultsText}>
-              Try adjusting your search or filter to find what you're looking for.
+              Try adjusting your search or filter to find what you're looking
+              for.
             </Text>
           </View>
         )}
@@ -572,33 +583,33 @@ export default function StoreList({ navigation, route }) {
 }
 
 const styles = StyleSheet.create({
-  container: { 
-    flex: 1, 
-    backgroundColor: '#FFFFFF' 
+  container: {
+    flex: 1,
+    backgroundColor: '#FFFFFF',
   },
 
   /* HEADER */
   header: {
-    height: Platform.OS === 'ios' ? responsiveSize(100) : responsiveSize(90),
+    height: Platform.OS === 'ios' ? responsiveSize(90) : responsiveSize(82),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: responsiveSize(18),
+    paddingHorizontal: responsiveSize(14),
     justifyContent: 'space-between',
-    paddingTop: Platform.OS === 'ios' ? responsiveSize(50) : responsiveSize(30),
+    paddingTop: Platform.OS === 'ios' ? responsiveSize(42) : responsiveSize(26),
     paddingBottom: responsiveSize(0),
   },
-  headerTitle: { 
-    color: "#fff", 
-    fontSize: responsiveSize(20), 
-    fontWeight: "700",
+  headerTitle: {
+    color: '#fff',
+    fontSize: responsiveSize(16),
+    fontWeight: '700',
     textAlign: 'center',
     flex: 1,
-    marginHorizontal: responsiveSize(10),
+    marginHorizontal: responsiveSize(8),
   },
   iconBtn: {
-    width: responsiveSize(40),
-    height: responsiveSize(40),
-    borderRadius: responsiveSize(12),
+    width: responsiveSize(34),
+    height: responsiveSize(34),
+    borderRadius: responsiveSize(10),
     justifyContent: 'center',
     alignItems: 'center',
     ...Platform.select({
@@ -613,29 +624,29 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  icon: { 
-    width: responsiveSize(20), 
-    height: responsiveSize(20),
+  icon: {
+    width: responsiveSize(16),
+    height: responsiveSize(16),
     resizeMode: 'contain',
   },
 
-  content: { 
-    paddingHorizontal: responsiveSize(16), 
-    paddingBottom: responsiveSize(40) 
+  content: {
+    paddingHorizontal: responsiveSize(14),
+    paddingBottom: responsiveSize(32),
   },
 
-  searchRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginBottom: responsiveSize(18),
-    marginTop: responsiveSize(15),
+  searchRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: responsiveSize(14),
+    marginTop: responsiveSize(12),
   },
   searchBox: {
     flex: 1,
     backgroundColor: '#fff',
-    height: responsiveSize(48),
-    borderRadius: responsiveSize(12),
-    paddingHorizontal: responsiveSize(10),
+    height: responsiveSize(42),
+    borderRadius: responsiveSize(10),
+    paddingHorizontal: responsiveSize(8),
     flexDirection: 'row',
     alignItems: 'center',
     ...Platform.select({
@@ -650,54 +661,54 @@ const styles = StyleSheet.create({
       },
     }),
   },
-  searchIcon: { 
-    width: responsiveSize(18), 
-    height: responsiveSize(18), 
-    marginRight: responsiveSize(8),
+  searchIcon: {
+    width: responsiveSize(16),
+    height: responsiveSize(16),
+    marginRight: responsiveSize(6),
     resizeMode: 'contain',
   },
-  searchInput: { 
-    flex: 1, 
-    fontSize: responsiveSize(14),
+  searchInput: {
+    flex: 1,
+    fontSize: responsiveSize(12),
     color: '#000',
   },
   filterBtn: {
-    width: responsiveSize(50),
-    height: responsiveSize(48),
-    marginLeft: responsiveSize(12),
-    borderRadius: responsiveSize(12),
+    width: responsiveSize(42),
+    height: responsiveSize(42),
+    marginLeft: responsiveSize(10),
+    borderRadius: responsiveSize(10),
     justifyContent: 'center',
     alignItems: 'center',
   },
-  filterIcon: { 
-    width: responsiveSize(22), 
-    height: responsiveSize(22),
+  filterIcon: {
+    width: responsiveSize(18),
+    height: responsiveSize(18),
     resizeMode: 'contain',
   },
 
   /* Category Filter */
   categoryContainer: {
-    marginBottom: responsiveSize(16),
+    marginBottom: responsiveSize(12),
   },
   categoryScrollContent: {
-    paddingHorizontal: responsiveSize(4),
+    paddingHorizontal: responsiveSize(2),
   },
   categoryBtn: {
-    paddingHorizontal: responsiveSize(16),
-    paddingVertical: responsiveSize(10),
-    borderRadius: responsiveSize(20),
-    marginHorizontal: responsiveSize(4),
+    paddingHorizontal: responsiveSize(12),
+    paddingVertical: responsiveSize(8),
+    borderRadius: responsiveSize(18),
+    marginHorizontal: responsiveSize(3),
     backgroundColor: '#eceff4',
   },
   categoryActive: {},
-  categoryTxt: { 
-    fontSize: responsiveSize(13), 
+  categoryTxt: {
+    fontSize: responsiveSize(11),
     color: '#1d1d1d',
     fontWeight: '500',
   },
-  categoryTxtActive: { 
-    color: '#fff', 
-    fontWeight: '700' 
+  categoryTxtActive: {
+    color: '#fff',
+    fontWeight: '700',
   },
 
   /* Results Row */
@@ -705,23 +716,23 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: responsiveSize(16),
+    marginBottom: responsiveSize(12),
   },
   resultsText: {
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(12),
     color: '#666',
     fontWeight: '500',
   },
   sortText: {
-    fontSize: responsiveSize(13),
+    fontSize: responsiveSize(11),
     fontWeight: '500',
   },
 
   /* Store Cards */
   storeCard: {
-    borderRadius: responsiveSize(12),
+    borderRadius: responsiveSize(10),
     backgroundColor: '#fff',
-    marginBottom: responsiveSize(14),
+    marginBottom: responsiveSize(12),
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -739,42 +750,42 @@ const styles = StyleSheet.create({
   storeTouchable: {
     flex: 1,
   },
-  storeImage: { 
-    width: '100%', 
-    height: responsiveSize(160),
+  storeImage: {
+    width: '100%',
+    height: responsiveSize(140),
   },
-  storeBody: { 
-    padding: responsiveSize(12) 
+  storeBody: {
+    padding: responsiveSize(10),
   },
-  storeName: { 
-    fontSize: responsiveSize(16), 
-    fontWeight: '700', 
+  storeName: {
+    fontSize: responsiveSize(14),
+    fontWeight: '700',
     marginTop: responsiveSize(4),
     color: '#000',
   },
-  metaRow: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginTop: responsiveSize(6) 
+  metaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: responsiveSize(4),
   },
-  metaIcon: { 
-    width: responsiveSize(16), 
-    height: responsiveSize(16), 
-    marginRight: responsiveSize(6),
+  metaIcon: {
+    width: responsiveSize(14),
+    height: responsiveSize(14),
+    marginRight: responsiveSize(4),
   },
-  metaText: { 
+  metaText: {
     color: '#666',
-    fontSize: responsiveSize(13),
+    fontSize: responsiveSize(11),
   },
-  metaInline: { 
-    flexDirection: 'row', 
-    alignItems: 'center', 
-    marginRight: responsiveSize(12) 
+  metaInline: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginRight: responsiveSize(10),
   },
-  smallIcon: { 
-    width: responsiveSize(14), 
-    height: responsiveSize(14), 
-    marginRight: responsiveSize(6),
+  smallIcon: {
+    width: responsiveSize(12),
+    height: responsiveSize(12),
+    marginRight: responsiveSize(4),
   },
 
   /* Delivery Info */
@@ -788,22 +799,22 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   bikeIcon: {
-    width: responsiveSize(14),
-    height: responsiveSize(14),
-    marginRight: responsiveSize(6),
+    width: responsiveSize(12),
+    height: responsiveSize(12),
+    marginRight: responsiveSize(4),
   },
   deliveryText: {
-    fontSize: responsiveSize(12),
+    fontSize: responsiveSize(11),
     color: '#666',
   },
   minOrder: {
     backgroundColor: '#f5f5f5',
-    paddingHorizontal: responsiveSize(8),
-    paddingVertical: responsiveSize(4),
+    paddingHorizontal: responsiveSize(6),
+    paddingVertical: responsiveSize(3),
     borderRadius: responsiveSize(6),
   },
   minOrderText: {
-    fontSize: responsiveSize(11),
+    fontSize: responsiveSize(10),
     fontWeight: '600',
   },
 
@@ -811,32 +822,32 @@ const styles = StyleSheet.create({
   tagsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginTop: responsiveSize(8),
+    marginTop: responsiveSize(6),
   },
   tag: {
     backgroundColor: 'transparent',
-    paddingHorizontal: responsiveSize(8),
-    paddingVertical: responsiveSize(4),
+    paddingHorizontal: responsiveSize(6),
+    paddingVertical: responsiveSize(3),
     borderRadius: responsiveSize(6),
     borderWidth: 1,
-    marginRight: responsiveSize(6),
+    marginRight: responsiveSize(4),
     marginBottom: responsiveSize(4),
   },
   tagText: {
-    fontSize: responsiveSize(11),
+    fontSize: responsiveSize(10),
     fontWeight: '500',
   },
 
   /* Store Rating Badge */
   storeRatingBadge: {
     position: 'absolute',
-    bottom: responsiveSize(10),
-    right: responsiveSize(10),
+    bottom: responsiveSize(8),
+    right: responsiveSize(8),
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: responsiveSize(8),
-    paddingVertical: responsiveSize(4),
-    borderRadius: responsiveSize(10),
+    paddingHorizontal: responsiveSize(6),
+    paddingVertical: responsiveSize(3),
+    borderRadius: responsiveSize(8),
     ...Platform.select({
       ios: {
         shadowColor: '#000',
@@ -850,25 +861,25 @@ const styles = StyleSheet.create({
     }),
   },
   storeStarIcon: {
-    width: responsiveSize(12),
-    height: responsiveSize(12),
+    width: responsiveSize(10),
+    height: responsiveSize(10),
     marginRight: responsiveSize(4),
   },
   storeRatingTxt: {
     color: '#fff',
     fontWeight: '700',
-    fontSize: responsiveSize(12),
+    fontSize: responsiveSize(10),
   },
 
   /* Heart Button for Stores */
   storeHeartWrapper: {
     position: 'absolute',
-    right: responsiveSize(10),
-    top: responsiveSize(10),
+    right: responsiveSize(8),
+    top: responsiveSize(8),
     backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    borderRadius: responsiveSize(20),
-    width: responsiveSize(40),
-    height: responsiveSize(40),
+    borderRadius: responsiveSize(18),
+    width: responsiveSize(32),
+    height: responsiveSize(32),
     justifyContent: 'center',
     alignItems: 'center',
     zIndex: 10,
@@ -885,38 +896,38 @@ const styles = StyleSheet.create({
     }),
   },
   storeHeartIcon: {
-    width: responsiveSize(24),
-    height: responsiveSize(24),
+    width: responsiveSize(18),
+    height: responsiveSize(18),
   },
 
   /* No Results */
   noResultsContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    paddingVertical: responsiveSize(60),
+    paddingVertical: responsiveSize(48),
   },
   noResultsImage: {
-    width: responsiveSize(120),
-    height: responsiveSize(120),
-    marginBottom: responsiveSize(20),
+    width: responsiveSize(100),
+    height: responsiveSize(100),
+    marginBottom: responsiveSize(16),
     opacity: 0.5,
   },
   noResultsTitle: {
-    fontSize: responsiveSize(18),
+    fontSize: responsiveSize(16),
     fontWeight: '700',
     color: '#333',
-    marginBottom: responsiveSize(8),
+    marginBottom: responsiveSize(6),
   },
   noResultsText: {
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(12),
     color: '#666',
     textAlign: 'center',
-    paddingHorizontal: responsiveSize(40),
-    lineHeight: responsiveSize(20),
+    paddingHorizontal: responsiveSize(32),
+    lineHeight: responsiveSize(18),
   },
 
   /* Bottom Padding */
   bottomPadding: {
-    height: responsiveSize(20),
+    height: responsiveSize(16),
   },
 });

@@ -5,18 +5,18 @@ import { CurvedBottomBar } from 'react-native-curved-bottom-bar';
 import { useColor } from '../util/ColorSwitcher';
 
 import Home from '../screens/BottomScreens/Home/Home';
-import Offers from '../screens/BottomScreens/Offers/Offers';
+// import Offers from '../screens/BottomScreens/Offers/Offers';
 import MyCart from '../screens/BottomScreens/MyCart/MyCart';
-import Order from '../screens/BottomScreens/Order/Order';
+// import Order from '../screens/BottomScreens/Order/Order';
 import Profile from '../screens/BottomScreens/Profile/Profile';
 
 export default function BottomNavigator() {
   const { bgColor } = useColor();
 
   const icons = {
-    Offers: require('../assets/blueoffer.png'),
+    // Offers: require('../assets/blueoffer.png'),
     MyCart: require('../assets/bluecart.png'),
-    Order: require('../assets/blueorder.png'),
+    // Order: require('../assets/blueorder.png'),
     Profile: require('../assets/blueprofile.png'),
     Home: require('../assets/Home.png'),
   };
@@ -30,15 +30,15 @@ export default function BottomNavigator() {
           source={icons[routeName]}
           resizeMode="contain"
           style={{
-            width: 22,
-            height: 22,
+            width: 20,
+            height: 20,
             tintColor: focused ? bgColor : '#222',
           }}
         />
         <Text
           style={{
-            marginTop: 4,
-            fontSize: 12,
+            marginTop: 3,
+            fontSize: 11,
             color: focused ? bgColor : '#222',
             fontWeight: focused ? '600' : '400',
           }}
@@ -52,24 +52,21 @@ export default function BottomNavigator() {
   return (
     <CurvedBottomBar.Navigator
       type="DOWN"
-      height={75}
-      circleWidth={65}
+      height={68}
+      circleWidth={58}
       bgColor="white"
       initialRouteName="Home"
       screenOptions={{ headerShown: false }}
       renderCircle={({ selectedTab, navigate }) => (
         <TouchableOpacity
           onPress={() => navigate('Home')}
-          style={[
-            styles.circleButton,
-            { borderColor: bgColor },
-          ]}
+          style={[styles.circleButton, { borderColor: bgColor }]}
         >
           <Image
             source={icons.Home}
             style={{
-              width: 30,
-              height: 30,
+              width: 26,
+              height: 26,
               tintColor: bgColor,
             }}
           />
@@ -84,28 +81,17 @@ export default function BottomNavigator() {
         </TouchableOpacity>
       )}
     >
-      <CurvedBottomBar.Screen
-        name="Offers"
-        position="LEFT"
-        component={Offers}
-      />
+      {/* LEFT SIDE TABS */}
       <CurvedBottomBar.Screen
         name="MyCart"
         position="LEFT"
         component={MyCart}
       />
 
-      <CurvedBottomBar.Screen
-        name="Home"
-        position="CENTER"
-        component={Home}
-      />
+      {/* CENTER TAB (CIRCLE BUTTON) */}
+      <CurvedBottomBar.Screen name="Home" position="CENTER" component={Home} />
 
-      <CurvedBottomBar.Screen
-        name="Order"
-        position="RIGHT"
-        component={Order}
-      />
+      {/* RIGHT SIDE TABS */}
       <CurvedBottomBar.Screen
         name="Profile"
         position="RIGHT"
@@ -123,18 +109,18 @@ const styles = StyleSheet.create({
   tabItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 15,
+    marginTop: 13,
   },
   circleButton: {
-    width: 70,
-    height: 70,
-    borderRadius: 35,
+    width: 62,
+    height: 62,
+    borderRadius: 31,
     backgroundColor: 'white',
     justifyContent: 'center',
     alignItems: 'center',
-    marginBottom: 35,
-    borderWidth: 3,
-    elevation: 8,
-    marginTop: -30
+    marginBottom: 32,
+    borderWidth: 2.5,
+    elevation: 6,
+    marginTop: -27,
   },
 });

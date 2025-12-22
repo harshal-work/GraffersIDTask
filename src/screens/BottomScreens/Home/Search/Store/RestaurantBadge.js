@@ -16,8 +16,8 @@ import { useColor } from '../../../../../util/ColorSwitcher';
 
 const { width } = Dimensions.get('window');
 
-// Consistent responsive sizing function
-const responsiveSize = size => (width / 375) * size;
+// Slightly reduced responsive sizing
+const responsiveSize = size => (width / 400) * size;
 
 const RestaurantBadge = () => {
   const { bgColor, textColor } = useColor();
@@ -70,7 +70,6 @@ const RestaurantBadge = () => {
           <Text style={styles.statText}>590.0 m</Text>
         </View>
 
-        {/* Vertical Separator Line */}
         <View style={styles.separator} />
 
         <View style={styles.statItem}>
@@ -84,7 +83,6 @@ const RestaurantBadge = () => {
           <Text style={styles.statText}>25 min</Text>
         </View>
 
-        {/* Vertical Separator Line */}
         <View style={styles.separator} />
 
         <View style={styles.statItem}>
@@ -105,8 +103,8 @@ const RestaurantBadge = () => {
 const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
-    paddingHorizontal: wp('6%'),
-    marginTop: -hp('6%'),
+    paddingHorizontal: wp('5%'),
+    marginTop: -hp('5.5%'),
     zIndex: 2,
   },
   logoRow: {
@@ -114,16 +112,16 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '100%',
-    marginBottom: hp('1%'),
+    marginBottom: hp('0.8%'),
   },
   logoInCurve: {
     flex: 1,
     alignItems: 'center',
   },
   logoCircle: {
-    width: responsiveSize(80),
-    height: responsiveSize(80),
-    borderRadius: responsiveSize(40),
+    width: responsiveSize(70),
+    height: responsiveSize(70),
+    borderRadius: responsiveSize(35),
     backgroundColor: '#FFDB56',
     justifyContent: 'center',
     alignItems: 'center',
@@ -131,79 +129,79 @@ const styles = StyleSheet.create({
       ios: {
         shadowColor: '#000',
         shadowOpacity: 0.15,
-        shadowRadius: 8,
-        shadowOffset: { width: 0, height: 4 },
+        shadowRadius: 6,
+        shadowOffset: { width: 0, height: 3 },
       },
-      android: { elevation: 6 },
+      android: { elevation: 5 },
     }),
-    borderWidth: 4,
+    borderWidth: 3,
     borderColor: '#fff',
   },
   logo: {
-    width: responsiveSize(48),
-    height: responsiveSize(48),
+    width: responsiveSize(42),
+    height: responsiveSize(42),
     resizeMode: 'contain',
   },
   mapButton: {
     position: 'absolute',
     right: 0,
-    top: hp('2%'),
+    top: hp('1.6%'),
   },
   mapIcon: {
-    width: responsiveSize(32),
-    height: responsiveSize(32),
+    width: responsiveSize(26),
+    height: responsiveSize(26),
     resizeMode: 'contain',
   },
   title: {
-    fontSize: responsiveSize(22),
+    fontSize: responsiveSize(18),
     fontWeight: 'bold',
     color: '#000',
-    marginTop: responsiveSize(8),
+    marginTop: responsiveSize(6),
     textAlign: 'center',
-    letterSpacing: -0.5,
+    letterSpacing: -0.4,
   },
   locationRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: responsiveSize(12),
+    marginTop: responsiveSize(8),
     justifyContent: 'center',
     paddingHorizontal: wp('2%'),
     flexWrap: 'wrap',
   },
   locIcon: {
-    width: responsiveSize(18),
-    height: responsiveSize(18),
-    marginRight: responsiveSize(8),
+    width: responsiveSize(14),
+    height: responsiveSize(14),
+    marginRight: responsiveSize(6),
     resizeMode: 'contain',
   },
   locationText: {
     color: '#888',
-    fontSize: responsiveSize(14),
+    fontSize: responsiveSize(11.5),
     flexShrink: 1,
     textAlign: 'center',
     fontWeight: '600',
     maxWidth: '90%',
   },
   centerBadge: {
-    marginTop: responsiveSize(20),
+    marginTop: responsiveSize(14),
     backgroundColor: '#f5f5f5',
-    paddingHorizontal: responsiveSize(20),
-    paddingVertical: responsiveSize(10),
-    borderRadius: responsiveSize(12),
+    paddingHorizontal: responsiveSize(16),
+    paddingVertical: responsiveSize(8),
+    borderRadius: responsiveSize(10),
   },
   centerBadgeText: {
-    fontSize: responsiveSize(13),
+    fontSize: responsiveSize(11),
     color: '#333',
     fontWeight: 'bold',
-    letterSpacing: 0.5,
+    letterSpacing: 0.4,
   },
   statsRow: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginTop: responsiveSize(16),
+    marginTop: responsiveSize(12),
     width: '100%',
-    paddingHorizontal: responsiveSize(8),
+    paddingHorizontal: responsiveSize(6),
   },
   statItem: {
     flexDirection: 'row',
@@ -212,8 +210,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   iconContainer: {
-    width: responsiveSize(16),
-    height: responsiveSize(16),
+    width: responsiveSize(14),
+    height: responsiveSize(14),
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: responsiveSize(4),
@@ -224,16 +222,16 @@ const styles = StyleSheet.create({
     resizeMode: 'contain',
   },
   statText: {
-    fontSize: responsiveSize(11),
+    fontSize: responsiveSize(9.5),
     fontWeight: 'bold',
     color: '#222',
     textAlign: 'center',
   },
   separator: {
     width: 1,
-    height: responsiveSize(20),
+    height: responsiveSize(16),
     backgroundColor: '#E0E0E0',
-    marginHorizontal: responsiveSize(5),
+    marginHorizontal: responsiveSize(4),
   },
 });
 

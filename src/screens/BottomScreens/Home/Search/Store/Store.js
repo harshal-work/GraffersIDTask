@@ -27,8 +27,8 @@ import FiltersScreen from './FiltersScreen';
 
 const { width } = Dimensions.get('window');
 
-// Responsive sizing function matching StoreList.js
-const responsiveSize = size => (width / 375) * size;
+// Slightly reduced responsive sizing vs base
+const responsiveSize = size => (width / 400) * size;
 
 export default function Store({ navigation }) {
   const { bgColor, textColor } = useColor();
@@ -126,7 +126,7 @@ export default function Store({ navigation }) {
               style={styles.bannerImage}
             />
 
-            {/* Header buttons on image like reference */}
+            {/* Header buttons on image */}
             <View style={styles.headerOverlay}>
               <TouchableOpacity
                 onPress={() => navigation.goBack()}
@@ -245,7 +245,7 @@ export default function Store({ navigation }) {
           textColor={textColor}
         />
 
-        <View style={{ height: hp('6%') }} />
+        <View style={{ height: hp('5%') }} />
       </ScrollView>
 
       {/* Modals */}
@@ -283,7 +283,7 @@ const getStyles = (bgColor, textColor) =>
     },
     bannerWrap: {
       width: '100%',
-      height: hp('28%'),
+      height: hp('26%'),
       overflow: 'hidden',
     },
     bannerImage: {
@@ -296,19 +296,21 @@ const getStyles = (bgColor, textColor) =>
       top: 0,
       left: 0,
       right: 0,
-      height: hp('28%'),
+      height: hp('26%'),
       flexDirection: 'row',
       alignItems: 'flex-start',
       justifyContent: 'space-between',
       paddingTop:
-        Platform.OS === 'ios' ? hp('5%') : StatusBar.currentHeight + hp('1%'),
-      paddingHorizontal: wp('5%'),
+        Platform.OS === 'ios'
+          ? hp('4.5%')
+          : StatusBar.currentHeight + hp('0.8%'),
+      paddingHorizontal: wp('4.5%'),
       zIndex: 9,
     },
     iconBtn: {
-      width: responsiveSize(40),
-      height: responsiveSize(40),
-      borderRadius: responsiveSize(12),
+      width: responsiveSize(34),
+      height: responsiveSize(34),
+      borderRadius: responsiveSize(10),
       justifyContent: 'center',
       alignItems: 'center',
       ...Platform.select({
@@ -324,14 +326,14 @@ const getStyles = (bgColor, textColor) =>
       }),
     },
     icon: {
-      width: responsiveSize(20),
-      height: responsiveSize(20),
+      width: responsiveSize(16),
+      height: responsiveSize(16),
       resizeMode: 'contain',
     },
     heartWrapper: {
       backgroundColor: 'rgba(255, 255, 255, 0.3)',
-      borderRadius: wp('5%'),
-      padding: wp('2%'),
+      borderRadius: wp('4.5%'),
+      padding: wp('1.6%'),
       ...Platform.select({
         ios: {
           shadowColor: '#000',
@@ -345,8 +347,8 @@ const getStyles = (bgColor, textColor) =>
       }),
     },
     heartIcon: {
-      width: wp('6%'),
-      height: wp('6%'),
+      width: wp('5%'),
+      height: wp('5%'),
       resizeMode: 'contain',
     },
     curveOverlay: {
@@ -354,18 +356,18 @@ const getStyles = (bgColor, textColor) =>
       bottom: 0,
       left: 0,
       right: 0,
-      height: hp('4%'),
+      height: hp('3.2%'),
       backgroundColor: '#fff',
-      borderTopLeftRadius: wp('8%'),
-      borderTopRightRadius: wp('8%'),
+      borderTopLeftRadius: wp('7%'),
+      borderTopRightRadius: wp('7%'),
     },
     featuresRow: {
       flexDirection: 'row',
       alignItems: 'center',
       justifyContent: 'space-between',
-      marginTop: hp('1.5%'),
-      marginBottom: hp('0.5%'),
-      paddingHorizontal: wp('6%'),
+      marginTop: hp('1.3%'),
+      marginBottom: hp('0.4%'),
+      paddingHorizontal: wp('5.5%'),
     },
     featureItem: {
       flexDirection: 'row',
@@ -380,10 +382,10 @@ const getStyles = (bgColor, textColor) =>
     },
     featureText: {
       color: '#000',
-      fontSize: hp('1.6%'),
+      fontSize: hp('1.4%'),
       fontWeight: '600',
-      marginHorizontal: wp('2%'),
-      marginVertical: hp('0.5%'),
+      marginHorizontal: wp('1.8%'),
+      marginVertical: hp('0.4%'),
     },
     offerText: {
       fontWeight: '700',
@@ -395,30 +397,31 @@ const getStyles = (bgColor, textColor) =>
     },
     searchWrapper: {
       flexDirection: 'row',
-      marginTop: hp('1%'),
-      marginBottom: hp('1.5%'),
-      paddingHorizontal: wp('5%'),
+      marginTop: hp('0.9%'),
+      marginBottom: hp('1.2%'),
+      paddingHorizontal: wp('4.5%'),
       alignItems: 'center',
     },
     searchBox: {
       flex: 1,
-      height: hp('5.8%'),
-      borderRadius: wp('3%'),
+      height: hp('5%'),
+      borderRadius: wp('2.5%'),
       backgroundColor: '#f5f5f5',
       flexDirection: 'row',
       alignItems: 'center',
-      paddingHorizontal: wp('4%'),
+      paddingHorizontal: wp('3.5%'),
       borderWidth: 1,
       borderColor: '#eee',
     },
     searchIcon: {
-      width: wp('4.5%'),
-      height: wp('4.5%'),
-      marginRight: wp('2%'),
+      width: wp('4%'),
+      height: wp('4%'),
+      marginRight: wp('1.6%'),
+      resizeMode: 'contain',
     },
     searchPlaceholder: {
       color: '#999',
-      fontSize: hp('1.7%'),
+      fontSize: hp('1.5%'),
       flex: 1,
       fontWeight: '400',
     },
