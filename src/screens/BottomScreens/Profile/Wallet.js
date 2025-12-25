@@ -81,7 +81,7 @@ const MyWallet = () => {
     ) {
       return bgColor;
     }
-    return '#15305F';
+    return '#032F27'; //032F27 15305F
   };
 
   return (

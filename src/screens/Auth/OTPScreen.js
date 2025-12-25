@@ -73,10 +73,13 @@ const OTPScreen = ({ navigation }) => {
   return (
     <KeyboardAvoidingView
       style={{ flex: 1 }}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
       <View style={styles.container}>
-
-        <Image source={require('../../assets/splash.png')} style={styles.logo} />
+        <Image
+          source={require('../../assets/splash.png')}
+          style={styles.logo}
+        />
 
         <Text style={styles.title}>O.T.P. Verification</Text>
         <Text style={styles.subtext}>Enter the code from SMS we sent to</Text>
@@ -92,11 +95,11 @@ const OTPScreen = ({ navigation }) => {
               keyboardType="number-pad"
               maxLength={1}
               value={digit}
-              onChangeText={(t) => handleChange(t, index)}
+              onChangeText={t => handleChange(t, index)}
               onKeyPress={({ nativeEvent }) =>
                 nativeEvent.key === 'Backspace' && handleBackspace('', index)
               }
-              ref={(ref) => (inputs.current[index] = ref)}
+              ref={ref => (inputs.current[index] = ref)}
             />
           ))}
         </View>
@@ -107,10 +110,9 @@ const OTPScreen = ({ navigation }) => {
 
         {loading && (
           <View style={styles.loadingOverlay}>
-            <ActivityIndicator size="large" color="#1d3f72" />
+            <ActivityIndicator size="large" color="#032F27" />
           </View>
         )}
-
       </View>
     </KeyboardAvoidingView>
   );
@@ -121,8 +123,8 @@ export default OTPScreen;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: 'center',   // center vertically
-    alignItems: 'center',       // center horizontally
+    justifyContent: 'center', // center vertically
+    alignItems: 'center', // center horizontally
     backgroundColor: '#fff',
     paddingHorizontal: 20,
   },
@@ -137,7 +139,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1d3f72',
+    color: '#032F27',
     marginBottom: 10,
   },
 
@@ -156,7 +158,7 @@ const styles = StyleSheet.create({
   timer: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#1d3f72',
+    color: '#032F27',
     marginBottom: 30,
   },
 
@@ -171,7 +173,7 @@ const styles = StyleSheet.create({
     width: 50,
     height: 55,
     borderWidth: 1.5,
-    borderColor: '#1d3f72',
+    borderColor: '#032F27',
     borderRadius: 8,
     textAlign: 'center',
     fontSize: 22,
@@ -185,7 +187,7 @@ const styles = StyleSheet.create({
   },
 
   resendLink: {
-    color: '#1d3f72',
+    color: '#032F27',
     fontWeight: '700',
   },
 

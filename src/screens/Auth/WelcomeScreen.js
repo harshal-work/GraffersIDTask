@@ -14,7 +14,7 @@ import {
 import * as ImagePicker from 'react-native-image-picker';
 
 const { width, height } = Dimensions.get('window');
-const TOP_MARGIN = height * 0.10;
+const TOP_MARGIN = height * 0.1;
 const SCALE = width / 420;
 
 export default function WelcomeScreen({ navigation }) {
@@ -27,7 +27,7 @@ export default function WelcomeScreen({ navigation }) {
   const [imagePickerVisible, setImagePickerVisible] = useState(false);
 
   // Clear input function
-  const clearInput = (setter) => {
+  const clearInput = setter => {
     setter('');
   };
 
@@ -46,7 +46,7 @@ export default function WelcomeScreen({ navigation }) {
       maxWidth: 2000,
     };
 
-    ImagePicker.launchCamera(options, (response) => {
+    ImagePicker.launchCamera(options, response => {
       if (response.didCancel) {
         console.log('User cancelled camera');
       } else if (response.error) {
@@ -67,7 +67,7 @@ export default function WelcomeScreen({ navigation }) {
       maxWidth: 2000,
     };
 
-    ImagePicker.launchImageLibrary(options, (response) => {
+    ImagePicker.launchImageLibrary(options, response => {
       if (response.didCancel) {
         console.log('User cancelled gallery');
       } else if (response.error) {
@@ -89,7 +89,9 @@ export default function WelcomeScreen({ navigation }) {
       showsVerticalScrollIndicator={false}
     >
       <Text style={styles.title}>Welcome</Text>
-      <Text style={styles.subtitle}>Fill the details & complete your profile</Text>
+      <Text style={styles.subtitle}>
+        Fill the details & complete your profile
+      </Text>
 
       {/* NAME */}
       <Text style={styles.label}>Enter Your Name *</Text>
@@ -99,7 +101,7 @@ export default function WelcomeScreen({ navigation }) {
           placeholder="Please enter your name here"
           value={name}
           onChangeText={setName}
-          placeholderTextColor={"#999"}
+          placeholderTextColor={'#999'}
         />
         <TouchableOpacity onPress={() => clearInput(setName)}>
           <View style={styles.iconBox} />
@@ -114,8 +116,7 @@ export default function WelcomeScreen({ navigation }) {
           placeholder="Please enter your email here"
           value={email}
           onChangeText={setEmail}
-                    placeholderTextColor={"#999"}
-
+          placeholderTextColor={'#999'}
         />
         <TouchableOpacity onPress={() => clearInput(setEmail)}>
           <View style={styles.iconBox} />
@@ -131,8 +132,7 @@ export default function WelcomeScreen({ navigation }) {
           value={mobile}
           keyboardType="number-pad"
           onChangeText={setMobile}
-                    placeholderTextColor={"#999"}
-
+          placeholderTextColor={'#999'}
         />
         <TouchableOpacity onPress={() => clearInput(setMobile)}>
           <View style={styles.iconBox} />
@@ -144,10 +144,17 @@ export default function WelcomeScreen({ navigation }) {
       <View style={styles.photoRow}>
         <View style={styles.photoWrapper}>
           <Image
-            source={profileImage ? { uri: profileImage } : require('../../assets/user.png')}
+            source={
+              profileImage
+                ? { uri: profileImage }
+                : require('../../assets/user.png')
+            }
             style={styles.userImage}
           />
-          <TouchableOpacity style={styles.galleryBadge} onPress={openImagePickerModal}>
+          <TouchableOpacity
+            style={styles.galleryBadge}
+            onPress={openImagePickerModal}
+          >
             <Image
               source={require('../../assets/gallery.png')}
               style={{ width: 20 * SCALE, height: 20 * SCALE }}
@@ -175,8 +182,7 @@ export default function WelcomeScreen({ navigation }) {
           placeholder="Enter Reference code"
           value={reference}
           onChangeText={setReference}
-                    placeholderTextColor={"#999"}
-
+          placeholderTextColor={'#999'}
         />
         <TouchableOpacity onPress={() => clearInput(setReference)}>
           <View style={styles.iconBox} />
@@ -188,8 +194,8 @@ export default function WelcomeScreen({ navigation }) {
         <TouchableOpacity onPress={() => setAccepted(!accepted)}>
           <View style={[styles.checkbox, accepted && styles.checkboxChecked]}>
             {accepted && (
-              <Image 
-                source={require('../../assets/tick.png')} 
+              <Image
+                source={require('../../assets/tick.png')}
                 style={styles.tickIcon}
               />
             )}
@@ -223,27 +229,26 @@ export default function WelcomeScreen({ navigation }) {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            
-            <TouchableOpacity 
-              style={styles.modalOption} 
+            <TouchableOpacity
+              style={styles.modalOption}
               onPress={handleTakePhoto}
             >
               <Text style={styles.modalOptionText}>Take Photo</Text>
             </TouchableOpacity>
-            
+
             <View style={styles.modalDivider} />
-            
-            <TouchableOpacity 
-              style={styles.modalOption} 
+
+            <TouchableOpacity
+              style={styles.modalOption}
               onPress={handleChooseFromGallery}
             >
               <Text style={styles.modalOptionText}>Choose from Photos</Text>
             </TouchableOpacity>
-            
+
             <View style={styles.modalDivider} />
-            
-            <TouchableOpacity 
-              style={[styles.modalOption, styles.cancelOption]} 
+
+            <TouchableOpacity
+              style={[styles.modalOption, styles.cancelOption]}
               onPress={() => setImagePickerVisible(false)}
             >
               <Text style={styles.cancelOptionText}>Cancel</Text>
@@ -265,7 +270,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 28 * SCALE,
     fontWeight: '800',
-    color: '#1d3f72',
+    color: '#032F27',
     marginBottom: 4,
   },
   subtitle: {
@@ -282,7 +287,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 1.2,
-    borderColor: '#1d3f72',
+    borderColor: '#032F27',
     borderRadius: 10,
     paddingHorizontal: 12,
     marginTop: 6,
@@ -295,7 +300,7 @@ const styles = StyleSheet.create({
   iconBox: {
     width: 20 * SCALE,
     height: 20 * SCALE,
-    backgroundColor: '#1d3f72',
+    backgroundColor: '#032F27',
     borderRadius: 5,
   },
   photoRow: {
@@ -308,7 +313,7 @@ const styles = StyleSheet.create({
     height: 80 * SCALE,
     borderRadius: 80,
     borderWidth: 3,
-    borderColor: '#1d3f72',
+    borderColor: '#032F27',
     justifyContent: 'center',
     alignItems: 'center',
     position: 'relative',
@@ -322,7 +327,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: -4,
     right: -6,
-    backgroundColor: '#1d3f72',
+    backgroundColor: '#032F27',
     borderRadius: 20,
     padding: 4,
   },
@@ -330,7 +335,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     top: -8,
     right: -8,
-    backgroundColor: '#1d3f72',
+    backgroundColor: '#032F27',
     borderRadius: 12,
     width: 24,
     height: 24,
@@ -360,14 +365,14 @@ const styles = StyleSheet.create({
     width: 20 * SCALE,
     height: 20 * SCALE,
     borderWidth: 1.6,
-    borderColor: '#1d3f72',
+    borderColor: '#032F27',
     borderRadius: 5,
     marginRight: 10,
     justifyContent: 'center',
     alignItems: 'center',
   },
   checkboxChecked: {
-    backgroundColor: '#1d3f72',
+    backgroundColor: '#032F27',
   },
   tickIcon: {
     width: 14 * SCALE,
@@ -378,12 +383,12 @@ const styles = StyleSheet.create({
     fontSize: 13 * SCALE,
   },
   termsLink: {
-    color: '#1d3f72',
+    color: '#032F27',
     fontWeight: '600',
     textDecorationLine: 'underline',
   },
   submitButton: {
-    backgroundColor: '#1d3f72',
+    backgroundColor: '#032F27',
     height: 50 * SCALE,
     borderRadius: 12,
     justifyContent: 'center',
@@ -414,7 +419,7 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     textAlign: 'center',
     marginVertical: 15,
-    color: '#1d3f72',
+    color: '#032F27',
   },
   modalOption: {
     paddingVertical: 18,
@@ -422,7 +427,7 @@ const styles = StyleSheet.create({
   },
   modalOptionText: {
     fontSize: 18,
-    color: '#1d3f72',
+    color: '#032F27',
     fontWeight: '500',
   },
   modalDivider: {

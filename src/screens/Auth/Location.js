@@ -33,7 +33,10 @@ export default function Location({ navigation }) {
     >
       {/* HEADER */}
       <View style={styles.headerContainer}>
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
+        <TouchableOpacity
+          style={styles.backBtn}
+          onPress={() => navigation.goBack()}
+        >
           <Image
             source={require('../../assets/back.png')}
             style={{ width: 26, height: 26 }}
@@ -63,7 +66,12 @@ export default function Location({ navigation }) {
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Image
             source={require('../../assets/location2.png')}
-            style={{ width: 24, height: 24, marginRight: 10, tintColor: '#1d3f72' }}
+            style={{
+              width: 24,
+              height: 24,
+              marginRight: 10,
+              tintColor: '#032F27',
+            }}
           />
           <Text style={styles.currentLocation}>Use Current location</Text>
         </View>
@@ -73,7 +81,7 @@ export default function Location({ navigation }) {
         <TouchableOpacity style={styles.rightArrow}>
           <Image
             source={require('../../assets/tick.png')}
-            style={{ width: 18, height: 18, tintColor: '#1d3f72' }}
+            style={{ width: 18, height: 18, tintColor: '#032F27' }}
           />
         </TouchableOpacity>
 
@@ -88,7 +96,7 @@ export default function Location({ navigation }) {
       {/* LOADING OVERLAY (same as OTPScreen) */}
       {loading && (
         <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#1d3f72" />
+          <ActivityIndicator size="large" color="#032F27" /> //032F27 1d3f72
         </View>
       )}
     </ImageBackground>
@@ -156,7 +164,7 @@ const styles = StyleSheet.create({
   currentLocation: {
     fontSize: 16,
     fontWeight: '700',
-    color: '#1d3f72',
+    color: '#032F27',
   },
 
   address: {
@@ -183,7 +191,7 @@ const styles = StyleSheet.create({
     position: 'absolute',
     bottom: 40,
     alignSelf: 'center',
-    backgroundColor: '#1d3f72',
+    backgroundColor: '#032F27',
     width: width * 0.88,
     height: 58,
     borderRadius: 16,

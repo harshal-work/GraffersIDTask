@@ -193,7 +193,7 @@ const Profile = () => {
             style={styles.optionRow}
             onPress={() =>
               openPopup('Are you sure you want to logout?', () =>
-                navigation.navigate('SignIn'),
+                navigation.navigate('Login'),
               )
             }
             activeOpacity={0.7}
