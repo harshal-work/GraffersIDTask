@@ -20,7 +20,7 @@ const PURPLE = '#211b47';
 // ✅ FIXED: Using MOCK data + fallback API that works on Android emulator
 const generateMockCompanies = (count = 20, startId = 1) => {
   const companyLogos = [
-    require('../../../assets/splash.jpg'),
+    require('../../../assets/splash.png'),
     require('../../../assets/s2.png'),
     require('../../../assets/s3.png')
   ];
@@ -200,7 +200,7 @@ export default function SeeAllScreen({ route, navigation }) {
         <Image 
           source={item.logo} 
           style={[styles.companyLogo, { width: scaleWidth(60), height: scaleHeight(60) }]} 
-          defaultSource={require('../../../assets/splash.jpg')}
+          defaultSource={require('../../../assets/splash.png')}
         />
 
         {/* COMPANY DETAILS */}

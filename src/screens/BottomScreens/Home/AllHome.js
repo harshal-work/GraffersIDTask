@@ -28,7 +28,7 @@ const companies = {
       rating: 4.5,
       reviews: 41,
       founded: '01-01-2016',
-      logo: require('../../../assets/splash.jpg'),
+      logo: require('../../../assets/splash.png'),
       description: 'Leading web and mobile app development company in Indore.',
       category: 'Web & App Development',
       employees: '50-100',
@@ -66,7 +66,7 @@ const companies = {
       rating: 4.7,
       reviews: 52,
       founded: '15-03-2018',
-      logo: require('../../../assets/splash.jpg'),
+      logo: require('../../../assets/splash.png'),
       description: 'Digital transformation services in Bhopal.',
       category: 'Digital Solutions',
       employees: '30-60',
@@ -104,7 +104,7 @@ const companies = {
       rating: 4.4,
       reviews: 45,
       founded: '05-12-2019',
-      logo: require('../../../assets/splash.jpg'),
+      logo: require('../../../assets/splash.png'),
       description: 'Agile software development team.',
       category: 'Software Development',
       employees: '25-50',
@@ -145,7 +145,7 @@ export default function HomeScreen() {
   const [address, setAddress] = useState('');
   const [rating, setRating] = useState('');
   const [description, setDescription] = useState('');
-  const [logoImage] = useState(require('../../../assets/splash.jpg'));
+  const [logoImage] = useState(require('../../../assets/splash.png'));
 
   const cities = [
     { label: 'All Cities', key: 'all' },
