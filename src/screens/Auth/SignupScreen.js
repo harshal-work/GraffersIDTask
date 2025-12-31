@@ -244,7 +244,7 @@ const styles = StyleSheet.create({
     marginBottom: 14,
     borderColor: '#d1d5db',
   },
-  passwordInput: { flex: 1, paddingVertical: 14 },
+  passwordInput: { flex: 1, paddingVertical: 14, color: '#000' },
   eye: { width: 22, height: 22 },
   error: { borderColor: '#ef4444' },
   btn: {

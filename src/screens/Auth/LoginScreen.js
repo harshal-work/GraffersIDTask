@@ -177,6 +177,7 @@ const styles = StyleSheet.create({
   input: {
     fontSize: 15,
     paddingRight: 44,
+    color: '#000',
   },
   eyeBtn: {
     position: 'absolute',
