@@ -369,7 +369,7 @@ export default function HomeScreen() {
             />
             <TextInput
               placeholder="Search companies..."
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="gray"
               style={[styles.searchInput, { fontSize: scaleFont(13) }]}
               value={searchQuery}
               onChangeText={setSearchQuery}
@@ -695,7 +695,7 @@ export default function HomeScreen() {
                   value={companyName}
                   onChangeText={setCompanyName}
                   placeholder="Enter company name"
-                  placeholderTextColor="#9ca3af"
+              placeholderTextColor="gray"
                   autoCapitalize="words"
                 />
               </View>
@@ -707,7 +707,7 @@ export default function HomeScreen() {
                   value={foundedYear}
                   onChangeText={setFoundedYear}
                   placeholder="MM-DD-YYYY"
-                  placeholderTextColor="#9ca3af"
+              placeholderTextColor="gray"
                   keyboardType="numeric"
                 />
               </View>
@@ -719,7 +719,7 @@ export default function HomeScreen() {
                   value={address}
                   onChangeText={setAddress}
                   placeholder="Enter complete address with city"
-                  placeholderTextColor="#9ca3af"
+              placeholderTextColor="gray"
                   multiline
                   numberOfLines={3}
                   textAlignVertical="top"
@@ -733,7 +733,7 @@ export default function HomeScreen() {
                   value={rating}
                   onChangeText={setRating}
                   placeholder="4.5"
-                  placeholderTextColor="#9ca3af"
+              placeholderTextColor="gray"
                   keyboardType="decimal-pad"
                   maxLength={4}
                 />
@@ -746,7 +746,7 @@ export default function HomeScreen() {
                   value={description}
                   onChangeText={setDescription}
                   placeholder="Write about the company..."
-                  placeholderTextColor="#9ca3af"
+              placeholderTextColor="gray"
                   multiline
                   numberOfLines={4}
                   textAlignVertical="top"

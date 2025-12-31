@@ -422,7 +422,7 @@ export default function CompanyDetailScreen({ route, navigation }) {
             <TextInput
               style={[styles.searchInput, { fontSize: scaleFont(14) }]}
               placeholder="Search reviews..."
-              placeholderTextColor="#9ca3af"
+              placeholderTextColor="gray"
               value={searchQuery}
               onChangeText={handleSearch}
             />
@@ -541,7 +541,7 @@ export default function CompanyDetailScreen({ route, navigation }) {
                     { fontSize: scaleFont(15), height: scaleHeight(48) }
                   ]}
                   placeholder="Enter your name"
-                  placeholderTextColor="#9ca3af"
+              placeholderTextColor="gray"
                   value={newReview.userName}
                   onChangeText={(text) => setNewReview({ ...newReview, userName: text })}
                 />
@@ -561,7 +561,7 @@ export default function CompanyDetailScreen({ route, navigation }) {
                     }
                   ]}
                   placeholder="Share your experience with this company..."
-                  placeholderTextColor="#9ca3af"
+              placeholderTextColor="gray"
                   multiline
                   numberOfLines={5}
                   value={newReview.review}
