@@ -15,10 +15,10 @@ export const ColorProvider = ({ children }) => {
   // };
 
   const categoryColors = {
-    ALL: '#032F27',
-    GROCERY: '#032F27',
-    ELECTRONICS: '#032F27',
-    HEALTH: '#032F27',
+    ALL: '#7A1FFF',
+    GROCERY: '#7A1FFF',
+    ELECTRONICS: '#7A1FFF',
+    HEALTH: '#7A1FFF',
   };
 
   // const categoryColors = {

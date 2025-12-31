@@ -1,320 +1,228 @@
-// screens/LoginScreen/LoginScreen.tsx
-import React, { useState, useRef } from 'react';
+// src/screens/auth/LoginScreen.tsx
+import React, { useState } from 'react';
 import {
   View,
   Text,
   StyleSheet,
-  Image,
   TextInput,
   TouchableOpacity,
-  Dimensions,
-  ScrollView,
+  Image,
   KeyboardAvoidingView,
   Platform,
-  Keyboard,
-  TouchableWithoutFeedback,
-  Animated,
+  Modal,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
-export default function LoginScreen({ navigation }: any) {
-  const [phoneNumber, setPhoneNumber] = useState('');
-  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
-  const scrollViewRef = useRef < ScrollView > null;
-  const inputRef = useRef < TextInput > null;
-  const scrollY = useRef(new Animated.Value(0)).current;
+export default function LoginScreen({ navigation }: { navigation: any }) {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [popup, setPopup] = useState('');
 
-  // Handle keyboard visibility
-  React.useEffect(() => {
-    const keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      () => {
-        setKeyboardVisible(true);
-        // Scroll to input when keyboard appears
-        setTimeout(() => {
-          scrollViewRef.current?.scrollTo({
-            y: 200,
-            animated: true,
-          });
-        }, 100);
-      },
-    );
+  const isValid = email.length > 5 && password.length >= 8;
 
-    const keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      () => {
-        setKeyboardVisible(false);
-        // Scroll back to top when keyboard hides
-        setTimeout(() => {
-          scrollViewRef.current?.scrollTo({
-            y: 0,
-            animated: true,
-          });
-        }, 100);
-      },
-    );
+  const handleLogin = async () => {
+    try {
+      const savedUser = await AsyncStorage.getItem('USER');
+      
+      if (!savedUser) {
+        setPopup('No account found. Please sign up first.');
+        return;
+      }
 
-    return () => {
-      keyboardDidShowListener.remove();
-      keyboardDidHideListener.remove();
-    };
-  }, []);
+      const user = JSON.parse(savedUser);
 
-  const handlePhoneNumberChange = (text: string) => {
-    // Only allow numbers
-    const formattedText = text.replace(/[^0-9]/g, '');
-    setPhoneNumber(formattedText);
-  };
+      if (user.email !== email) {
+        setPopup('User not found. Please sign up first.');
+        return;
+      }
 
-  const handleSendOTP = () => {
-    if (phoneNumber.length === 10) {
-      Keyboard.dismiss();
+      if (user.password !== password) {
+        setPopup('Incorrect password. Please try again.');
+        return;
+      }
+
+      // Set login status
+      await AsyncStorage.setItem('IS_LOGGED_IN', 'true');
+      
+      setPopup('Login successful');
+
       setTimeout(() => {
-        navigation.replace('OTP');
-      }, 300);
+        setPopup('');
+        navigation.replace('Main');
+      }, 1000);
+    } catch (error) {
+      setPopup('Login failed. Please try again.');
     }
-  };
-
-  const handleContentSizeChange = () => {
-    // Auto-scroll to input when typing
-    if (isKeyboardVisible && phoneNumber.length > 7) {
-      setTimeout(() => {
-        scrollViewRef.current?.scrollTo({
-          y: 250,
-          animated: true,
-        });
-      }, 50);
-    }
-  };
-
-  const handleScroll = (event: any) => {
-    scrollY.setValue(event.nativeEvent.contentOffset.y);
-  };
-
-  const handleOutsidePress = () => {
-    Keyboard.dismiss();
   };
 
   return (
     <KeyboardAvoidingView
       style={styles.container}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
-      <TouchableWithoutFeedback onPress={handleOutsidePress}>
-        <ScrollView
-          ref={scrollViewRef}
-          contentContainerStyle={styles.scrollContainer}
-          showsVerticalScrollIndicator={false}
-          keyboardShouldPersistTaps="handled"
-          onScroll={handleScroll}
-          scrollEventThrottle={16}
-          bounces={false}
-        >
-          <Image
-            source={require('../../assets/loginimage.png')}
-            style={[
-              styles.topImage,
-              isKeyboardVisible && styles.topImageKeyboardOpen,
-            ]}
-            resizeMode="cover"
+      <View style={styles.card}>
+        <Image
+          source={require('../../assets/splash.png')}
+          style={styles.logo}
+        />
+
+        <Text style={styles.title}>Graffers ID</Text>
+        <Text style={styles.subtitle}>Login to continue</Text>
+
+        <View style={styles.inputBox}>
+          <TextInput
+            placeholder="Email"
+            keyboardType="email-address"
+            autoCapitalize="none"
+            style={styles.input}
+            value={email}
+            onChangeText={setEmail}
           />
+        </View>
 
-          <View style={styles.sheet}>
+        <View style={styles.inputBox}>
+          <TextInput
+            placeholder="Password"
+            secureTextEntry={!showPassword}
+            style={styles.input}
+            value={password}
+            onChangeText={setPassword}
+          />
+          <TouchableOpacity
+            style={styles.eyeBtn}
+            onPress={() => setShowPassword(!showPassword)}
+          >
             <Image
-              source={require('../../assets/splash.png')}
-              style={styles.logo}
-              resizeMode="contain"
+              source={
+                showPassword
+                  ? require('../../assets/eyeon.png')
+                  : require('../../assets/eyeoff.png')
+              }
+              style={styles.eyeIcon}
             />
+          </TouchableOpacity>
+        </View>
 
-            <Text style={styles.desc}>
-              <Text style={styles.descBold}>Welcome to </Text>
-              <Text style={styles.brandText}>Vinsta </Text>
-              Get Essential grocery product's delivered at anywhere anytime home
-              instantly
-            </Text>
+        <TouchableOpacity
+          style={[styles.loginBtn, !isValid && styles.disabledBtn]}
+          disabled={!isValid}
+          onPress={handleLogin}
+        >
+          <Text style={styles.loginText}>Login</Text>
+        </TouchableOpacity>
 
-            <Text style={styles.label}>Please Enter Your Mobile Number</Text>
+        <TouchableOpacity onPress={() => navigation.navigate('Signup')}>
+          <Text style={styles.link}>Create New Account</Text>
+        </TouchableOpacity>
+      </View>
 
-            <View style={styles.inputWrapper}>
-              <Text style={styles.countryCode}>+91</Text>
-              <TextInput
-                ref={inputRef}
-                style={styles.input}
-                placeholder="Enter your 10 digit mobile number"
-                placeholderTextColor="#999"
-                keyboardType="phone-pad"
-                value={phoneNumber}
-                onChangeText={handlePhoneNumberChange}
-                maxLength={10}
-                returnKeyType="done"
-                onSubmitEditing={handleSendOTP}
-                onFocus={() => {
-                  setKeyboardVisible(true);
-                  setTimeout(() => {
-                    scrollViewRef.current?.scrollTo({
-                      y: 200,
-                      animated: true,
-                    });
-                  }, 100);
-                }}
-                onBlur={() => {
-                  setKeyboardVisible(false);
-                }}
-                onContentSizeChange={handleContentSizeChange}
-                autoCorrect={false}
-              />
-            </View>
-
-            <TouchableOpacity
-              style={[
-                styles.btn,
-                phoneNumber.length !== 10 && styles.btnDisabled,
-              ]}
-              onPress={handleSendOTP}
-              disabled={phoneNumber.length !== 10}
-              activeOpacity={0.8}
-            >
-              <Text style={styles.btnText}>Send OTP</Text>
+      {/* Popup Modal */}
+      <Modal transparent visible={popup.length > 0} animationType="fade">
+        <View style={styles.popupBg}>
+          <View style={styles.popup}>
+            <Text style={styles.popupText}>{popup}</Text>
+            <TouchableOpacity onPress={() => setPopup('')}>
+              <Text style={styles.popupBtn}>OK</Text>
             </TouchableOpacity>
-
-            <View style={styles.emailRow}>
-              <Image
-                source={require('../../assets/gmail.png')}
-                style={styles.gmailIcon}
-              />
-              <Text style={styles.emailText}>Get O.T.P. through email</Text>
-            </View>
           </View>
-
-          {/* Add extra space at bottom for better scrolling on keyboard open */}
-          {isKeyboardVisible && <View style={styles.keyboardSpacer} />}
-        </ScrollView>
-      </TouchableWithoutFeedback>
+        </View>
+      </Modal>
     </KeyboardAvoidingView>
   );
 }
 
-const { width, height } = Dimensions.get('window');
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#eef2f7',
+    justifyContent: 'center',
+    padding: 20,
   },
-  scrollContainer: {
-    flexGrow: 1,
-  },
-  topImage: {
-    width: '100%',
-    height: height * 0.45,
-  },
-  topImageKeyboardOpen: {
-    height: height * 0.35, // Reduce image height when keyboard is open
-  },
-  sheet: {
-    flex: 1,
+  card: {
     backgroundColor: '#fff',
-    borderTopLeftRadius: 28,
-    borderTopRightRadius: 28,
-    marginTop: -30,
-    paddingHorizontal: 24,
-    paddingTop: 32,
-    paddingBottom: 40,
-    elevation: 4,
-    shadowColor: '#000',
-    shadowOpacity: 0.12,
-    shadowRadius: 6,
-    minHeight: height * 0.6, // Ensure sheet has minimum height
+    borderRadius: 20,
+    padding: 24,
+    elevation: 6,
   },
   logo: {
-    width: 75,
-    height: 75,
+    width: 90,
+    height: 90,
     alignSelf: 'center',
-    marginBottom: 16,
+    marginBottom: 20,
   },
-  desc: {
-    fontSize: 14,
+  title: {
+    fontSize: 24,
+    fontWeight: '800',
     textAlign: 'center',
-    lineHeight: 22,
-    color: '#333',
-    marginBottom: 30,
-    fontWeight: '700',
   },
-  descBold: {
-    fontWeight: '700',
-  },
-  brandText: {
-    color: '#e38b2c',
-    fontWeight: '700',
-  },
-  label: {
-    fontSize: 14,
-    marginBottom: 10,
-    color: '#000',
-    fontWeight: '600',
-  },
-  inputWrapper: {
-    borderWidth: 1.5,
-    borderColor: '#d0d4da',
-    borderRadius: 10,
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingHorizontal: 14,
-    height: 52,
+  subtitle: {
+    textAlign: 'center',
+    color: '#6b7280',
     marginBottom: 24,
-    backgroundColor: '#fff',
   },
-  countryCode: {
-    fontSize: 16,
-    marginRight: 10,
-    fontWeight: '600',
-    color: '#000',
+  inputBox: {
+    borderWidth: 1,
+    borderRadius: 14,
+    height: 54,
+    justifyContent: 'center',
+    paddingHorizontal: 14,
+    marginBottom: 16,
+    borderColor: '#d1d5db',
   },
   input: {
-    flex: 1,
-    fontSize: 16,
-    color: '#000',
-    paddingVertical: 8,
+    fontSize: 15,
+    paddingRight: 44,
   },
-  btn: {
-    backgroundColor: '#032F27',
-    height: 52,
-    borderRadius: 12,
-    alignItems: 'center',
+  eyeBtn: {
+    position: 'absolute',
+    right: 14,
+  },
+  eyeIcon: {
+    width: 22,
+    height: 22,
+  },
+  loginBtn: {
+    backgroundColor: '#211b47',
+    height: 54,
+    borderRadius: 16,
     justifyContent: 'center',
-    marginBottom: 28,
-    shadowColor: '#032F27',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 3,
+    alignItems: 'center',
   },
-  btnDisabled: {
-    backgroundColor: '#a0aec0',
-    shadowOpacity: 0,
+  disabledBtn: {
+    backgroundColor: '#9ca3af',
   },
-  btnText: {
+  loginText: {
     color: '#fff',
-    fontSize: 17,
+    fontWeight: '700',
+    fontSize: 16,
+  },
+  link: {
+    marginTop: 20,
+    textAlign: 'center',
+    color: '#211b47',
     fontWeight: '700',
   },
-  emailRow: {
-    flexDirection: 'row',
+  popupBg: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.4)',
+    justifyContent: 'center',
     alignItems: 'center',
-    alignSelf: 'center',
-    marginTop: 4,
   },
-  gmailIcon: {
-    width: 34,
-    height: 34,
-    marginRight: 8,
+  popup: {
+    backgroundColor: '#fff',
+    padding: 24,
+    borderRadius: 16,
+    width: '80%',
+    alignItems: 'center',
   },
-  emailText: {
+  popupText: {
     fontSize: 15,
-    color: '#222',
-    fontWeight: '500',
+    marginBottom: 12,
+    textAlign: 'center',
   },
-  keyboardSpacer: {
-    height: Platform.OS === 'ios' ? 100 : 50,
+  popupBtn: {
+    fontWeight: '700',
+    color: '#211b47',
   },
 });

@@ -15,7 +15,7 @@ export default function BottomNavigator() {
 
   const icons = {
     // Offers: require('../assets/blueoffer.png'),
-    MyCart: require('../assets/bluecart.png'),
+    MyCart: require('../assets/drawer.png'),
     // Order: require('../assets/blueorder.png'),
     Profile: require('../assets/blueprofile.png'),
     Home: require('../assets/Home.png'),
@@ -32,7 +32,7 @@ export default function BottomNavigator() {
           style={{
             width: 20,
             height: 20,
-            tintColor: focused ? bgColor : '#222',
+            tintColor: focused ? bgColor : '#7A1FFF',
           }}
         />
         <Text
@@ -43,7 +43,7 @@ export default function BottomNavigator() {
             fontWeight: focused ? '600' : '400',
           }}
         >
-          {routeName === 'MyCart' ? 'My Cart' : routeName}
+          {routeName === 'MyCart' ? 'Drawer' : routeName}
         </Text>
       </View>
     );
@@ -67,7 +67,7 @@ export default function BottomNavigator() {
             style={{
               width: 26,
               height: 26,
-              tintColor: bgColor,
+              tintColor: '#7A1FFF',
             }}
           />
         </TouchableOpacity>

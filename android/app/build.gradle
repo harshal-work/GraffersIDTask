@@ -85,6 +85,12 @@ android {
         versionCode 1
         versionName "1.0"
     }
+        packagingOptions {
+            pickFirst 'lib/arm64-v8a/libworklets.so'
+        pickFirst 'lib/armeabi-v7a/libworklets.so'
+        pickFirst 'lib/x86/libworklets.so'
+        pickFirst 'lib/x86_64/libworklets.so'
+        }
     signingConfigs {
         debug {
             storeFile file('debug.keystore')

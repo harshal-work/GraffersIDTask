@@ -11,6 +11,7 @@ import SplashScreen from '../screens/Auth/SplashScreen';
 import OTPScreen from '../screens/Auth/OTPScreen';
 import Location from '../screens/Auth/Location';
 
+
 // Home/Search
 import Search from '../screens/BottomScreens/Home/Search/search';
 import Items from '../screens/BottomScreens/Home/Search/Items';
@@ -45,6 +46,10 @@ import ReferToEarn from '../screens/BottomScreens/Profile/Refertoearn';
 import Support from '../screens/BottomScreens/Profile/Support';
 import Help from '../screens/BottomScreens/Profile/Help';
 import Settings from '../screens/BottomScreens/Profile/Settings';
+import SignupScreen from '../screens/Auth/SignupScreen';
+import CompanyDetailScreen from '../screens/BottomScreens/Home/CompanyDetailScreen';
+import SeeAll from '../screens/BottomScreens/Home/SeeAll';
+
 
 const Stack = createStackNavigator();
 
@@ -69,6 +74,7 @@ export default function AppNavigator() {
         <Stack.Screen name="Filter" component={Filter} />
         <Stack.Screen name="HomeFilter" component={HomeFilter} />
         <Stack.Screen name="StoreList" component={StoreList} />
+
 
         {/* Other Screens */}
         <Stack.Screen name="OffersClone" component={OffersClone} />
@@ -96,6 +102,9 @@ export default function AppNavigator() {
         <Stack.Screen name="Support" component={Support} />
         <Stack.Screen name="Help" component={Help} />
         <Stack.Screen name="Settings" component={Settings} />
+        <Stack.Screen name="Signup" component={SignupScreen} />
+        <Stack.Screen name="CompanyDetailScreen" component={CompanyDetailScreen} />
+        <Stack.Screen name="SeeAll" component={SeeAll} />
       </Stack.Navigator>
     </NavigationContainer>
   );
