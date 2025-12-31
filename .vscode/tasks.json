@@ -1,0 +1,10 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Remove duplicate splash jpg",
+			"type": "shell",
+			"command": "rm /Users/apple/Desktop/HMS/Task/Graffers/android/app/build/generated/res/createBundleReleaseJsAndAssets/drawable-mdpi/src_assets_splash.jpg"
+		}
+	]
+}
